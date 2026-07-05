@@ -127,7 +127,7 @@ main {
 
 .locale-toggle {
   min-height: 26px;
-  border: 1.5px dashed #555;
+  border: 2.5px dashed #555;
   border-radius: 3px;
   margin-left: 2px;
   padding: 2px 7px;
@@ -509,15 +509,15 @@ main {
 .section-title::before {
   left: 0;
   top: 0;
-  border-left: 2px dashed;
-  border-top: 2px dashed;
+  border-left: 3px dashed;
+  border-top: 3px dashed;
 }
 
 .section-title::after {
   right: 0;
   bottom: 0;
-  border-right: 2px dashed;
-  border-bottom: 2px dashed;
+  border-right: 3px dashed;
+  border-bottom: 3px dashed;
 }
 
 .skills-marquees {
@@ -598,7 +598,7 @@ main {
 }
 
 .dashed {
-  border: 1.5px dashed #444;
+  border: 2.5px dashed #444;
   background: transparent;
 }
 
@@ -613,7 +613,7 @@ main {
   top: 8px;
   bottom: 8px;
   left: 30px;
-  border-left: 2px dashed #3d4144;
+  border-left: 3px dashed #3d4144;
 }
 
 .experience-item {
@@ -627,6 +627,10 @@ main {
   gap: 10px;
   align-items: center;
   min-height: 66px;
+}
+
+.experience-copy {
+  min-width: 0;
 }
 
 .dot {
@@ -679,8 +683,10 @@ main {
 
 .experience-item h3 {
   display: flex;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 4px 6px;
   align-items: center;
+  min-width: 0;
   margin: 0 0 4px;
   font-size: 14px;
   font-weight: 650;
@@ -688,11 +694,28 @@ main {
 
 .experience-item h3 a {
   display: inline-flex;
+  flex: 0 1 auto;
   gap: 5px;
   align-items: center;
   min-width: 0;
+  max-width: 100%;
   color: #fff;
   text-decoration: none;
+}
+
+.experience-item h3 a svg {
+  flex-shrink: 0;
+}
+
+.company-name {
+  overflow: hidden;
+  min-width: 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.experience-item h3 small {
+  flex-shrink: 0;
 }
 
 .experience-item p,
@@ -801,9 +824,71 @@ small.red {
 }
 
 .cell {
+  position: relative;
   display: block;
   border-radius: 3px;
   background: #202224;
+}
+
+.cell[data-tooltip]::after,
+.cell[data-tooltip]::before {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 120ms ease;
+  pointer-events: none;
+}
+
+.cell[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 9px);
+  left: 50%;
+  z-index: 20;
+  width: max-content;
+  max-width: 150px;
+  transform: translateX(-50%);
+  border-radius: 5px;
+  padding: 5px 9px;
+  background: #1c1e20;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  color: #f2f2f2;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+  white-space: normal;
+}
+
+.cell:nth-child(35n + 1)[data-tooltip]::after,
+.cell:nth-child(35n + 2)[data-tooltip]::after,
+.cell:nth-child(35n + 3)[data-tooltip]::after {
+  left: 0;
+  transform: none;
+}
+
+.cell:nth-child(35n)[data-tooltip]::after,
+.cell:nth-child(35n + 34)[data-tooltip]::after,
+.cell:nth-child(35n + 33)[data-tooltip]::after {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.cell[data-tooltip]::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  z-index: 20;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1c1e20;
+}
+
+.cell[data-tooltip]:hover::after,
+.cell[data-tooltip]:hover::before {
+  opacity: 1;
+  visibility: visible;
 }
 
 .level-1 {
@@ -955,7 +1040,7 @@ small.red {
   align-items: center;
   gap: 6px;
   min-height: 26px;
-  border: 1.5px dashed #444;
+  border: 2.5px dashed #444;
   padding: 3px 8px;
   background: #1a1b1c;
   color: #fff;
@@ -1163,11 +1248,11 @@ footer {
   }
 
   .contribution-foot {
-    font-size: 14px;
-  }
-
-  .contribution-foot {
+    position: sticky;
+    left: 0;
     flex-direction: column;
+    width: min(calc(100vw - 78px), 100%);
+    font-size: 14px;
   }
 }
 

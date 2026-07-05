@@ -165,7 +165,7 @@ const experience = [
     date: 'Feb 2023 - Apr 2023',
     dateJa: '2023年2月 - 2023年4月',
     icon: Plane,
-    logo: 'https://www.jal.com/favicon.ico',
+    logo: '/assets/jal-favicon.png',
     url: 'https://www.jal.com/',
     tone: 'red',
     details: [
@@ -217,6 +217,7 @@ const copy = {
     months: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
     less: 'Less',
     more: 'More',
+    dayTooltip: (count, dateLabel) => `${count} contribution${count === 1 ? '' : 's'} on ${dateLabel}`,
   },
   ja: {
     lang: 'English',
@@ -248,10 +249,11 @@ const copy = {
     connectTitle: 'お問い合わせ',
     connectText: '以下のリンクからお気軽にご連絡ください',
     resume: '履歴書',
-    contribution: (total) => `今年は ${total} 件のコントリビューションを行いました`,
+    contribution: (total) => `今年は ${total} 件の貢献`,
     months: ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月'],
     less: '少',
     more: '多',
+    dayTooltip: (count, dateLabel) => `${dateLabel}に${count}件のコントリビューション`,
   },
 };
 
@@ -260,6 +262,7 @@ const projects = [
     title: 'WebDrop',
     badge: 'live app',
     image: '/assets/webdrop-site.jpg',
+    imageJa: '/assets/webdrop-site-ja.png',
     icon: Radio,
     live: 'https://web-drop-lyart.vercel.app/',
     github: 'https://github.com/MohamedFuad16/WebDrop',
@@ -273,6 +276,7 @@ const projects = [
     title: 'Tutor-System',
     badge: 'architecture',
     image: '/assets/tutor-site.jpg',
+    imageJa: '/assets/tutor-site-ja.png',
     icon: Sparkles,
     live: 'https://tutor-system-architecture.vercel.app/',
     github: 'https://github.com/MohamedFuad16/Tutor-System',
@@ -286,6 +290,7 @@ const projects = [
     title: 'TokaiHub',
     badge: 'student PWA',
     image: '/assets/tokaihub-site.jpg',
+    imageJa: '/assets/tokaihub-site-ja.png',
     icon: Smartphone,
     live: 'https://mohamedfuad16.github.io/TokaiHub/',
     github: 'https://github.com/MohamedFuad16/TokaiHub',
@@ -345,11 +350,18 @@ function SkillPill({ skill }) {
 }
 
 function useContributionData() {
-  const fallbackCells = useMemo(() => Array.from({ length: 245 }, (_, index) => {
-    const wave = Math.sin(index * 0.43) + Math.cos(index * 0.17);
-    const highlighted = index > 88 && index < 118 ? 2 : 0;
-    return Math.max(0, Math.min(4, Math.round(wave + highlighted + (index % 13 === 0 ? 2 : 0))));
-  }), []);
+  const fallbackCells = useMemo(() => {
+    const today = new Date();
+    return Array.from({ length: 245 }, (_, index) => {
+      const wave = Math.sin(index * 0.43) + Math.cos(index * 0.17);
+      const highlighted = index > 88 && index < 118 ? 2 : 0;
+      const level = Math.max(0, Math.min(4, Math.round(wave + highlighted + (index % 13 === 0 ? 2 : 0))));
+      const count = level === 0 ? 0 : level * 2 + (index % 3);
+      const cellDate = new Date(today);
+      cellDate.setDate(cellDate.getDate() - (244 - index));
+      return { date: cellDate.toISOString().slice(0, 10), count, level };
+    });
+  }, []);
   const [data, setData] = useState({ cells: fallbackCells, total: 392 });
 
   useEffect(() => {
@@ -358,7 +370,11 @@ function useContributionData() {
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error('GitHub calendar unavailable'))))
       .then((payload) => {
         if (cancelled || !Array.isArray(payload.contributions)) return;
-        const cells = payload.contributions.slice(-245).map((day) => Number(day.level) || 0);
+        const cells = payload.contributions.slice(-245).map((day) => ({
+          date: day.date,
+          count: Number(day.count) || 0,
+          level: Number(day.level) || 0,
+        }));
         setData({ cells, total: Number(payload.total?.lastYear) || 392 });
       })
       .catch(() => {});
@@ -371,7 +387,17 @@ function useContributionData() {
   return data;
 }
 
-function ContributionGrid({ t }) {
+function formatCellDate(dateStr, locale) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const date = new Date(year, (month || 1) - 1, day || 1);
+  return new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date);
+}
+
+function ContributionGrid({ t, locale }) {
   const { cells, total } = useContributionData();
 
   return (
@@ -383,8 +409,12 @@ function ContributionGrid({ t }) {
           ))}
         </div>
         <div className="grid" aria-hidden="true">
-          {cells.map((level, index) => (
-            <span key={index} className={`cell level-${level}`} />
+          {cells.map((day, index) => (
+            <span
+              key={day.date || index}
+              className={`cell level-${day.level}`}
+              data-tooltip={t.dayTooltip(day.count, formatCellDate(day.date, locale))}
+            />
           ))}
         </div>
         <div className="contribution-foot">
@@ -433,7 +463,7 @@ function ExperienceItem({ item, locale }) {
         <div className="experience-copy">
           <h3>
             <a href={item.url} target="_blank" rel="noreferrer">
-              {item.company}
+              <span className="company-name">{item.company}</span>
               <ExternalLink size={13} />
             </a>
             <small className={item.tone}>
@@ -467,10 +497,11 @@ function ExperienceItem({ item, locale }) {
 
 function ProjectCard({ project, t, locale }) {
   const Icon = project.icon;
+  const image = locale === 'ja' && project.imageJa ? project.imageJa : project.image;
   return (
     <article className="project dashed">
       <div className="project-shot">
-        <img src={project.image} alt={`${project.title} interface preview`} />
+        <img src={image} alt={`${project.title} interface preview`} />
         <span>{project.badge}</span>
       </div>
       <div className="project-body">
@@ -675,7 +706,7 @@ function App() {
         ))}
       </section>
 
-      <ContributionGrid t={t} />
+      <ContributionGrid t={t} locale={locale} />
 
       <SectionTitle>{t.projects}</SectionTitle>
       <section className="projects" id="projects">
