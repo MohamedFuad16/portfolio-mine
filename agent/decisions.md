@@ -99,3 +99,23 @@ Context: "Hotel SUI Akasaka" (and potentially other long or Japanese-locale comp
 Decision: Wrap the company name in a `.company-name` span with `white-space: nowrap; text-overflow: ellipsis`, set `min-width: 0` through the whole flex/grid chain (`.experience-summary` → `.experience-copy` → `h3` → `a`) so shrinking is actually possible, and add `flex-wrap: wrap` to the base (desktop) `h3` rule so the status badge can drop to its own line before the name is forced to wrap.
 
 Consequences: Company names never break mid-word at any width; at the narrowest tested width (320px) names ellipsize instead (e.g. "Alt…"), which is an intentional, accepted trade-off over a broken two-line wrap.
+
+## ADR-011 - 2026-07-05 - Delay `visibility` Transitions Instead of Snapping Them
+
+Status: Accepted
+
+Context: An animation/transition audit found the contribution-heatmap tooltip's fade-out was invisible in practice: `opacity` was transitioned but `visibility` (paired for accessibility/hit-testing) was not, so on mouse-out `visibility: hidden` applied instantly and the element stopped rendering before the opacity transition had a chance to play. Same root-cause class of bug could recur anywhere `opacity` + `visibility` are paired.
+
+Decision: Pair `visibility` with its own zero-duration transition and a `transition-delay` equal to the fade duration on the "hide" direction (`visibility 0ms linear 140ms`), and zero delay on the "show" direction. Applied here to the heatmap tooltip; use the same pattern for any future opacity+visibility pairing on this site.
+
+Consequences: Fade-outs are now actually visible. This is a general technique worth remembering, not a one-off fix — any new hover/tooltip treatment using `visibility` (rather than just `display`) should follow it.
+
+## ADR-012 - 2026-07-05 - Give Every Interactive Element a Transitioned Hover State
+
+Status: Accepted
+
+Context: A full animation audit found most primary interactive elements (nav/contact/project buttons, locale toggle, QR flip button, work-experience company links, the expand chevron, skill pills) either had no hover state at all or changed color/background instantly with no `transition`, which reads as abrupt/unpolished next to the site's otherwise-animated pieces (avatar flip, marquee, click-burst, accordion).
+
+Decision: Add a consistent ~160ms ease transition plus a subtle hover treatment (background lighten, ~1px lift for pill buttons, color brighten for plain links/icons) to every clickable element site-wide, rather than leaving some animated and others static.
+
+Consequences: Any new button/link component added to this site should follow the same convention — a `transition` on the properties its `:hover` rule changes, using ~160ms ease unless there's a specific reason to differ (e.g. the 220-260ms used for the chevron rotate and accordion, which are larger/slower motions by design).
