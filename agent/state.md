@@ -2,9 +2,11 @@
 
 ## Current state summary
 
-The workspace contains a Vite React portfolio clone inspired by `manixh.dev`, populated with Mohamed Fuad's CV content. The app builds successfully, runs locally on Vite, uses a yacht profile photo with a two-sided QR flip card, stable local icon components, bilingual English/Japanese copy, expandable work rows with official logos, a live GitHub-style contribution grid, page-wide click chime/burst effects, and captured project screenshots. Latest in-app browser checks showed no broken images or horizontal page overflow on mobile.
+The workspace contains a Vite React portfolio clone inspired by `manixh.dev`, populated with Mohamed Fuad's CV content. The app builds successfully, runs locally on Vite, uses a yacht profile photo with a two-sided QR flip card, stable local icon components, bilingual English/Japanese copy, expandable work rows with official logos (all local now, including JAL), a live GitHub-style contribution grid with hover tooltips, page-wide click chime/burst effects, and captured project screenshots (including Japanese-locale variants for WebDrop/Tutor-System/TokaiHub). Latest checks (2026-07-05) verified no horizontal overflow at 320/375/768/1280/1920px in both locales, no broken images, no failed network requests, and a clean production build. `node_modules`/`dist` are no longer tracked in git (see ADR-009) — run `npm install` after cloning and `npm run build` before any static-host deploy.
 
 ## Recent changes
+
+- 2026-07-05: Finished the in-progress JP-locale project screenshots (WebDrop, Tutor-System, TokaiHub) and committed them. Fixed "Hotel SUI Akasaka" (and long company names generally) wrapping mid-word in Work Experience — verified clean in EN and JA at all tested breakpoints (see ADR-010). Replaced the hotlinked JAL favicon with a local copy (ADR-008). Added hover tooltips (date + contribution count, localized, edge-aware positioning) to the contribution heatmap. Thickened the dashed-border style everywhere it's used. Added a `.gitignore` and untracked `node_modules`/`dist`/`.tools` (ADR-009). Pushed to `origin/main`.
 
 - 2026-07-04: Created the agent knowledge base and scaffolded the portfolio site from an empty workspace.
 - 2026-07-04: Fixed the Vite build script to run `vite build` instead of starting the dev server.
