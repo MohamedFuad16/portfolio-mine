@@ -669,20 +669,19 @@ main {
 
 .dot {
   position: absolute;
-  left: -25px;
+  left: -23.5px;
+  top: 33px;
   width: 10px;
   height: 10px;
+  transform: translateY(-50%);
   border-radius: 50%;
-  box-shadow: 0 0 16px currentColor;
 }
 
 .dot.green {
-  color: #10e777;
   background: #10e777;
 }
 
 .dot.red {
-  color: #ff244b;
   background: #ff244b;
 }
 
@@ -1040,8 +1039,9 @@ small.red {
 
 .project-heading {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 14px;
+  gap: 8px 14px;
   align-items: flex-start;
   margin-bottom: 8px;
 }
@@ -1049,13 +1049,19 @@ small.red {
 .project h3 {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 7px;
   margin: 0;
   font-size: 18px;
 }
 
+.project-title {
+  white-space: nowrap;
+}
+
 .project-actions {
   display: flex;
+  flex-shrink: 0;
   gap: 7px;
 }
 
@@ -1276,7 +1282,7 @@ footer {
   }
 
   .dot {
-    left: -24px;
+    left: -22.5px;
   }
 
   .experience-summary {

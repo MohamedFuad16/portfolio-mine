@@ -119,3 +119,33 @@ Context: A full animation audit found most primary interactive elements (nav/con
 Decision: Add a consistent ~160ms ease transition plus a subtle hover treatment (background lighten, ~1px lift for pill buttons, color brighten for plain links/icons) to every clickable element site-wide, rather than leaving some animated and others static.
 
 Consequences: Any new button/link component added to this site should follow the same convention — a `transition` on the properties its `:hover` rule changes, using ~160ms ease unless there's a specific reason to differ (e.g. the 220-260ms used for the chevron rotate and accordion, which are larger/slower motions by design).
+
+## ADR-013 - 2026-07-05 - Add GSAP + ScrollTrigger for Scroll Reveals via useGSAP
+
+Status: Accepted
+
+Context: The site had CSS-only motion (marquee, avatar flip, click-burst, accordion) but no entrance/scroll animation. The user asked for smooth scroll animations using the official GSAP skills (github.com/greensock/gsap-skills).
+
+Decision: Add `gsap` + `@gsap/react` (installed with pnpm — this project's `node_modules` is pnpm-managed, so raw `npm install` crashes with an arborist `isDescendantOf` error). Register `ScrollTrigger` + `useGSAP` once at module load. All animation lives in a single `useGSAP(() => {...}, { scope: mainRef })` in `App`, following the official gsap-react skill (scoped selectors, automatic cleanup). Wrap everything in `gsap.matchMedia('(prefers-reduced-motion: no-preference)')` so reduced-motion users get the natural (already-visible) layout with no `from()` applied. Reveals: hero stagger on load, section-title slide-in, generic block fade-ups, timeline line draw + row stagger, project-card stagger, contribution-grid cell ripple.
+
+Consequences: New scroll/entrance animations should be added inside the same `useGSAP` matchMedia block, not as ad-hoc effects. Bottom-of-page elements (e.g. `footer`) must use a start the page can actually scroll to reach (`top bottom-=40`), not `top 90%`, or they never fire and stay at `opacity:0`. Install new deps with pnpm, never npm.
+
+## ADR-014 - 2026-07-05 - Timeline Dots: Keep Flat Original Style, Fix Only Alignment
+
+Status: Accepted
+
+Context: The timeline status dots sat ~1.5px left of the dashed line's center. A richer dot treatment (glow ring + core highlight + pulsing "active" ring) was tried, but the user judged the perpetual pulse/glow to be bad UX and asked to keep the plain flat dot look.
+
+Decision: Keep the original flat colored 10px dot (no glow, no pulse, no pseudo-elements) but center it on the line: `left: -23.5px` (`-22.5px` under the 760px breakpoint) plus `top: 33px; transform: translateY(-50%)` to also vertically center it on the summary row. Verified all dots and the line share the same center X in the browser.
+
+Consequences: Prefer alignment/positioning fixes over decorative motion for the timeline nodes. If the dot size changes, recompute `left` so `itemLeft + left + width/2` still equals the line's center.
+
+## ADR-015 - 2026-07-05 - Project Title: nowrap + Wrapping Heading Row
+
+Status: Accepted
+
+Context: At the full 700px layout the "Tutor-System" project title broke mid-word at the hyphen because the flex heading squeezed the `h3` to fit the Live/GitHub buttons.
+
+Decision: Wrap the title text in `.project-title { white-space: nowrap }`, make `.project h3` and `.project-actions` `flex-shrink: 0`, and let `.project-heading` `flex-wrap: wrap` so the action buttons drop to a second line instead of crushing the title.
+
+Consequences: Long titles now stay on one line; if a title + actions can't fit, the actions wrap below rather than the title breaking. This supersedes the ellipsis approach (ADR-010) for project titles specifically — project titles should never be truncated.

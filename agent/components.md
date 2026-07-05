@@ -1,6 +1,6 @@
 # Components
 
-- `App`: page composition and section order.
+- `App`: page composition and section order. Holds the single `useGSAP(..., { scope: mainRef })` block (GSAP + ScrollTrigger) that drives all scroll/entrance animations, gated by `gsap.matchMedia` for reduced-motion. Add new scroll animations there, not as separate effects (see ADR-013).
 - `SectionTitle`: dashed-corner heading label matching the reference site.
 - `SkillPill`: `react-icons` component/text skill item inside two slower opposite-direction animated marquee rows; animation pauses on hover.
 - `BrandIcon`: local `react-icons` helper for LinkedIn and GitHub button icons.

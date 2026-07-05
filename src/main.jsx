@@ -1,5 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
 import {
   ArrowUpRight,
   Bot,
@@ -57,6 +60,8 @@ import {
   SiVite,
 } from 'react-icons/si';
 import './styles.css';
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const skills = [
   { label: 'Java', Icon: FaJava, color: '#df3d14' },
@@ -507,7 +512,7 @@ function ProjectCard({ project, t, locale }) {
       <div className="project-body">
         <div className="project-heading">
           <h3>
-            {project.title}
+            <span className="project-title">{project.title}</span>
             <Icon size={17} />
           </h3>
           <div className="project-actions">
@@ -567,11 +572,116 @@ function App() {
   const [burst, setBurst] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [clickBursts, setClickBursts] = useState([]);
+  const mainRef = useRef(null);
   const t = copy[locale];
 
   useEffect(() => {
     window.localStorage.setItem('portfolio-locale', locale);
   }, [locale]);
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      // Only animate when the visitor hasn't asked for reduced motion.
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const ease = 'power2.out';
+
+        // Hero enters on load with a gentle stagger.
+        gsap.from('.profile > *', {
+          y: 22,
+          opacity: 0,
+          duration: 0.7,
+          stagger: 0.12,
+          ease,
+        });
+        gsap.from('.identity > *', {
+          y: 14,
+          opacity: 0,
+          duration: 0.6,
+          stagger: 0.08,
+          delay: 0.15,
+          ease,
+        });
+
+        // Section headings slide in from the left as they appear.
+        gsap.utils.toArray('.section-title').forEach((el) => {
+          gsap.from(el, {
+            scrollTrigger: { trigger: el, start: 'top 88%' },
+            x: -16,
+            opacity: 0,
+            duration: 0.6,
+            ease,
+          });
+        });
+
+        // Generic blocks fade up when scrolled into view.
+        gsap.utils
+          .toArray(['.intro', '.actions', '.contribution', '.more-projects-row', '.blog-content', '.contact-card'])
+          .forEach((el) => {
+            gsap.from(el, {
+              scrollTrigger: { trigger: el, start: 'top 90%' },
+              y: 26,
+              opacity: 0,
+              duration: 0.7,
+              ease,
+            });
+          });
+
+        // Footer sits at the very bottom, so use a start it can always reach.
+        gsap.from('footer', {
+          scrollTrigger: { trigger: 'footer', start: 'top bottom-=40' },
+          y: 22,
+          opacity: 0,
+          duration: 0.7,
+          ease,
+        });
+
+        // Timeline: draw the dashed line, then pop the rows in sequence.
+        gsap.from('.timeline .line', {
+          scrollTrigger: { trigger: '.timeline', start: 'top 82%' },
+          scaleY: 0,
+          transformOrigin: 'top center',
+          duration: 0.8,
+          ease,
+        });
+        gsap.from('.timeline .experience-item', {
+          scrollTrigger: { trigger: '.timeline', start: 'top 80%' },
+          y: 20,
+          opacity: 0,
+          duration: 0.6,
+          stagger: 0.13,
+          ease,
+        });
+
+        // Project cards reveal with a stagger.
+        gsap.from('.projects .project', {
+          scrollTrigger: { trigger: '.projects', start: 'top 82%' },
+          y: 32,
+          opacity: 0,
+          duration: 0.7,
+          stagger: 0.15,
+          ease,
+        });
+
+        // Contribution grid ripples in cell by cell.
+        gsap.from('.contribution .grid .cell', {
+          scrollTrigger: { trigger: '.contribution', start: 'top 78%' },
+          scale: 0.3,
+          opacity: 0,
+          duration: 0.5,
+          ease,
+          stagger: { each: 0.005, from: 'start' },
+        });
+
+        // Late-loading images can shift layout; recalc trigger positions.
+        const onLoad = () => ScrollTrigger.refresh();
+        window.addEventListener('load', onLoad);
+        return () => window.removeEventListener('load', onLoad);
+      });
+    },
+    { scope: mainRef }
+  );
 
   useEffect(() => {
     const handlePointerDown = (event) => {
@@ -599,7 +709,7 @@ function App() {
   };
 
   return (
-    <main>
+    <main ref={mainRef}>
       <div className="page-click-effects" aria-hidden="true">
         {clickBursts.map((item) => (
           <span className="click-burst" key={item.id} style={{ left: item.x, top: item.y }}>
