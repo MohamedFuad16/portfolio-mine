@@ -149,3 +149,66 @@ Context: At the full 700px layout the "Tutor-System" project title broke mid-wor
 Decision: Wrap the title text in `.project-title { white-space: nowrap }`, make `.project h3` and `.project-actions` `flex-shrink: 0`, and let `.project-heading` `flex-wrap: wrap` so the action buttons drop to a second line instead of crushing the title.
 
 Consequences: Long titles now stay on one line; if a title + actions can't fit, the actions wrap below rather than the title breaking. This supersedes the ellipsis approach (ADR-010) for project titles specifically — project titles should never be truncated.
+
+## ADR-016 - 2026-07-06 - Adapt Reference-Image UI Patterns: Timeline Nodes, Segmented Locale Pill, Waveform Divider
+
+Status: Accepted
+
+Context: The user supplied three reference screenshots (a voice-agent phone UI with a Talk/Chat pill toggle and a monochrome waveform over a dotted baseline, and a "Tasks & Events" card with a node timeline: filled/checked circles for done items) and asked to adapt whatever fits the dark dashed-border theme, plus richer GSAP motion.
+
+Decision: Three adaptations. (1) Work-experience timeline nodes: past jobs are 16px hollow circles (#17191b bg, #3d4144 border) containing a small lucide `Check`; the active job is a solid #10e777 circle with no check (semantics: checked = finished, green = live). No pulse/glow — static, per the earlier ADR-014 UX ruling. Node centering math: `left = -(18.5 + width/2)` desktop, `-(17.5 + width/2)` mobile. (2) The single dashed locale button became a `.locale-switch` segmented pill (EN | 日本語) modeled on the reference's Talk/Chat control; both options always visible, `aria-pressed`, active side highlighted. (3) A decorative `WaveDivider` (dotted baseline + 17 centered bars, heights hardcoded in `waveHeights`) sits between the contact card and footer.
+
+Consequences: Timeline semantics are now encoded in the node itself (check vs solid green), so a new "current" job entry needs `tone: 'green'` and past entries any other tone. The `copy.*.lang` string and the old `.locale-toggle` styles are gone; locale is set directly per button, not toggled.
+
+## ADR-017 - 2026-07-06 - GSAP Pass 2: Coordinated Hero Timeline, Per-Card Reveals, Scrubbed Parallax, ScrollTo Anchors
+
+Status: Accepted
+
+Context: The first GSAP pass (ADR-013) used uniform fade-ups. The user asked for smoother, more advanced motion.
+
+Decision: Inside the same single `useGSAP`/matchMedia block: hero is one `gsap.timeline` (avatar scale+rise, then identity/intro/actions overlapping via negative position offsets) with `power3.out`; project cards get per-card triggers (not one container trigger) plus a `.tags span` cascade and a scrub-driven parallax on `.project-shot img` (`fromTo` yPercent -5→5 at constant `scale: 1.12`, `ease: 'none'`, trigger top-bottom→bottom-top); timeline adds a node pop (`scale` from 0, `back.out(2.4)`) — safe on `.dot` because GSAP parses the existing `translateY(-50%)` into yPercent and preserves it; contribution cells stagger `from: 'random'`; wave bars grow `from: 'center'`; the hero `#projects` anchor uses ScrollToPlugin via a `contextSafe` click handler (reduced-motion users keep the native jump).
+
+Consequences: Parallax needs the 1.12 scale to hide the ±5% drift — if the drift is increased, increase the scale margin to match. Event handlers added inside the matchMedia callback must be removed in its single returned cleanup. Verified: all reveal targets reach opacity 1 on scroll-through, parallax transform provably changes sign across the viewport, EN/JA both overflow-free at 375/desktop, production build clean.
+
+## ADR-018 - 2026-07-06 - ScrollSmoother + DrawSVG Signature + SplitText: the Three Gotchas That Cost Debugging Time
+
+Status: Accepted
+
+Context: Added GSAP's (now-free, v3.13+) bonus plugins — ScrollSmoother, DrawSVGPlugin, SplitText — plus an avatar lightbox and a Great Vibes "Mohamed Fuad" signature drawn on scroll.
+
+Decision & gotchas (all verified empirically in this session):
+1. **Scoped useGSAP contexts can't resolve ancestor selectors.** `ScrollSmoother.create({ wrapper: '#smooth-wrapper' })` inside `useGSAP(..., { scope: mainRef })` resolved the selector INSIDE `main`, found nothing (the wrapper is main's ancestor), and silently auto-created its own wrapper — smoothing dead, layout mangled, signature trigger at end-state. Fix: pass DOM refs (`smoothWrapperRef.current`) to any plugin whose targets live outside the scope. `position: fixed` UI (click-burst layer, avatar lightbox) must sit OUTSIDE `#smooth-content` or transforms break it.
+2. **opentype.js `toPathData()` emits fused numbers.** The generated d contained `...152.20Q...` — "152.2" and "0" with no separator. The browser parses up to the bad token and silently discards the rest: only "Moh" rendered, `getBBox()` 186 of 547 units, while the DOM attribute looked complete (13.5k chars). Fix: serialize `path.commands` manually with explicit spaces (scratchpad `gen-signature.js`); also `opentype.load()` is dead in v2 (use `parse(arrayBuffer)`), and Great Vibes' GSUB tables crash `font.getPath()` for full strings — assemble glyph-by-glyph with `charToGlyph` + `getKerningValue` + advances.
+3. **Load-time staggered from()-tweens on children of flex rows caused the "OR pushed up" bug.** Children of `.actions` froze with inconsistent inline `translateY(14px)` (tab-visibility rAF throttling + per-child CSS transform transitions fighting GSAP). Fix: entrance animations animate CONTAINERS (`.profile`, `.intro`, `.actions`) with `clearProps: 'transform,opacity'` in defaults; per-child load-time staggers are reserved for elements with no CSS transform transitions (SplitText chars, which revert on complete).
+
+Consequences: any future ScrollSmoother/plugin call inside the scoped useGSAP must use refs for out-of-scope elements; regenerating the signature means editing the scratchpad generator, never toPathData; keep entrance animation at container granularity. Desktop (≥761px) pins the signature and scrubs the draw (`start: 'center 75%', end: '+=300'` — chosen so the pin's end stays reachable given the short tail below); mobile plays a timed draw on enter.
+
+## ADR-019 - 2026-07-06 - Round-2 Reference Adaptations and Responsive Restructure
+
+Status: Accepted
+
+Context: User supplied more reference shots (integration-pipeline card with floating icons; "hello" DrawSVG hero) and reported: work-experience hover rect flush against the icon, mobile work rows collapsing, the misplaced "OR", untouched skills listed, and wanted the waveform to keep animating.
+
+Decision: (a) `.experience-summary` gets `padding: 0 12px; margin: 0 -12px` (10px at ≤560px) so the hover pill breathes around the icon without shifting layout. (b) New ≤560px experience layout: 3-column grid (icon spans 2 rows | name+role | chevron) with the date on its own row under the role — replaces the cramped 82px right date column; `.company-name` un-ellipsizes there (wraps naturally). (c) Skills pruned to the 15 techs actually used in projects/site (removed Java, Express, Spring Boot, Docker, MySQL, Firebase, Linux, Windows, Postman, Swagger, Supabase, Netlify, Render, Notion); marquee rows resliced 8+8. (d) Pipeline-reference adaptation: every `.skill-mark` floats on an infinite random sine yoyo. (e) Wave divider bars: after the grow-in, each bar runs an infinite `repeatRefresh` random scaleY yoyo (quiet equalizer). (f) Avatar lightbox: photo click rotates/scales the image into a fixed backdrop-blurred overlay (paused GSAP timeline, play/reverse via React state); backdrop click or Escape closes; honors prefers-reduced-motion with 0-duration.
+
+Consequences: adding a skill means checking it's actually used in a project first. The lightbox timeline pattern (paused timeline + state-driven play/reverse + onReverseComplete visibility) is the template for future modals.
+
+## ADR-020 - 2026-07-06 - Drop the Signature Pin; Hero Order Is Name → Building → Handle
+
+Status: Accepted (amends ADR-018/019)
+
+Context: The pinned signature scrub's pinSpacing spacer read as a large blank gap between "Let's Connect" and the signature on desktop, and the user wanted "Building AI agent tools" directly under the name.
+
+Decision: The signature uses the timed 2.4s DrawSVG play on enter (`start: 'top 88%'`) at every breakpoint — no pin, no scrub — which collapsed the matchMedia back to the single reduced-motion condition. Identity order is now h1 → .building → .handle → .meta, with `.building` made `display: flex; width: fit-content; margin-top: 8px` (inline-flex ignores vertical margins).
+
+Consequences: If a pinned moment is ever reintroduced, budget real content below it — a pin near the page end always manufactures blank space out of its spacer.
+
+## ADR-021 - 2026-07-06 - Signature redesign: single-stroke "hello"-style monoline (Hershey Script), replacing the Great Vibes fill
+
+Status: Accepted (supersedes the signature half of ADR-018)
+
+Context: The user wanted the signature to match a reference "hello" logo — a single continuous pen line that flows in flat from the edge, rises into a rounded connected cursive, flows back out flat, with a red period-dot. The old signature was a filled Great Vibes outline (varying-width calligraphy), which is the wrong medium entirely: a filled outline can't be drawn as one pen stroke and doesn't read as monoline. Two rejected iterations taught the requirements precisely: (1) a separate straight baseline running *under* the word is wrong — in the reference the flat line and the word are the SAME stroke; (2) EMS Decorous Script is too spiky/angular and the stroke was far too thin.
+
+Decision: Signature is now a true single-line (centre-line) plotter font — **Hershey Script** (rounded, connected cursive) from oskay/svg-fonts — rendered as ONE continuous `stroke` path (`fill: none`), not a fill. The generator (session scratchpad `build-v3.mjs`) parses the SVG font's `<glyph>` centre-line `d` data, lays out "Mohamed Fuad" with per-glyph advances, flips Y (font y-up → SVG y-down), shifts to x≈0, then splices the word between a flat lead-in (`M leftEdge 0 L … C … up into the first glyph`) and a flat lead-out (`C down-to-baseline … L rightEdge 0`) so the baseline and the name are one stroke. Exports: `signatureViewBox`, `signaturePath`, `signatureDot {cx,cy,r}` (red #ff241f circle), and `signatureStrokeWidth` (in user units; driven from JS via the `strokeWidth` attribute — CSS `stroke-width` must NOT be set on `.sig-name` or it would override the attribute since author CSS beats presentation attributes). Stroke ~5px on-screen at the `min(680px,92%)` display width, `stroke-linecap/linejoin: round`. DrawSVG draws the whole compound path as one gesture (3s), then the dot pops (`back.out(3)`).
+
+Consequences: Regenerating means re-running the scratchpad generator against a single-line SVG font, never opentype.js/toPathData (those emit filled outlines). Font choice is constrained to *centre-line* fonts (EMS/Hershey families) because the draw effect needs open strokes; connected+rounded rules out the print-style EMS fonts and the spiky Decorous Script, leaving Hershey Script. `signature-path.js` no longer exports `signatureBaseline` (the baseline is spliced into `signaturePath`).

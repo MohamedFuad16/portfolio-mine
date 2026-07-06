@@ -125,24 +125,38 @@ main {
   }
 }
 
-.locale-toggle {
-  min-height: 26px;
-  border: 2.5px dashed #555;
-  border-radius: 3px;
+.locale-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   margin-left: 2px;
-  padding: 2px 7px;
+  padding: 2px;
+  border: 1px solid #3a3d40;
+  border-radius: 999px;
   background: #17191b;
-  color: #ededed;
-  font: 700 11px/1 'Figtree', sans-serif;
-  cursor: pointer;
   box-shadow: rgba(0, 0, 0, 0.35) 0 10px 24px -10px;
-  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
 }
 
-.locale-toggle:hover {
-  border-color: #8a8a8a;
-  background: #1f2123;
+.locale-switch button {
+  min-height: 20px;
+  border: 0;
+  border-radius: 999px;
+  padding: 2px 9px;
+  background: transparent;
+  color: #9aa0a6;
+  font: 700 10.5px/1 'Figtree', sans-serif;
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.locale-switch button:hover {
+  color: #e8e8e8;
+}
+
+.locale-switch button.on {
+  background: #2c2f32;
   color: #fff;
+  box-shadow: rgba(255, 255, 255, 0.08) 0 1px 0 inset, rgba(0, 0, 0, 0.4) 0 2px 6px;
 }
 
 .profile {
@@ -196,6 +210,31 @@ main {
 .profile-photo {
   object-fit: cover;
   object-position: 50% 32%;
+  cursor: zoom-in;
+}
+
+.avatar-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8, 9, 10, 0.84);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  visibility: hidden;
+  cursor: zoom-out;
+}
+
+.avatar-lightbox img {
+  display: block;
+  max-width: min(560px, 92vw);
+  max-height: 78vh;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+  cursor: default;
 }
 
 .avatar-back {
@@ -366,9 +405,11 @@ main {
 }
 
 .building {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   gap: 6px;
   align-items: center;
+  margin: 8px 0 0;
   color: #f5f5f5;
   font-size: 14px;
   font-weight: 700;
@@ -655,6 +696,8 @@ main {
   gap: 10px;
   align-items: center;
   min-height: 66px;
+  padding: 0 12px;
+  margin: 0 -12px;
   border-radius: 8px;
   transition: background-color 160ms ease;
 }
@@ -669,20 +712,26 @@ main {
 
 .dot {
   position: absolute;
-  left: -23.5px;
+  left: -26.5px;
   top: 33px;
-  width: 10px;
-  height: 10px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
   transform: translateY(-50%);
   border-radius: 50%;
+  background: #17191b;
+  border: 2.5px solid #3d4144;
+  color: #a2a7ac;
+}
+
+.dot svg {
+  display: block;
 }
 
 .dot.green {
   background: #10e777;
-}
-
-.dot.red {
-  background: #ff244b;
+  border-color: #10e777;
 }
 
 .company-icon {
@@ -1215,6 +1264,55 @@ small.red {
   object-fit: contain;
 }
 
+.signature-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 30px 0 10px;
+}
+
+.signature {
+  width: min(680px, 92%);
+  height: auto;
+  overflow: visible;
+}
+
+.signature .sig-name {
+  fill: none;
+  stroke: #f2f2f2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.signature .sig-dot {
+  fill: #ff241f;
+}
+
+.wave-divider {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  margin: 4px 0 26px;
+}
+
+.wave-line {
+  flex: 1;
+  border-top: 2px dotted #3d4144;
+}
+
+.wave-bars {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.wave-bars i {
+  width: 2.5px;
+  height: var(--h);
+  border-radius: 2px;
+  background: #787d82;
+}
+
 footer {
   display: flex;
   flex-wrap: wrap;
@@ -1231,9 +1329,9 @@ footer {
     padding: 46px 0 48px;
   }
 
-  .locale-toggle {
-    min-height: 23px;
-    padding: 2px 6px;
+  .locale-switch button {
+    min-height: 18px;
+    padding: 2px 7px;
     font-size: 10px;
   }
 
@@ -1282,7 +1380,7 @@ footer {
   }
 
   .dot {
-    left: -22.5px;
+    left: -25.5px;
   }
 
   .experience-summary {
@@ -1341,6 +1439,49 @@ footer {
   }
 }
 
+@media (max-width: 560px) {
+  /* Two-row summary: icon | name+role, with the date tucked underneath,
+     so the company name never fights an 82px date column for space. */
+  .experience-summary {
+    grid-template-columns: 42px minmax(0, 1fr) 18px;
+    grid-template-rows: auto auto;
+    row-gap: 0;
+    padding: 9px 10px;
+    margin: 0 -10px;
+  }
+
+  .company-icon {
+    grid-row: 1 / span 2;
+  }
+
+  .experience-copy {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .experience-item time {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+    margin-top: 3px;
+    white-space: nowrap;
+    text-align: left;
+    font-size: 11px;
+    color: #8f8f8f;
+  }
+
+  .chevron {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+
+  .company-name {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
 @media (max-width: 470px) {
   .profile {
     grid-template-columns: 108px minmax(0, 1fr);
@@ -1377,18 +1518,8 @@ footer {
     gap: 8px;
   }
 
-  .experience-summary {
-    grid-template-columns: 40px minmax(0, 1fr) 82px 18px;
-  }
-
   .experience-item h3 a {
     max-width: 100%;
-  }
-
-  .experience-item time {
-    justify-self: end;
-    white-space: normal;
-    text-align: right;
   }
 
   .contact-links {

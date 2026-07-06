@@ -6,8 +6,12 @@
 - `BrandIcon`: local `react-icons` helper for LinkedIn and GitHub button icons.
 - Hero name action: animated red rocket button next to the name; click plays a short Web Audio chime and particle burst.
 - Page click effect: any ordinary page click plays a short Web Audio chime and shows a small ring/particle burst at the pointer.
-- Locale toggle: defaults from browser language, remembers user choice, and switches the page copy between English and Japanese from the profile handle row.
+- Locale switch: segmented EN|日本語 pill (`.locale-switch`) in the profile handle row; defaults from browser language, remembers user choice, sets locale directly per button (no toggle function).
+- `WaveDivider`: decorative monochrome waveform (17 bars from `waveHeights`) between two dotted baselines, placed above the footer; bars grow center-out on scroll, then loop a random-scaleY equalizer forever.
+- `Signature`: single-stroke "hello"-style monoline "Mohamed Fuad" — one continuous `stroke` path (Hershey single-line font; data in `src/signature-path.js`, regenerate with the scratchpad `build-v3.mjs` per ADR-021) where a flat baseline flows in, writes the name, and flows out, plus a red period-dot (`signatureDot`). Drawn as one DrawSVG gesture on enter; stroke width from the JS `signatureStrokeWidth` export (set as the `strokeWidth` attribute, not CSS).
+- Avatar lightbox: clicking the profile photo plays a paused GSAP timeline (rotate/scale into a fixed blurred overlay outside #smooth-content); backdrop click or Escape reverses it.
+- Scroll structure: `#smooth-wrapper > #smooth-content > main` with ScrollSmoother (refs passed, not selectors); `.page-click-effects` and `.avatar-lightbox` are fixed siblings outside the smoothed content.
 - QR flip avatar: profile image flips in 3D to show `public/assets/linkedin-qr.png`, with the QR control toggling photo/back side.
 - `ContributionGrid`: GitHub-style activity grid populated from the public MohamedFuad16 contributions API with a local fallback.
-- `ExperienceItem`: timeline row with official logo, date/status chip, and expandable bullet details.
+- `ExperienceItem`: timeline row with official logo, date/status chip, and expandable bullet details. Its `.dot` node encodes status: solid green circle = active job (`tone: 'green'`), hollow bordered circle with a lucide Check = past job (see ADR-016 for the centering math).
 - `ProjectCard`: dashed project row with a captured live-site preview, bottom-right badge, actions, localized description, and tech tags.

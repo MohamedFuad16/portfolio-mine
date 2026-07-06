@@ -2,11 +2,17 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+import { ScrollSmoother } from 'gsap/ScrollSmoother';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
+import { SplitText } from 'gsap/SplitText';
 import { useGSAP } from '@gsap/react';
+import { signaturePath, signatureViewBox, signatureDot, signatureStrokeWidth } from './signature-path';
 import {
   ArrowUpRight,
   Bot,
   BriefcaseBusiness,
+  Check,
   ChevronDown,
   Code2,
   Database,
@@ -25,34 +31,16 @@ import {
   Sparkles,
   Terminal,
 } from 'lucide-react';
-import {
-  FaCss3Alt,
-  FaHtml5,
-  FaJava,
-  FaLinkedin,
-  FaLinux,
-  FaWindows,
-} from 'react-icons/fa';
+import { FaCss3Alt, FaHtml5, FaLinkedin } from 'react-icons/fa';
 import {
   SiDeepgram,
-  SiDocker,
-  SiExpress,
-  SiFirebase,
   SiGit,
   SiGithub,
   SiJavascript,
   SiModelcontextprotocol,
-  SiMysql,
-  SiNetlify,
   SiNodedotjs,
-  SiNotion,
-  SiPostman,
   SiPython,
   SiReact,
-  SiRender,
-  SiSpringboot,
-  SiSupabase,
-  SiSwagger,
   SiSwift,
   SiTailwindcss,
   SiTypescript,
@@ -61,43 +49,29 @@ import {
 } from 'react-icons/si';
 import './styles.css';
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, ScrollSmoother, DrawSVGPlugin, SplitText, useGSAP);
 
 const skills = [
-  { label: 'Java', Icon: FaJava, color: '#df3d14' },
-  { label: 'HTML', Icon: FaHtml5, color: '#e34c26' },
-  { label: 'CSS', Icon: FaCss3Alt, color: '#2965f1' },
   { label: 'JavaScript', Icon: SiJavascript, color: '#f7df1e' },
   { label: 'TypeScript', Icon: SiTypescript, color: '#3178c6' },
   { label: 'Python', Icon: SiPython, color: '#3776ab' },
   { label: 'Swift', Icon: SiSwift, color: '#f05138' },
   { label: 'React', Icon: SiReact, color: '#61dafb' },
   { label: 'NodeJS', Icon: SiNodedotjs, color: '#68a063' },
-  { label: 'Express', Icon: SiExpress, color: '#fff' },
-  { label: 'Spring Boot', Icon: SiSpringboot, color: '#6db33f' },
+  { label: 'HTML', Icon: FaHtml5, color: '#e34c26' },
+  { label: 'CSS', Icon: FaCss3Alt, color: '#2965f1' },
   { label: 'Tailwind', Icon: SiTailwindcss, color: '#38bdf8' },
-  { label: 'Docker', Icon: SiDocker, color: '#2496ed' },
-  { label: 'MySQL', Icon: SiMysql, color: '#00758f' },
+  { label: 'Vite', Icon: SiVite, color: '#a855f7' },
   { label: 'Git', Icon: SiGit, color: '#f34f29' },
   { label: 'GitHub', Icon: SiGithub, color: '#fff' },
-  { label: 'Vite', Icon: SiVite, color: '#a855f7' },
-  { label: 'Firebase', Icon: SiFirebase, color: '#ffca28' },
   { label: 'MCP', Icon: SiModelcontextprotocol, color: '#f3f3f3' },
   { label: 'Deepgram', Icon: SiDeepgram, color: '#13ef93' },
-  { label: 'Linux', Icon: FaLinux, color: '#f5f5f5' },
-  { label: 'Windows', Icon: FaWindows, color: '#0078d4' },
-  { label: 'Postman', Icon: SiPostman, color: '#ff6c37' },
-  { label: 'Swagger', Icon: SiSwagger, color: '#85ea2d' },
-  { label: 'Supabase', Icon: SiSupabase, color: '#3ecf8e' },
   { label: 'Vercel', Icon: SiVercel, color: '#fff' },
-  { label: 'Netlify', Icon: SiNetlify, color: '#00c7b7' },
-  { label: 'Render', Icon: SiRender, color: '#fff' },
-  { label: 'Notion', Icon: SiNotion, color: '#fff' },
 ];
 
 const skillRows = [
-  skills.slice(0, 10),
-  skills.slice(8).concat(skills.slice(0, 4)),
+  skills.slice(0, 8),
+  skills.slice(8).concat(skills.slice(0, 1)),
 ];
 
 const highlightLogos = {
@@ -324,6 +298,39 @@ function SectionTitle({ children }) {
   return <h2 className="section-title">{children}</h2>;
 }
 
+function Signature() {
+  return (
+    <div className="signature-wrap">
+      <svg
+        className="signature"
+        viewBox={signatureViewBox}
+        xmlns="http://www.w3.org/2000/svg"
+        role="img"
+        aria-label="Mohamed Fuad signature"
+      >
+        <path className="sig-name" d={signaturePath} strokeWidth={signatureStrokeWidth} />
+        <circle className="sig-dot" cx={signatureDot.cx} cy={signatureDot.cy} r={signatureDot.r} />
+      </svg>
+    </div>
+  );
+}
+
+const waveHeights = [4, 7, 11, 16, 22, 28, 22, 16, 12, 34, 38, 34, 30, 18, 12, 8, 5];
+
+function WaveDivider() {
+  return (
+    <div className="wave-divider" aria-hidden="true">
+      <span className="wave-line" />
+      <span className="wave-bars">
+        {waveHeights.map((height, index) => (
+          <i key={index} style={{ '--h': `${height}px` }} />
+        ))}
+      </span>
+      <span className="wave-line" />
+    </div>
+  );
+}
+
 function Logo({ src, label }) {
   return <img src={src} alt="" aria-hidden="true" loading="lazy" />;
 }
@@ -447,7 +454,9 @@ function ExperienceItem({ item, locale }) {
   return (
     <article className={`experience-item ${open ? 'open' : ''}`}>
       <div className="experience-summary">
-        <span className={`dot ${item.tone}`} />
+        <span className={`dot ${item.tone}`} aria-hidden="true">
+          {item.tone !== 'green' && <Check size={9} strokeWidth={3.5} />}
+        </span>
         <span className="company-icon">
           {item.logo ? (
             <>
@@ -571,62 +580,240 @@ function App() {
   });
   const [burst, setBurst] = useState(false);
   const [showQr, setShowQr] = useState(false);
+  const [photoOpen, setPhotoOpen] = useState(false);
   const [clickBursts, setClickBursts] = useState([]);
   const mainRef = useRef(null);
+  const smoothWrapperRef = useRef(null);
+  const smoothContentRef = useRef(null);
+  const lightboxRef = useRef(null);
+  const lightboxImgRef = useRef(null);
+  const lightboxTlRef = useRef(null);
   const t = copy[locale];
 
   useEffect(() => {
     window.localStorage.setItem('portfolio-locale', locale);
   }, [locale]);
 
+  // Lightbox: rotate/scale the photo open; reverse to close.
+  useGSAP(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    lightboxTlRef.current = gsap
+      .timeline({
+        paused: true,
+        onReverseComplete: () => gsap.set(lightboxRef.current, { visibility: 'hidden' }),
+      })
+      .set(lightboxRef.current, { visibility: 'visible' })
+      .fromTo(
+        lightboxRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: reduceMotion ? 0 : 0.32, ease: 'power2.out' },
+        0
+      )
+      .fromTo(
+        lightboxImgRef.current,
+        { scale: 0.15, rotation: -28, opacity: 0 },
+        { scale: 1, rotation: 0, opacity: 1, duration: reduceMotion ? 0 : 0.7, ease: 'back.out(1.35)' },
+        0.03
+      );
+  });
+
+  useEffect(() => {
+    const tl = lightboxTlRef.current;
+    if (!tl) return;
+    if (photoOpen) tl.timeScale(1).play();
+    else tl.timeScale(1.4).reverse();
+  }, [photoOpen]);
+
+  useEffect(() => {
+    if (!photoOpen) return;
+    const onKey = (event) => {
+      if (event.key === 'Escape') setPhotoOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [photoOpen]);
+
   useGSAP(
-    () => {
+    (context, contextSafe) => {
       const mm = gsap.matchMedia();
 
-      // Only animate when the visitor hasn't asked for reduced motion.
+      // Animate only when the visitor hasn't asked for reduced motion.
       mm.add('(prefers-reduced-motion: no-preference)', () => {
-        const ease = 'power2.out';
+          const ease = 'power3.out';
 
-        // Hero enters on load with a gentle stagger.
-        gsap.from('.profile > *', {
-          y: 22,
+          // Pass elements, not selectors: the useGSAP context is scoped to
+          // mainRef, so selector strings can't resolve these ancestors.
+          const smoother = ScrollSmoother.create({
+            wrapper: smoothWrapperRef.current,
+            content: smoothContentRef.current,
+            smooth: 1.1,
+            effects: false,
+            smoothTouch: false,
+          });
+
+        // Hero: animate whole containers (not staggered children) with
+        // clearProps so no inline transform can ever stick and misalign
+        // flex rows (the earlier "OR pushed up" bug).
+        gsap
+          .timeline({ defaults: { ease, clearProps: 'transform,opacity' } })
+          .from('.profile', { y: 24, opacity: 0, scale: 0.97, duration: 0.65 })
+          .from('.intro', { y: 20, opacity: 0, duration: 0.55 }, '-=0.35')
+          .from('.actions', { y: 16, opacity: 0, duration: 0.5 }, '-=0.3');
+
+        // Name flourish: characters rise in, then the split reverts so the
+        // DOM goes back to plain text (safe for React re-renders).
+        const split = new SplitText('.name-text', { type: 'chars' });
+        gsap.from(split.chars, {
+          y: 16,
           opacity: 0,
-          duration: 0.7,
-          stagger: 0.12,
-          ease,
+          rotation: 6,
+          duration: 0.5,
+          stagger: 0.035,
+          delay: 0.2,
+          ease: 'back.out(1.6)',
+          onComplete: () => split.revert(),
         });
-        gsap.from('.identity > *', {
-          y: 14,
-          opacity: 0,
-          duration: 0.6,
-          stagger: 0.08,
-          delay: 0.15,
-          ease,
+
+        // Skill icons drift gently, like icons floating along a pipeline.
+        gsap.utils.toArray('.skill-mark').forEach((el) => {
+          gsap.to(el, {
+            y: gsap.utils.random(2.5, 4.5),
+            duration: gsap.utils.random(1.1, 1.9),
+            ease: 'sine.inOut',
+            yoyo: true,
+            repeat: -1,
+            delay: -gsap.utils.random(0, 2),
+          });
         });
 
         // Section headings slide in from the left as they appear.
         gsap.utils.toArray('.section-title').forEach((el) => {
           gsap.from(el, {
             scrollTrigger: { trigger: el, start: 'top 88%' },
-            x: -16,
+            x: -18,
             opacity: 0,
-            duration: 0.6,
+            duration: 0.65,
             ease,
           });
         });
 
         // Generic blocks fade up when scrolled into view.
         gsap.utils
-          .toArray(['.intro', '.actions', '.contribution', '.more-projects-row', '.blog-content', '.contact-card'])
+          .toArray(['.contribution', '.more-projects-row', '.blog-content', '.contact-card'])
           .forEach((el) => {
             gsap.from(el, {
               scrollTrigger: { trigger: el, start: 'top 90%' },
-              y: 26,
+              y: 28,
               opacity: 0,
               duration: 0.7,
               ease,
             });
           });
+
+        // Timeline: draw the dashed line, raise the rows, pop the nodes.
+        gsap.from('.timeline .line', {
+          scrollTrigger: { trigger: '.timeline', start: 'top 80%' },
+          scaleY: 0,
+          transformOrigin: 'top center',
+          duration: 0.9,
+          ease: 'power2.inOut',
+        });
+        gsap.from('.timeline .experience-item', {
+          scrollTrigger: { trigger: '.timeline', start: 'top 80%' },
+          y: 24,
+          opacity: 0,
+          duration: 0.6,
+          stagger: 0.15,
+          ease,
+        });
+        gsap.from('.timeline .dot', {
+          scrollTrigger: { trigger: '.timeline', start: 'top 80%' },
+          scale: 0,
+          duration: 0.5,
+          delay: 0.3,
+          stagger: 0.15,
+          ease: 'back.out(2.4)',
+        });
+
+        // Projects: each card reveals on its own, tags cascade in,
+        // and the screenshot drifts (parallax) while the page scrolls past.
+        gsap.utils.toArray('.projects .project').forEach((card) => {
+          gsap.from(card, {
+            scrollTrigger: { trigger: card, start: 'top 86%' },
+            y: 36,
+            opacity: 0,
+            scale: 0.985,
+            duration: 0.7,
+            ease,
+          });
+          gsap.from(card.querySelectorAll('.tags span'), {
+            scrollTrigger: { trigger: card, start: 'top 80%' },
+            y: 10,
+            opacity: 0,
+            duration: 0.4,
+            stagger: 0.05,
+            ease,
+          });
+          const shot = card.querySelector('.project-shot img');
+          if (shot) {
+            gsap.fromTo(
+              shot,
+              { yPercent: -5, scale: 1.12 },
+              {
+                yPercent: 5,
+                scale: 1.12,
+                ease: 'none',
+                scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true },
+              }
+            );
+          }
+        });
+
+        // Contribution grid sparkles in cell by cell.
+        gsap.from('.contribution .grid .cell', {
+          scrollTrigger: { trigger: '.contribution', start: 'top 78%' },
+          scale: 0.3,
+          opacity: 0,
+          duration: 0.5,
+          ease,
+          stagger: { each: 0.005, from: 'random' },
+        });
+
+        // Signature: single continuous "hello"-style pen gesture. One stroke
+        // flows in from the left edge, writes the name, and flows back out to
+        // the right; then the red period-dot pops. (No pin — the pin spacer
+        // left a large blank gap above the signature on desktop.)
+        gsap.set('.signature .sig-name', { drawSVG: 0 });
+        gsap.set('.signature .sig-dot', { scale: 0, transformOrigin: 'center' });
+        gsap
+          .timeline({
+            scrollTrigger: { trigger: '.signature-wrap', start: 'top 88%' },
+          })
+          .to('.signature .sig-name', { drawSVG: '100%', duration: 3, ease: 'power1.inOut' })
+          .to('.signature .sig-dot', { scale: 1, duration: 0.4, ease: 'back.out(3)' }, '-=0.15');
+
+        // Waveform divider grows outward, then keeps breathing like a
+        // quiet equalizer.
+        gsap.from('.wave-divider .wave-bars i', {
+          scrollTrigger: { trigger: '.wave-divider', start: 'top 94%' },
+          scaleY: 0.1,
+          opacity: 0,
+          duration: 0.6,
+          ease: 'back.out(1.8)',
+          stagger: { each: 0.03, from: 'center' },
+          onComplete: () => {
+            gsap.utils.toArray('.wave-bars i').forEach((bar) => {
+              gsap.to(bar, {
+                scaleY: 'random(0.3, 1)',
+                duration: 'random(0.5, 1.1)',
+                ease: 'sine.inOut',
+                yoyo: true,
+                repeat: -1,
+                repeatRefresh: true,
+              });
+            });
+          },
+        });
 
         // Footer sits at the very bottom, so use a start it can always reach.
         gsap.from('footer', {
@@ -637,48 +824,28 @@ function App() {
           ease,
         });
 
-        // Timeline: draw the dashed line, then pop the rows in sequence.
-        gsap.from('.timeline .line', {
-          scrollTrigger: { trigger: '.timeline', start: 'top 82%' },
-          scaleY: 0,
-          transformOrigin: 'top center',
-          duration: 0.8,
-          ease,
+        // Smooth-scroll the hero's "#projects" link instead of jumping.
+        const buildingLink = mainRef.current?.querySelector('.building');
+        const smoothScroll = contextSafe((event) => {
+          event.preventDefault();
+          gsap.to(smoother, {
+            scrollTop: smoother.offset('#projects', 'top 14px'),
+            duration: 1,
+            ease: 'power2.inOut',
+          });
         });
-        gsap.from('.timeline .experience-item', {
-          scrollTrigger: { trigger: '.timeline', start: 'top 80%' },
-          y: 20,
-          opacity: 0,
-          duration: 0.6,
-          stagger: 0.13,
-          ease,
-        });
-
-        // Project cards reveal with a stagger.
-        gsap.from('.projects .project', {
-          scrollTrigger: { trigger: '.projects', start: 'top 82%' },
-          y: 32,
-          opacity: 0,
-          duration: 0.7,
-          stagger: 0.15,
-          ease,
-        });
-
-        // Contribution grid ripples in cell by cell.
-        gsap.from('.contribution .grid .cell', {
-          scrollTrigger: { trigger: '.contribution', start: 'top 78%' },
-          scale: 0.3,
-          opacity: 0,
-          duration: 0.5,
-          ease,
-          stagger: { each: 0.005, from: 'start' },
-        });
+        buildingLink?.addEventListener('click', smoothScroll);
 
         // Late-loading images can shift layout; recalc trigger positions.
         const onLoad = () => ScrollTrigger.refresh();
         window.addEventListener('load', onLoad);
-        return () => window.removeEventListener('load', onLoad);
-      });
+
+        return () => {
+          buildingLink?.removeEventListener('click', smoothScroll);
+          window.removeEventListener('load', onLoad);
+        };
+        }
+      );
     },
     { scope: mainRef }
   );
@@ -698,8 +865,6 @@ function App() {
     return () => window.removeEventListener('pointerdown', handlePointerDown);
   }, []);
 
-  const toggleLocale = () => setLocale((current) => (current === 'en' ? 'ja' : 'en'));
-
   const handleNameAction = (event) => {
     event.stopPropagation();
     playChime(0.11);
@@ -709,7 +874,7 @@ function App() {
   };
 
   return (
-    <main ref={mainRef}>
+    <>
       <div className="page-click-effects" aria-hidden="true">
         {clickBursts.map((item) => (
           <span className="click-burst" key={item.id} style={{ left: item.x, top: item.y }}>
@@ -719,11 +884,35 @@ function App() {
           </span>
         ))}
       </div>
+      <div
+        className="avatar-lightbox"
+        ref={lightboxRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Profile photo"
+        onClick={() => setPhotoOpen(false)}
+      >
+        <img
+          ref={lightboxImgRef}
+          src="/assets/profile-yacht.jpg"
+          alt="Mohamed Fuad on a yacht, enlarged"
+          onClick={(event) => event.stopPropagation()}
+        />
+      </div>
+      <div id="smooth-wrapper" ref={smoothWrapperRef}>
+        <div id="smooth-content" ref={smoothContentRef}>
+          <main ref={mainRef}>
       <section className="profile">
         <div className={`avatar ${showQr ? 'is-flipped' : ''}`}>
           <div className="avatar-card">
             <div className="avatar-face avatar-front">
-              <img className="profile-photo" src="/assets/profile-yacht.jpg" alt="Mohamed Fuad on a yacht" />
+              <img
+                className="profile-photo"
+                src="/assets/profile-yacht.jpg"
+                alt="Mohamed Fuad on a yacht"
+                title="View photo"
+                onClick={() => setPhotoOpen(true)}
+              />
             </div>
             <div className="avatar-face avatar-back">
               <img src="/assets/linkedin-qr.png" alt="LinkedIn QR code" />
@@ -744,7 +933,7 @@ function App() {
         </div>
         <div className="identity">
           <h1>
-            Mohamed Fuad
+            <span className="name-text">Mohamed Fuad</span>
             <button className={`name-action ${burst ? 'bursting' : ''}`} type="button" onClick={handleNameAction}>
               <Rocket size={19} fill="currentColor" />
               <i />
@@ -752,16 +941,31 @@ function App() {
               <i />
             </button>
           </h1>
-          <p className="handle">
-            @MohamedFuad16
-            <button className="locale-toggle" type="button" onClick={toggleLocale}>
-              {t.lang}
-            </button>
-          </p>
           <a className="building" href="#projects">
             {t.building}
             <Sparkles size={14} />
           </a>
+          <p className="handle">
+            @MohamedFuad16
+            <span className="locale-switch" role="group" aria-label="Language">
+              <button
+                type="button"
+                className={locale === 'en' ? 'on' : ''}
+                aria-pressed={locale === 'en'}
+                onClick={() => setLocale('en')}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                className={locale === 'ja' ? 'on' : ''}
+                aria-pressed={locale === 'ja'}
+                onClick={() => setLocale('ja')}
+              >
+                日本語
+              </button>
+            </span>
+          </p>
           <p className="meta">
             <MapPin size={14} />
             {t.location}
@@ -868,6 +1072,10 @@ function App() {
         </nav>
       </section>
 
+      <Signature />
+
+      <WaveDivider />
+
       <footer>
         <Terminal size={14} />
         Mohamed Fuad
@@ -881,7 +1089,10 @@ function App() {
         <Database size={14} />
         2026
       </footer>
-    </main>
+          </main>
+        </div>
+      </div>
+    </>
   );
 }
 
