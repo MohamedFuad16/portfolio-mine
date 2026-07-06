@@ -884,7 +884,7 @@ function App() {
       setClickBursts((items) => [...items.slice(-5), { id, x: event.clientX, y: event.clientY }]);
       window.setTimeout(() => {
         setClickBursts((items) => items.filter((item) => item.id !== id));
-      }, 900);
+      }, 1050);
     };
 
     window.addEventListener('pointerdown', handlePointerDown, { passive: true });
@@ -904,7 +904,7 @@ function App() {
       <div className="page-click-effects" aria-hidden="true">
         {clickBursts.map((item) => (
           <span className="click-burst" key={item.id} style={{ left: item.x, top: item.y }}>
-            {Array.from({ length: 6 }).map((_, index) => (
+            {Array.from({ length: 3 }).map((_, index) => (
               <i key={index} />
             ))}
           </span>

@@ -238,3 +238,13 @@ Decision:
 - Signature lead-in: replaced the near-vertical rise with a long near-flat line easing up via a gentle S into the M (two cubics; see `build-v3.mjs`), chosen from a 4-variant offline render.
 
 Consequences: `.tags` grid assumes ~5 tags per project; the trace only animates in-view. If the dashed colour ever feels too loud on desktop, it can be split per-breakpoint, but one value currently reads well on both.
+
+## ADR-024 - 2026-07-06 - Tap effect: water-ripple rings (user pick) replacing the ring + dots
+
+Status: Accepted
+
+Context: The user found the tap "wobble" (a ring + 6 flying particle dots) unremarkable and asked for a nicer effect, keeping the same idea (chime + ripple wherever you touch). Offered four options; user chose water-ripple rings.
+
+Decision: `.click-burst` now renders three staggered concentric rings (`<i>` ×3) that expand and fade, plus a soft radial center flash (`::before`). Key detail: the rings animate `width`/`height` (0→96px) rather than `transform: scale`, so the 1.5px border stays a hairline instead of thickening as it grows. Rings are staggered (delays 0/100/200ms) with decreasing opacity (0.72/0.5/0.34) for a rippling-outward read. The React removal timeout was bumped 900ms→1050ms so nodes outlive the 780ms + 200ms stagger. The chime (`playChime`) is unchanged.
+
+Consequences: Effect is pure CSS keyframes off transient DOM nodes (no JS per-frame), so it's cheap. If more ring density is ever wanted, add `<i>` elements and a matching `:nth-child` delay/opacity.
