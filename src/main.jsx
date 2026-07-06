@@ -455,7 +455,7 @@ function ExperienceItem({ item, locale }) {
     <article className={`experience-item ${open ? 'open' : ''}`}>
       <div className="experience-summary">
         <span className={`dot ${item.tone}`} aria-hidden="true">
-          {item.tone !== 'green' && <Check size={9} strokeWidth={3.5} />}
+          {item.tone !== 'green' && <Check size={7.5} strokeWidth={3} />}
         </span>
         <span className="company-icon">
           {item.logo ? (
@@ -589,6 +589,9 @@ function App() {
   const lightboxImgRef = useRef(null);
   const lightboxTlRef = useRef(null);
   const t = copy[locale];
+  // Japanese visitors get the Japanese-language CV; everyone else the English one.
+  const resumeHref =
+    locale === 'ja' ? '/resume/Mohamed_Fuad_CV_JA.pdf' : '/resume/Mohamed_Fuad_CV.pdf';
 
   useEffect(() => {
     window.localStorage.setItem('portfolio-locale', locale);
@@ -877,7 +880,11 @@ function App() {
   );
 
   useEffect(() => {
-    const handlePointerDown = (event) => {
+    const handleTap = (event) => {
+      // Fire on real taps/clicks only. Using 'click' (not 'pointerdown') means a
+      // scroll or drag gesture never triggers the ripple; detail === 0 skips
+      // keyboard-activated clicks (which have no meaningful pointer position).
+      if (event.detail === 0) return;
       if (event.target.closest('.name-action, .qr-toggle-btn')) return;
       playChime(0.055);
       const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -887,8 +894,8 @@ function App() {
       }, 1050);
     };
 
-    window.addEventListener('pointerdown', handlePointerDown, { passive: true });
-    return () => window.removeEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('click', handleTap);
+    return () => window.removeEventListener('click', handleTap);
   }, []);
 
   const handleNameAction = (event) => {
@@ -1020,7 +1027,7 @@ function App() {
         <a className="square" href="https://github.com/MohamedFuad16" target="_blank" rel="noreferrer">
           <BrandIcon name="github" />
         </a>
-        <a className="square" href="/resume/Mohamed_Fuad_CV.pdf" target="_blank" rel="noreferrer">
+        <a className="square" href={resumeHref} target="_blank" rel="noreferrer">
           <FileDown size={16} />
         </a>
       </nav>
@@ -1085,7 +1092,7 @@ function App() {
             <BrandIcon name="github" />
             GitHub
           </a>
-          <a href="/resume/Mohamed_Fuad_CV.pdf" target="_blank" rel="noreferrer">
+          <a href={resumeHref} target="_blank" rel="noreferrer">
             <FileDown size={14} />
             {t.resume}
           </a>
