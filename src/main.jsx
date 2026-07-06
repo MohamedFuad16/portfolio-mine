@@ -7,7 +7,7 @@ import { ScrollSmoother } from 'gsap/ScrollSmoother';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { SplitText } from 'gsap/SplitText';
 import { useGSAP } from '@gsap/react';
-import { signaturePath, signatureViewBox, signatureDot, signatureStrokeWidth } from './signature-path';
+import { signaturePath, signatureViewBox, signatureStrokeWidth } from './signature-path';
 import {
   ArrowUpRight,
   Bot,
@@ -309,7 +309,7 @@ function Signature() {
         aria-label="Mohamed Fuad signature"
       >
         <path className="sig-name" d={signaturePath} strokeWidth={signatureStrokeWidth} />
-        <circle className="sig-dot" cx={signatureDot.cx} cy={signatureDot.cy} r={signatureDot.r} />
+        <path className="sig-trace" d={signaturePath} strokeWidth={signatureStrokeWidth} />
       </svg>
     </div>
   );
@@ -779,18 +779,29 @@ function App() {
           stagger: { each: 0.005, from: 'random' },
         });
 
-        // Signature: single continuous "hello"-style pen gesture. One stroke
-        // flows in from the left edge, writes the name, and flows back out to
-        // the right; then the red period-dot pops. (No pin — the pin spacer
-        // left a large blank gap above the signature on desktop.)
+        // Signature: single continuous "hello"-style pen gesture draws itself
+        // in on scroll, then a glowing highlight keeps tracing the handwriting
+        // forever — a soft light travelling along the whole stroke, back and
+        // forth. (No pin — the pin spacer left a big blank gap on desktop.)
         gsap.set('.signature .sig-name', { drawSVG: 0 });
-        gsap.set('.signature .sig-dot', { scale: 0, transformOrigin: 'center' });
+        gsap.set('.signature .sig-trace', { drawSVG: '0% 0%', opacity: 1 });
         gsap
           .timeline({
             scrollTrigger: { trigger: '.signature-wrap', start: 'top 88%' },
           })
-          .to('.signature .sig-name', { drawSVG: '100%', duration: 3, ease: 'power1.inOut' })
-          .to('.signature .sig-dot', { scale: 1, duration: 0.4, ease: 'back.out(3)' }, '-=0.15');
+          .to('.signature .sig-name', { drawSVG: '100%', opacity: 0.42, duration: 2.6, ease: 'power1.inOut' })
+          .fromTo(
+            '.signature .sig-trace',
+            { drawSVG: '0% 15%' },
+            {
+              drawSVG: '85% 100%',
+              duration: 2.9,
+              ease: 'sine.inOut',
+              repeat: -1,
+              yoyo: true,
+            },
+            '-=0.35'
+          );
 
         // Waveform divider grows outward, then keeps breathing like a
         // quiet equalizer.
