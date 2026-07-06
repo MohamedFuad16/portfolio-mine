@@ -222,3 +222,19 @@ Context: The static red period-dot felt inert; the user wanted the signature to 
 Decision: Removed the `<circle class="sig-dot">` (and its import; `signatureDot` is still exported by the generated module but unused). Added a second identical overlaid path `.sig-trace` (same `d`, same `strokeWidth`) that a glowing highlight travels along forever. On scroll-in the base `.sig-name` draws itself (2.6s) while its opacity settles to 0.42 (dimmed so the sweep reads); then an infinite `repeat:-1, yoyo:true` `fromTo` moves a ~15%-wide DrawSVG window (`0% 15%` → `85% 100%`, `sine.inOut`, 2.9s) back and forth along the whole compound path — a soft light retracing the pen line. The tracer is white with layered `drop-shadow` glows and is CSS `opacity:0` by default, flipped to 1 only inside the reduced-motion-gated GSAP block (so reduced-motion users see just the crisp static line at 0.9 opacity, no sweep). yoyo (not one-directional `repeat`) is deliberate: it is seamless — a one-way loop would jump the highlight from the right end back to the left.
 
 Consequences: The footer signature now rests as a dim monoline with a continuously travelling glow. Two paths share `signaturePath`; if regenerated, both pick it up automatically. Keep the tracer's opacity default in CSS at 0 so the animation-off path stays clean.
+
+## ADR-023 - 2026-07-06 - Mobile layout polish, brighter dashed borders, and Android-jank mitigation
+
+Status: Accepted
+
+Context: Mobile-review feedback: (1) too little space between the skills marquees and Work Experience; (2) project card left/right dashed borders invisible on a real OLED phone; (3) five tech tags wrapped as an ugly 4+1; (4) "Let's Connect" links wrapped 3+1; (5) animations reportedly janky on Android; (6) the signature's lead-in into the M looked stiff.
+
+Decision:
+- Spacing: `.skills-marquees` margin-bottom 1px→26px.
+- Borders: the shared `.dashed` colour #444→#56595d. #444 on the #0b0d0e page is technically present (verified in-engine) but too low-contrast to read on OLED at low brightness — brightening is the fix, not a layout bug.
+- Tags: `.tags` is now `display:grid; grid-template-columns:repeat(3,auto); justify-content/items:start` at ALL widths (not a media-query override) — every project has exactly 5 tags, so this is a deterministic 3+2 with no orphan. (A 4-tag project would become 3+1; revisit if that ever ships.)
+- Contact: `.contact-links` becomes `grid` 1fr/1fr at ≤470px (even 2×2); stays flex row above.
+- Android jank: the biggest cost was the perpetual `.sig-trace` — a `drop-shadow`-filtered path whose `stroke-dashoffset` changes every frame forces filter re-rasterisation. Reduced to a single small-radius glow AND the trace tween is now created `paused` with a ScrollTrigger `onToggle` so it only runs while the signature is on screen. (ScrollSmoother already uses `smoothTouch:false`, so mobile scroll was already native — not the culprit.)
+- Signature lead-in: replaced the near-vertical rise with a long near-flat line easing up via a gentle S into the M (two cubics; see `build-v3.mjs`), chosen from a 4-variant offline render.
+
+Consequences: `.tags` grid assumes ~5 tags per project; the trace only animates in-view. If the dashed colour ever feels too loud on desktop, it can be split per-breakpoint, but one value currently reads well on both.

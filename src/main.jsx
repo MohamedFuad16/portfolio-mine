@@ -784,24 +784,39 @@ function App() {
         // forever — a soft light travelling along the whole stroke, back and
         // forth. (No pin — the pin spacer left a big blank gap on desktop.)
         gsap.set('.signature .sig-name', { drawSVG: 0 });
-        gsap.set('.signature .sig-trace', { drawSVG: '0% 0%', opacity: 1 });
-        gsap
-          .timeline({
-            scrollTrigger: { trigger: '.signature-wrap', start: 'top 88%' },
-          })
-          .to('.signature .sig-name', { drawSVG: '100%', opacity: 0.42, duration: 2.6, ease: 'power1.inOut' })
-          .fromTo(
-            '.signature .sig-trace',
-            { drawSVG: '0% 15%' },
-            {
-              drawSVG: '85% 100%',
-              duration: 2.9,
-              ease: 'sine.inOut',
-              repeat: -1,
-              yoyo: true,
-            },
-            '-=0.35'
-          );
+        gsap.set('.signature .sig-trace', { drawSVG: '0% 15%', opacity: 1 });
+
+        // Draw the name once as it scrolls in, then leave it dimmed.
+        gsap.to('.signature .sig-name', {
+          drawSVG: '100%',
+          opacity: 0.42,
+          duration: 2.6,
+          ease: 'power1.inOut',
+          scrollTrigger: { trigger: '.signature-wrap', start: 'top 88%' },
+        });
+
+        // Perpetual tracing highlight — created paused and only allowed to run
+        // while the signature is on screen. A filtered path that re-rasterises
+        // every frame is the main jank cost on weaker (Android) GPUs, so we
+        // never spend it off-screen.
+        const traceLoop = gsap.fromTo(
+          '.signature .sig-trace',
+          { drawSVG: '0% 15%' },
+          {
+            drawSVG: '85% 100%',
+            duration: 2.9,
+            ease: 'sine.inOut',
+            repeat: -1,
+            yoyo: true,
+            paused: true,
+          }
+        );
+        ScrollTrigger.create({
+          trigger: '.signature-wrap',
+          start: 'top bottom',
+          end: 'bottom top',
+          onToggle: (self) => (self.isActive ? traceLoop.play() : traceLoop.pause()),
+        });
 
         // Waveform divider grows outward, then keeps breathing like a
         // quiet equalizer.

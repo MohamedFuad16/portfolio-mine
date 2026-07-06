@@ -585,7 +585,7 @@ main {
 }
 
 .skills-marquees {
-  margin-bottom: 1px;
+  margin-bottom: 26px;
 }
 
 .skills {
@@ -667,7 +667,7 @@ main {
 }
 
 .dashed {
-  border: 2.5px dashed #444;
+  border: 2.5px dashed #56595d;
   background: transparent;
 }
 
@@ -1135,10 +1135,14 @@ small.red {
   font-size: 14px;
 }
 
+/* Lay tech tags out as a tidy 3-per-row grid so five tags always read as a
+   balanced 3 + 2 rather than an orphaned 4 + 1 (every project has five). */
 .tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
+  justify-items: start;
+  gap: 8px 7px;
 }
 
 .tags span {
@@ -1294,8 +1298,9 @@ small.red {
   stroke-linecap: round;
   stroke-linejoin: round;
   opacity: 0;
-  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 1))
-    drop-shadow(0 0 16px rgba(150, 195, 255, 0.7));
+  /* Single, small-radius glow — a filter that re-rasterises every animation
+     frame is the main cause of jank on weaker (Android) GPUs, so keep it light. */
+  filter: drop-shadow(0 0 6px rgba(200, 222, 255, 0.9));
 }
 
 .wave-divider {
@@ -1533,7 +1538,14 @@ footer {
     max-width: 100%;
   }
 
+  /* Let's Connect: even 2 × 2 grid instead of a 3 + 1 orphan. */
   .contact-links {
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: stretch;
+  }
+
+  .contact-links a {
+    width: 100%;
   }
 }
