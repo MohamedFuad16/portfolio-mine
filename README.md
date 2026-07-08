@@ -44,6 +44,11 @@ backend, API, or persistence layer**; everything renders in the browser.
   scrolling and dragging don't trigger it).
 - **Locale-aware résumé download** — serves the Japanese or English CV PDF based
   on the active locale.
+- **Project detail pages** — clicking a project opens a dedicated, hash-routed
+  detail page (Overview · Key Features · How It Works · tech stack) that animates
+  in and out with GSAP and is fully bilingual.
+- **Dev notes** — the "Thoughts in words" section links out to my latest
+  [Qiita](https://qiita.com/mfuad16) article.
 - **Responsive & OLED-friendly** — verified with no horizontal overflow at
   320 / 375 / 768 / 1280 / 1920 px in both locales.
 

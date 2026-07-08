@@ -9,6 +9,7 @@ import { SplitText } from 'gsap/SplitText';
 import { useGSAP } from '@gsap/react';
 import { signaturePath, signatureViewBox, signatureStrokeWidth } from './signature-path';
 import {
+  ArrowLeft,
   ArrowUpRight,
   Bot,
   BriefcaseBusiness,
@@ -40,6 +41,7 @@ import {
   SiModelcontextprotocol,
   SiNodedotjs,
   SiPython,
+  SiQiita,
   SiReact,
   SiSwift,
   SiTailwindcss,
@@ -87,7 +89,10 @@ const highlightLogos = {
 const brandIcons = {
   github: SiGithub,
   linkedin: FaLinkedin,
+  qiita: SiQiita,
 };
+
+const QIITA_ARTICLE = 'https://qiita.com/mfuad16/items/6ad8a06c395cb3e8f013';
 
 const experience = [
   {
@@ -186,12 +191,17 @@ const copy = {
     live: 'Live',
     moreProjects: 'More Projects',
     thoughtsTitle: 'Thoughts in words.',
-    thoughts: 'You really wanna read my notes? Head over to',
-    thoughtsLink: 'My GitHub',
-    thoughtsTail: 'for now.',
+    thoughts: 'You really wanna read my notes? Check out my latest',
+    thoughtsLink: 'Qiita article',
+    thoughtsTail: '.',
     connectTitle: "Let's Connect",
     connectText: 'Feel free to reach out through any of these platforms',
     resume: 'Resume',
+    back: 'Back to projects',
+    overview: 'Overview',
+    keyFeatures: 'Key Features',
+    howItWorks: 'How It Works',
+    viewDetails: 'View details',
     contribution: (total) => `This year, I shipped ${total} focused contributions`,
     months: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
     less: 'Less',
@@ -222,12 +232,17 @@ const copy = {
     live: '公開',
     moreProjects: '他のプロジェクト',
     thoughtsTitle: '言葉のメモ。',
-    thoughts: '開発メモを読みたい方は、まず',
-    thoughtsLink: 'GitHub',
+    thoughts: '開発メモを読みたい方は、最新の',
+    thoughtsLink: 'Qiita記事',
     thoughtsTail: 'をご覧ください。',
     connectTitle: 'お問い合わせ',
     connectText: '以下のリンクからお気軽にご連絡ください',
     resume: '履歴書',
+    back: 'プロジェクト一覧へ戻る',
+    overview: '概要',
+    keyFeatures: '主な機能',
+    howItWorks: '仕組み',
+    viewDetails: '詳細を見る',
     contribution: (total) => `今年は ${total} 件の貢献`,
     months: ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月'],
     less: '少',
@@ -239,6 +254,7 @@ const copy = {
 const projects = [
   {
     title: 'WebDrop',
+    slug: 'webdrop',
     badge: 'live app',
     image: '/assets/webdrop-site.jpg',
     imageJa: '/assets/webdrop-site-ja.png',
@@ -250,9 +266,50 @@ const projects = [
     descriptionJa:
       'ブラウザだけで使えるAirDrop風ファイル共有アプリ。バンプペアリング、超音波Web Audioハンドシェイク、WebRTCストリーム、OPFS保存に対応。',
     tech: ['JavaScript', 'WebRTC', 'OPFS', 'Web Audio', 'PWA'],
+    detail: {
+      tagline: {
+        en: 'AirDrop for the open web — proximity-verified, peer-to-peer file transfer in any modern browser.',
+        ja: 'オープンウェブのためのAirDrop。近接検証つきのブラウザ完結型P2Pファイル転送。',
+      },
+      overview: {
+        en: 'WebDrop is a mobile-first, zero-build static PWA for AirDrop-style transfers between nearby devices — no install, no account, no cloud upload. Two phones discover each other, prove they are physically close, then stream files directly peer-to-peer over WebRTC. The file bytes never touch a server; the only backend is a lightweight Node signaling + TURN server that brokers the handshake.',
+        ja: 'WebDropはビルド不要・モバイルファーストのPWA。インストールもアカウントもクラウドアップロードも不要で、近くの端末同士がAirDrop風にファイルを共有します。2台が互いを検出し、物理的な近さを証明したうえで、WebRTCで直接P2P転送。ファイル本体はサーバーを一切経由せず、バックエンドはハンドシェイクを仲介する軽量なNodeシグナリング＋TURNサーバーのみです。',
+      },
+      features: [
+        {
+          en: 'Physical-proximity pairing — an ultrasonic Web Audio handshake (~17.8–19.8 kHz, 4 lanes) plus bump + tilt detection. All three must pass, resisting remote relay.',
+          ja: '近接ペアリング — 超音波Web Audioハンドシェイク（約17.8〜19.8kHz・4レーン）に加え、バンプと傾きを検出。3条件すべてを満たす必要があり、遠隔リレーを防ぎます。',
+        },
+        {
+          en: 'QR pairing fallback — scan a short-lived personalized QR code (with the sender’s avatar composited in) when acoustic pairing isn’t available.',
+          ja: 'QRフォールバック — 音響ペアリングが使えない場合は、送信者のアバターを合成した短命のパーソナルQRコードをスキャン。',
+        },
+        {
+          en: 'Direct P2P transfer — files stream over WebRTC data channels with a SHA-256 manifest, 256 KB chunking, backpressure, acks, retries and cancel — up to 500 MB per session.',
+          ja: '直接P2P転送 — SHA-256マニフェスト、256KBチャンク、バックプレッシャー、ACK、再送、キャンセルに対応し、1セッション最大500MB。',
+        },
+        {
+          en: 'Adaptive storage — automatically picks the best sink per device: IndexedDB chunking, StreamSaver streaming download, or an in-memory Blob fallback for iOS Safari.',
+          ja: 'アダプティブ保存 — 端末ごとに最適な保存先（IndexedDB / StreamSaver / メモリBlob）を自動選択。iOS Safariにも対応。',
+        },
+        {
+          en: 'Live transfer HUD & orbital radar — an iPhone-style Dynamic Island shows the pairing ladder and progress, while nearby peers orbit your avatar with swipe-to-send.',
+          ja: 'ライブHUDとオービタルレーダー — iPhone風のダイナミックアイランドがペアリングと進捗を表示し、周囲の端末が自分のアバターの周りを回りスワイプで送信。',
+        },
+        {
+          en: 'Installable PWA with an offline mock mode (15 simulated peers) so the whole UI works with no server, plus a full English / 日本語 interface.',
+          ja: 'オフラインのモックモード（15台の疑似端末）を備えたインストール可能なPWA。サーバーなしでUI全体が動作し、日英インターフェースに完全対応。',
+        },
+      ],
+      flow: {
+        en: 'Discovery → Intent → Verify (proximity ceremony or QR) → Connect (WebRTC SDP/ICE) → Transfer. Control plane is small WebSocket JSON; the data plane is the WebRTC channel — once connected, the server leaves the data path entirely.',
+        ja: '検出 → 意図 → 検証（近接セレモニーまたはQR）→ 接続（WebRTCのSDP/ICE）→ 転送。制御はWebSocketの小さなJSON、データはWebRTCチャネル。接続後はサーバーがデータ経路から完全に外れます。',
+      },
+    },
   },
   {
     title: 'Tutor-System',
+    slug: 'tutor-system',
     badge: 'architecture',
     image: '/assets/tutor-site.jpg',
     imageJa: '/assets/tutor-site-ja.png',
@@ -264,9 +321,50 @@ const projects = [
     descriptionJa:
       '関数呼び出し型のチューターツール、リアルタイム音声指導、出典つきPDFチャット、学習者メモリを備えたAI学習アプリ。',
     tech: ['React 19', 'TypeScript', 'OpenRouter', 'Deepgram', 'Dexie'],
+    detail: {
+      tagline: {
+        en: 'A local-first learning system for PDFs, source-aware tutoring, voice mode, and inspectable AI workflows.',
+        ja: 'PDF学習・出典つきチュータリング・音声モード・可視化されたAIワークフローを備えたローカルファーストの学習システム。',
+      },
+      overview: {
+        en: 'Tutor is a local-first study workspace for reading papers and textbooks, asking a source-aware tutor questions, speaking with a realtime voice tutor, and turning useful sessions into revision books. The learner brain is not hidden model memory — it is an auditable local system of records: books, PDFs, concepts, evidence, BKT mastery, artifacts, corrections, and model runs.',
+        ja: 'Tutorは、論文や教科書を読み、出典を踏まえたチューターに質問し、リアルタイム音声チューターと会話し、学習セッションを復習ノートに変換できるローカルファーストの学習ワークスペースです。学習者の「脳」は隠れたモデル記憶ではなく、書籍・PDF・概念・エビデンス・BKT習熟度・成果物・修正・モデル実行履歴という監査可能なローカル記録です。',
+      },
+      features: [
+        {
+          en: 'Source-aware tutoring — builds a per-user context packet from PDFs, selected text, the current page, prior discussion, semantic memory, and learner state before answering.',
+          ja: '出典対応チュータリング — 回答前に、PDF・選択テキスト・現在ページ・過去の対話・意味記憶・学習者状態からユーザー単位のコンテキストパケットを構築。',
+        },
+        {
+          en: 'Realtime voice tutor — Deepgram STT/TTS through a custom local broker, with an optional read-aloud path for answers.',
+          ja: 'リアルタイム音声チューター — カスタムローカルブローカー経由のDeepgram STT/TTS。回答の読み上げにも任意対応。',
+        },
+        {
+          en: 'Local-first learner store — per-user folders, SQLite, and document / extracted-text / artifact files that stay on the machine.',
+          ja: 'ローカルファーストの学習ストア — ユーザーごとのフォルダ、SQLite、文書・抽出テキスト・成果物ファイルを端末内に保持。',
+        },
+        {
+          en: 'Foreground + background split — answer immediately in the foreground tutor, then delegate slow work to request-correlated background tasks.',
+          ja: '前景＋背景の分離 — 前景チューターで即座に回答し、重い処理はリクエストに対応づいたバックグラウンドタスクへ委譲。',
+        },
+        {
+          en: 'Rich output — React Markdown, Mermaid, Shiki, KaTeX and Recharts render diagrams, math, code and charts inline.',
+          ja: 'リッチ出力 — React Markdown・Mermaid・Shiki・KaTeX・Rechartsで、図・数式・コード・グラフをインライン表示。',
+        },
+        {
+          en: 'BYOK & safe fallbacks — browser BYOK for local development; server-side OpenRouter/Deepgram fallbacks stay disabled behind explicit flags.',
+          ja: 'BYOKと安全なフォールバック — ローカル開発はブラウザBYOK。サーバー側のOpenRouter/Deepgramは明示的なフラグで有効化するまで無効。',
+        },
+      ],
+      flow: {
+        en: 'Open a local profile → upload PDFs into a book → ask by chat or voice → assemble the context packet → answer in the foreground → delegate slow work to the background → store evidence, artifacts and revision material for the active learner.',
+        ja: 'ローカルプロフィールを開く → PDFを書籍に取り込む → チャットまたは音声で質問 → コンテキストパケットを構築 → 前景で回答 → 重い処理は背景へ委譲 → エビデンス・成果物・復習教材を学習者ごとに保存。',
+      },
+    },
   },
   {
     title: 'TokaiHub',
+    slug: 'tokaihub',
     badge: 'student PWA',
     image: '/assets/tokaihub-site.jpg',
     imageJa: '/assets/tokaihub-site-ja.png',
@@ -278,9 +376,42 @@ const projects = [
     descriptionJa:
       '東海大学向けのモバイルファーストな日英バイリンガル学生ポータルPWA。AWS Cognito認証とOTPフローを実装。',
     tech: ['React', 'Tailwind', 'Amplify', 'Cognito', 'Vite'],
+    detail: {
+      tagline: {
+        en: 'The modern, central student portal for Tokai University — a native-feeling bilingual PWA on AWS.',
+        ja: '東海大学のためのモダンな中央学生ポータル。AWS上で動く、ネイティブアプリのようなバイリンガルPWA。',
+      },
+      overview: {
+        en: 'TokaiHub consolidates academic workflows, course tracking, and campus networking into a single, beautifully animated Progressive Web App. It feels like a native mobile app but runs straight from the browser with zero installs, and is built on AWS with a fully custom Cognito authentication experience.',
+        ja: 'TokaiHubは、履修管理・コース追跡・キャンパスのつながりを、美しくアニメーションする単一のPWAに集約します。インストール不要でブラウザから動作しながらネイティブアプリのような操作感を実現し、AWS上に構築、Cognito認証は完全カスタムUIです。',
+      },
+      features: [
+        {
+          en: 'Custom Cognito auth — bypasses the hosted UI; the raw studentId (e.g. 4CJE1108) is the Cognito username with email-alias login, virtually eliminating collision attacks.',
+          ja: 'カスタムCognito認証 — ホストUIを使わず、学籍番号（例:4CJE1108）をCognitoのユーザー名に、メールエイリアスでログイン。衝突攻撃をほぼ排除。',
+        },
+        {
+          en: 'Cognito OTP onboarding — registration dispatches SES-backed verification codes, driving an in-app "check your email" step built entirely from scratch.',
+          ja: 'Cognito OTPオンボーディング — 登録時にSESベースの確認コードを送信し、一から構築したアプリ内「メール確認」ステップを実現。',
+        },
+        {
+          en: 'Serverless AWS backend — Lambda functions handle schedule fetching, dashboard aggregation, course browse/detail, enrollment, and profile updates, wired to Cognito lifecycle triggers.',
+          ja: 'サーバーレスAWSバックエンド — 時間割取得・ダッシュボード集計・コース閲覧/詳細・履修・プロフィール更新をLambdaで処理し、Cognitoのライフサイクルトリガーと連携。',
+        },
+        {
+          en: 'DynamoDB persistence — a single-table userclass-entity model stores student profiles, the course catalog, enrollment, and schedule data.',
+          ja: 'DynamoDB永続化 — シングルテーブルのuserclass-entity設計で、学生プロフィール・コースカタログ・履修・時間割を保存。',
+        },
+        {
+          en: 'Interactive onboarding — a multi-step campus, course and GPA wizard polished with motion/react layout animations, plus dark/light modes and EN/JP throughout.',
+          ja: 'インタラクティブなオンボーディング — キャンパス・コース・GPA入力の多段ウィザードをmotion/reactのレイアウトアニメで洗練。ダーク/ライトと日英に全面対応。',
+        },
+      ],
+    },
   },
   {
     title: 'Codex Account Switcher',
+    slug: 'codex-account-switcher',
     badge: 'macOS tool',
     image: '/assets/codexacc-site.jpg',
     icon: Bot,
@@ -291,6 +422,38 @@ const projects = [
     descriptionJa:
       'Codexアカウント切り替え、使用量表示、セッション再起動を行うネイティブmacOSメニューバーアプリ。',
     tech: ['Swift', 'AppKit', 'QuartzCore', 'Shell', 'macOS'],
+    detail: {
+      tagline: {
+        en: 'A premium, native macOS menu bar utility to switch active Codex accounts in a single click.',
+        ja: 'ワンクリックでCodexアカウントを切り替える、プレミアムなネイティブmacOSメニューバーアプリ。',
+      },
+      overview: {
+        en: 'An ultra-lightweight, blazing-fast macOS menu bar utility built in pure Swift. With zero external dependencies and a footprint under 300 KB, it integrates directly with macOS system APIs to hot-swap account tokens, safely restart the active desktop app, and display real-time usage budgets right in the status bar.',
+        ja: '純Swift製の超軽量・高速なmacOSメニューバーアプリ。外部依存ゼロ、300KB未満のフットプリントで、macOSのシステムAPIと直接連携し、アカウントトークンを瞬時に切り替え、実行中のデスクトップアプリを安全に再起動し、使用量をステータスバーにリアルタイム表示します。',
+      },
+      features: [
+        {
+          en: 'One-click account switching — swap between saved profiles from the menu bar; the active Codex app is terminated, purged, and restarted to apply the new session.',
+          ja: 'ワンクリック切り替え — メニューバーから保存済みプロファイルを切り替え。実行中のCodexアプリを終了・消去・再起動して新しいセッションを適用。',
+        },
+        {
+          en: 'Redesigned menu UI — each account is a rich card with a deterministic avatar hue from your email, a plan badge, and a green Active pill.',
+          ja: '刷新されたメニューUI — 各アカウントを、メール由来の固定色アバター・プランバッジ・緑のActiveピルを備えたリッチなカードで表示。',
+        },
+        {
+          en: 'Glass-effect usage bars — animated gradient progress bars with a liquid-glass specular highlight that ease in smoothly when the menu opens.',
+          ja: 'グラス効果の使用量バー — 液体ガラスのハイライトを備えたグラデーションのプログレスバーが、メニューを開くと滑らかにイーズイン。',
+        },
+        {
+          en: 'Native macOS feel — SF Symbol icons on every action, styled uppercase section headers, and full dark & light mode adaptation.',
+          ja: 'ネイティブなmacOS体験 — すべての操作にSFシンボル、装飾された大文字のセクション見出し、ダーク/ライト完全対応。',
+        },
+        {
+          en: 'Zero dependencies — pure Swift plus system APIs only, in a binary under 300 KB.',
+          ja: '依存ゼロ — 純SwiftとシステムAPIのみで、300KB未満のバイナリ。',
+        },
+      ],
+    },
   },
 ];
 
@@ -509,15 +672,25 @@ function ExperienceItem({ item, locale }) {
   );
 }
 
-function ProjectCard({ project, t, locale }) {
+function ProjectCard({ project, t, locale, onOpen }) {
   const Icon = project.icon;
   const image = locale === 'ja' && project.imageJa ? project.imageJa : project.image;
+  const open = () => onOpen(project.slug);
   return (
     <article className="project dashed">
-      <div className="project-shot">
+      <button
+        type="button"
+        className="project-shot"
+        onClick={open}
+        aria-label={`${project.title} — ${t.viewDetails}`}
+      >
         <img src={image} alt={`${project.title} interface preview`} />
         <span>{project.badge}</span>
-      </div>
+        <span className="project-shot-hint">
+          {t.viewDetails}
+          <ArrowUpRight size={14} />
+        </span>
+      </button>
       <div className="project-body">
         <div className="project-heading">
           <h3>
@@ -544,6 +717,83 @@ function ProjectCard({ project, t, locale }) {
         </div>
       </div>
     </article>
+  );
+}
+
+function ProjectDetailView({ project, t, locale, onClose, viewRef }) {
+  const Icon = project.icon;
+  const d = project.detail;
+  const pick = (obj) => (locale === 'ja' ? obj.ja : obj.en);
+  const image = locale === 'ja' && project.imageJa ? project.imageJa : project.image;
+  return (
+    <div
+      className="project-detail"
+      ref={viewRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={project.title}
+    >
+      <div className="project-detail-inner">
+        <button type="button" className="pd-back pd-animate" onClick={onClose}>
+          <ArrowLeft size={16} />
+          {t.back}
+        </button>
+
+        <header className="pd-hero pd-animate">
+          <div className="pd-shot">
+            <img src={image} alt={`${project.title} interface preview`} />
+            <span>{project.badge}</span>
+          </div>
+          <div className="pd-headline">
+            <h1>
+              <span>{project.title}</span>
+              <Icon size={22} />
+            </h1>
+            <p className="pd-tagline">{pick(d.tagline)}</p>
+            <div className="pd-actions">
+              <a href={project.live} target="_blank" rel="noreferrer">
+                <ExternalLink size={15} />
+                {t.live}
+              </a>
+              <a href={project.github} target="_blank" rel="noreferrer">
+                <BrandIcon name="github" />
+                GitHub
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <section className="pd-block pd-animate">
+          <h2 className="pd-h">{t.overview}</h2>
+          <p className="pd-overview">{pick(d.overview)}</p>
+        </section>
+
+        <section className="pd-block pd-animate">
+          <h2 className="pd-h">{t.keyFeatures}</h2>
+          <ul className="pd-features">
+            {d.features.map((f, i) => (
+              <li key={i}>{pick(f)}</li>
+            ))}
+          </ul>
+        </section>
+
+        {d.flow && (
+          <section className="pd-block pd-animate">
+            <h2 className="pd-h">{t.howItWorks}</h2>
+            <p className="pd-overview">{pick(d.flow)}</p>
+          </section>
+        )}
+
+        <section className="pd-block pd-animate">
+          <h2 className="pd-h">{t.tech}</h2>
+          <div className="tags">
+            {project.tech.map((tech) => (
+              <span key={tech}>{tech}</span>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
   );
 }
 
@@ -582,13 +832,24 @@ function App() {
   const [showQr, setShowQr] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const [clickBursts, setClickBursts] = useState([]);
+  const [route, setRoute] = useState(() => window.location.hash);
+  const [shownProject, setShownProject] = useState(null);
   const mainRef = useRef(null);
   const smoothWrapperRef = useRef(null);
   const smoothContentRef = useRef(null);
   const lightboxRef = useRef(null);
   const lightboxImgRef = useRef(null);
   const lightboxTlRef = useRef(null);
+  const detailRef = useRef(null);
   const t = copy[locale];
+  const activeProject = projects.find((p) => route === `#/project/${p.slug}`) || null;
+  const openProject = (slug) => {
+    window.location.hash = `#/project/${slug}`;
+  };
+  const closeProject = () => {
+    if (window.history.length > 1) window.history.back();
+    else window.location.hash = '';
+  };
   // Japanese visitors get the Japanese-language CV; everyone else the English one.
   const resumeHref =
     locale === 'ja' ? '/resume/Mohamed_Fuad_CV_JA.pdf' : '/resume/Mohamed_Fuad_CV.pdf';
@@ -596,6 +857,67 @@ function App() {
   useEffect(() => {
     window.localStorage.setItem('portfolio-locale', locale);
   }, [locale]);
+
+  // Project detail routing: keep `route` in sync with the URL hash.
+  useEffect(() => {
+    const onHash = () => setRoute(window.location.hash);
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  // Mount the detail view when navigating in; animate it out then unmount when
+  // navigating away (hash cleared or browser back).
+  useEffect(() => {
+    if (activeProject) {
+      setShownProject(activeProject);
+      return;
+    }
+    const el = detailRef.current;
+    if (!shownProject || !el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setShownProject(null);
+      return;
+    }
+    gsap.killTweensOf(el);
+    gsap.to(el, {
+      autoAlpha: 0,
+      y: 16,
+      duration: 0.28,
+      ease: 'power2.in',
+      onComplete: () => setShownProject(null),
+    });
+  }, [activeProject]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Smooth GSAP entrance each time a detail view mounts.
+  useGSAP(
+    () => {
+      const el = detailRef.current;
+      if (!shownProject || !el) return;
+      el.scrollTop = 0;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        gsap.set(el, { autoAlpha: 1, y: 0 });
+        return;
+      }
+      gsap.set(el, { autoAlpha: 0, y: 0 });
+      gsap
+        .timeline()
+        .to(el, { autoAlpha: 1, duration: 0.3, ease: 'power2.out' })
+        .from(
+          el.querySelectorAll('.pd-animate'),
+          { y: 26, opacity: 0, duration: 0.55, stagger: 0.07, ease: 'power3.out' },
+          '-=0.12'
+        );
+    },
+    { dependencies: [shownProject] }
+  );
+
+  // Lock background scroll while the detail view is open.
+  useEffect(() => {
+    document.body.style.overflow = shownProject ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [shownProject]);
 
   // Lightbox: rotate/scale the photo open; reverse to close.
   useGSAP(() => {
@@ -927,11 +1249,20 @@ function App() {
       >
         <img
           ref={lightboxImgRef}
-          src="/assets/profile-yacht.jpg"
-          alt="Mohamed Fuad on a yacht, enlarged"
+          src="/assets/profile.jpg"
+          alt="Mohamed Fuad, enlarged"
           onClick={(event) => event.stopPropagation()}
         />
       </div>
+      {shownProject && (
+        <ProjectDetailView
+          project={shownProject}
+          t={t}
+          locale={locale}
+          onClose={closeProject}
+          viewRef={detailRef}
+        />
+      )}
       <div id="smooth-wrapper" ref={smoothWrapperRef}>
         <div id="smooth-content" ref={smoothContentRef}>
           <main ref={mainRef}>
@@ -941,8 +1272,8 @@ function App() {
             <div className="avatar-face avatar-front">
               <img
                 className="profile-photo"
-                src="/assets/profile-yacht.jpg"
-                alt="Mohamed Fuad on a yacht"
+                src="/assets/profile.jpg"
+                alt="Mohamed Fuad"
                 title="View photo"
                 onClick={() => setPhotoOpen(true)}
               />
@@ -1058,7 +1389,7 @@ function App() {
       <SectionTitle>{t.projects}</SectionTitle>
       <section className="projects" id="projects">
         {projects.map((project) => (
-          <ProjectCard key={project.title} project={project} t={t} locale={locale} />
+          <ProjectCard key={project.title} project={project} t={t} locale={locale} onOpen={openProject} />
         ))}
       </section>
 
@@ -1073,9 +1404,10 @@ function App() {
       <section className="dashed blog-content">
         <p>
           {t.thoughts}{' '}
-          <a href="https://github.com/MohamedFuad16" target="_blank" rel="noreferrer">
+          <a className="qiita-link" href={QIITA_ARTICLE} target="_blank" rel="noreferrer">
+            <BrandIcon name="qiita" />
             {t.thoughtsLink}
-          </a>{' '}
+          </a>
           {t.thoughtsTail}
         </p>
       </section>

@@ -248,3 +248,19 @@ Context: The user found the tap "wobble" (a ring + 6 flying particle dots) unrem
 Decision: `.click-burst` now renders three staggered concentric rings (`<i>` ×3) that expand and fade, plus a soft radial center flash (`::before`). Key detail: the rings animate `width`/`height` (0→96px) rather than `transform: scale`, so the 1.5px border stays a hairline instead of thickening as it grows. Rings are staggered (delays 0/100/200ms) with decreasing opacity (0.72/0.5/0.34) for a rippling-outward read. The React removal timeout was bumped 900ms→1050ms so nodes outlive the 780ms + 200ms stagger. The chime (`playChime`) is unchanged.
 
 Consequences: Effect is pure CSS keyframes off transient DOM nodes (no JS per-frame), so it's cheap. If more ring density is ever wanted, add `<i>` elements and a matching `:nth-child` delay/opacity.
+
+## ADR-026 - 2026-07-08 - Hash-routed bilingual project detail pages + Qiita notes + headshot
+
+Status: Accepted
+
+Context: The user wanted every project to open its own in-depth page (same UI/style, GSAP transitions, EN/JA, data pulled from the GitHub repos), the "Thoughts in words" link pointed at a Qiita article instead of GitHub, and a professional headshot as the profile photo.
+
+Decision:
+- **Routing:** hash-based, no router lib and no Vercel rewrite config. `route` mirrors `window.location.hash`; `activeProject` = the project whose `slug` matches `#/project/<slug>`. The detail view renders as a fixed full-screen overlay (`.project-detail`, z-index 900 — below the 1000 ripple layer so taps still ripple), a sibling of the smooth-scroll shell (like the avatar lightbox), so the main page's ScrollSmoother/ScrollTrigger graph is never disturbed.
+- **Open/close animation:** `shownProject` holds what's rendered. Navigating in mounts it and a `useGSAP([shownProject])` runs the entrance (fade + `.pd-animate` stagger). Navigating away animates out (`autoAlpha`) via a `useEffect([activeProject])` then clears `shownProject`. `closeProject` uses `history.back()` so the browser back button and the in-page back button share one path; body scroll is locked while open.
+- **Data:** each project gained `slug` + `detail: { tagline, overview, features[], flow? }`, every field `{ en, ja }`, written from the repos' READMEs. Codex has no `flow`, so "How It Works" is conditionally hidden.
+- **Entry point:** `.project-shot` became a `<button>` (reset styles) with a hover/focus "View details" hint; clicking sets the hash.
+- **Qiita:** `SiQiita` added to `brandIcons`; the notes link uses `QIITA_ARTICLE` with the green logo.
+- **Headshot:** `public/assets/profile.jpg` (sips → 1000×750 JPG, ~130 KB) replaces `profile-yacht.jpg` in the avatar + lightbox.
+
+Consequences: New projects need a `slug` + `detail` block to get a page. The overlay assumes single-level routing (`#/project/<slug>`). A **new site logo is still pending** — the user will supply the file.

@@ -1043,13 +1043,27 @@ small.red {
 
 .project-shot {
   position: relative;
+  display: block;
   width: 300px;
   height: 170px;
   min-height: 170px;
+  padding: 0;
+  border: 0;
   overflow: hidden;
   border-radius: 4px;
   background: #151719;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.project-shot:focus-visible {
+  outline: 2px solid #6ea8ff;
+  outline-offset: 2px;
 }
 
 .project-shot img {
@@ -1058,9 +1072,15 @@ small.red {
   height: 100%;
   object-fit: cover;
   object-position: top left;
+  transition: filter 200ms ease;
 }
 
-.project-shot span {
+.project-shot:hover img,
+.project-shot:focus-visible img {
+  filter: brightness(1.07);
+}
+
+.project-shot > span:not(.project-shot-hint) {
   position: absolute;
   right: 10px;
   bottom: 9px;
@@ -1070,6 +1090,32 @@ small.red {
   color: #f6f6f6;
   font-size: 11px;
   box-shadow: #000 0 0 0 1px, rgba(255, 255, 255, 0.1) 0 1px 0 inset;
+}
+
+.project-shot-hint {
+  position: absolute;
+  left: 10px;
+  bottom: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(16, 17, 19, 0.82);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 180ms ease, transform 180ms ease;
+  box-shadow: #000 0 0 0 1px, rgba(255, 255, 255, 0.1) 0 1px 0 inset;
+  pointer-events: none;
+}
+
+.project-shot:hover .project-shot-hint,
+.project-shot:focus-visible .project-shot-hint {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .project-heading {
@@ -1186,6 +1232,219 @@ small.red {
   color: #d9d9d9;
   font-weight: 700;
   text-underline-offset: 3px;
+}
+
+.qiita-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  vertical-align: middle;
+  text-decoration-color: rgba(217, 217, 217, 0.5);
+}
+
+.qiita-link svg {
+  width: 16px;
+  height: 16px;
+  color: #55c500;
+}
+
+/* ---- Project detail page (routed overlay) ---- */
+.project-detail {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #0b0d0e;
+  opacity: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.project-detail-inner {
+  width: min(760px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 40px 0 80px;
+}
+
+.pd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 30px;
+  border: 2px dashed #56595d;
+  border-radius: 7px;
+  padding: 9px 16px;
+  background: #17191b;
+  color: #e8e8e8;
+  font: 600 13px/1 'Figtree', sans-serif;
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.pd-back:hover {
+  border-color: #7a7d82;
+  background: #1e2123;
+  transform: translateX(-2px);
+}
+
+.pd-hero {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.pd-shot {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #151719;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.45);
+}
+
+.pd-shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+
+.pd-shot span {
+  position: absolute;
+  right: 10px;
+  bottom: 9px;
+  border-radius: 4px;
+  padding: 3px 7px;
+  background: rgba(16, 17, 19, 0.78);
+  color: #f6f6f6;
+  font-size: 11px;
+  box-shadow: #000 0 0 0 1px, rgba(255, 255, 255, 0.1) 0 1px 0 inset;
+}
+
+.pd-headline h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.pd-headline h1 svg {
+  color: #c9ccd0;
+}
+
+.pd-tagline {
+  margin: 0 0 18px;
+  color: #b7b7b7;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.pd-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pd-actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #2c2f32;
+  border-radius: 5px;
+  padding: 7px 13px;
+  background: #1a1b1c;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 160ms ease, transform 160ms ease, border-color 160ms ease;
+}
+
+.pd-actions a:hover {
+  background: #232527;
+  border-color: #3a3d40;
+  transform: translateY(-1px);
+}
+
+.pd-actions a svg {
+  width: 15px;
+  height: 15px;
+}
+
+.pd-block {
+  border-top: 1px dashed #303336;
+  margin-top: 24px;
+  padding-top: 22px;
+}
+
+.pd-h {
+  margin: 0 0 13px;
+  color: #8a8f94;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.pd-overview {
+  margin: 0;
+  color: #c4c4c4;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.pd-features {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 13px;
+}
+
+.pd-features li {
+  position: relative;
+  padding-left: 20px;
+  color: #c4c4c4;
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.pd-features li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6ea8ff;
+}
+
+.project-detail .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .pd-hero {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .pd-headline h1 {
+    font-size: 24px;
+  }
+
+  .project-detail-inner {
+    padding: 30px 0 64px;
+  }
 }
 
 .contact-card {

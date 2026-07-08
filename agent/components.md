@@ -14,4 +14,5 @@
 - QR flip avatar: profile image flips in 3D to show `public/assets/linkedin-qr.png`, with the QR control toggling photo/back side.
 - `ContributionGrid`: GitHub-style activity grid populated from the public MohamedFuad16 contributions API with a local fallback.
 - `ExperienceItem`: timeline row with official logo, date/status chip, and expandable bullet details. Its `.dot` node encodes status: solid green circle = active job (`tone: 'green'`), hollow bordered circle with a lucide Check = past job (see ADR-016 for the centering math).
-- `ProjectCard`: dashed project row with a captured live-site preview, bottom-right badge, actions, localized description, and tech tags.
+- `ProjectCard`: dashed project row with a captured live-site preview, bottom-right badge, actions, localized description, and tech tags. The preview is a `<button>` (with a "View details" hover hint) that opens the project's detail page.
+- `ProjectDetailView`: full-screen, hash-routed (`#/project/<slug>`) bilingual detail page for a project — hero (image + tagline + live/GitHub), Overview, Key Features, How It Works (optional), and tech chips. Rendered as a fixed sibling of the smooth-scroll shell; animates in/out with GSAP. Content comes from each project's `detail: {en,ja}` object (see ADR-026).
