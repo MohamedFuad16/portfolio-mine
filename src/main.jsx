@@ -310,7 +310,7 @@ const projects = [
   {
     title: 'Tutor-System',
     slug: 'tutor-system',
-    badge: 'architecture',
+    badge: 'long-term project',
     image: '/assets/tutor-site.jpg',
     imageJa: '/assets/tutor-site-ja.png',
     icon: Sparkles,
