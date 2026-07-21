@@ -33,6 +33,7 @@
 | ADR-028 | Full-width technology rails, ClaudeShot, and mobile shared-element expansion | Accepted |
 | ADR-029 | Expand the complete mobile project card and use a retro coin sound | Accepted |
 | ADR-030 | Use the supplied achievement-completed interaction sound | Accepted |
+| ADR-031 | Keep interactive controls silent | Accepted |
 
 ## ADR-001 - 2026-07-04 - Use Vite React Static Portfolio
 
@@ -343,3 +344,13 @@ Context: After reviewing the retro coin sample in the live portfolio, the user s
 Decision: Copy the supplied WAV unchanged into the public asset directory as `achievement-completed.wav`, preload it once, and clone it for overlapping page, QR, and rocket interactions. Rename the JavaScript identifiers to describe an achievement sound instead of a coin. Remove the superseded `retro-coin.mp3` asset so only the selected interaction sound ships.
 
 Consequences: The selected sound is a 3.6-second stereo PCM WAV and is substantially larger than the prior MP3, but preserving the provided file avoids altering the sound the user explicitly chose. Future replacements must update both the public path and the preloaded `Audio` source.
+
+## ADR-031 - 2026-07-22 - Keep interactive controls silent
+
+Status: Accepted (amends the playback scope in ADR-030)
+
+Context: The global window click listener made the achievement sound play during normal button and navigation use, which made the site feel noisy. The user requested that button clicks remain silent.
+
+Decision: Treat buttons, links, form controls, summaries, labels, elements with `role="button"`, and contenteditable elements as interactive targets and skip audio whenever the click originates inside one. Remove the explicit sound calls from the rocket and QR buttons. Keep ripple creation separate so visual tap feedback can remain without forcing audio.
+
+Consequences: The achievement sound now belongs only to clicks on non-interactive page surfaces. New custom controls must use semantic HTML or an appropriate role so they automatically inherit the silent behavior.

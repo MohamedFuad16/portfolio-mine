@@ -1,12 +1,14 @@
 # State
 
-> Last updated: 2026-07-22 · HEAD: 967ffa9
+> Last updated: 2026-07-22 · HEAD: 6aa8c47
 
 ## Current state summary
 
 The workspace contains a Vite React portfolio inspired by `manixh.dev`, populated with Mohamed Fuad's CV content. It uses a professional headshot with a two-sided LinkedIn QR card, bilingual EN/JA copy, expandable work rows, a live rolling-12-month GitHub contribution grid, GSAP motion, and hash-routed project detail views. The homepage positions Mohamed as a third-year Information and Communication Technology student working toward Forward Deployed Engineering, with the symbol-only Tokai University mark in the profile metadata. Project cards use consistent 16:9 previews and a full-width, single-line technology rail. ClaudeShot has replaced Codex Account Switcher. On mobile, the entire tapped project card expands into the full-screen detail overlay and reverses back to its original rectangle on close. Latest checks (2026-07-22) verified the transition in flight and at both endpoints, reverse navigation, desktop/mobile layout, the symbol-only university mark, no horizontal overflow, and a clean production build. Install and build with pnpm.
 
 ## Recent changes
+
+- 2026-07-22 (silent interactive controls, ADR-031): Limited the achievement sound to clicks on non-interactive page surfaces. Buttons, links, form controls, summaries, labels, ARIA button-like elements, and contenteditable elements no longer trigger audio; the rocket and QR buttons also no longer play sound directly. The ripple remains independent from audio for clicks that bubble to the page handler. Production build passed.
 
 - 2026-07-22 (supplied achievement sound, ADR-030): Replaced the retro coin MP3 with the user's supplied 3.6-second Mixkit "Achievement completed" WAV. The interaction audio now preloads and clones `public/assets/achievement-completed.wav` for page, QR, and rocket clicks; the earlier `retro-coin.mp3` asset was removed. Production build and asset-path checks passed.
 

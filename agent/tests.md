@@ -11,3 +11,4 @@ Verification workflow:
 - Open a project from mobile and confirm the entire card clone expands from its exact rectangle to the viewport, the underlying page reaches scale 0.95/opacity 0.65, and the real detail content replaces the clone. Close it and confirm the motion reverses into the source card with no stuck hidden state.
 - Repeat the route with reduced motion enabled when animation code changes.
 - Verify both EN and JA profile/project copy, including the symbol-only Tokai mark and ClaudeShot card.
+- Confirm a non-interactive page-surface click plays the achievement sound, while buttons, links, form controls, summaries, labels, and role/contenteditable controls remain silent. The visual ripple may still appear on controls that bubble to the page handler.

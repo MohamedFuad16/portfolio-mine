@@ -1394,8 +1394,11 @@ function App() {
       // scroll or drag gesture never triggers the ripple; detail === 0 skips
       // keyboard-activated clicks (which have no meaningful pointer position).
       if (event.detail === 0) return;
-      if (event.target.closest('.name-action, .qr-toggle-btn')) return;
-      playAchievementSound(0.22);
+      const target = event.target instanceof Element ? event.target : null;
+      const interactiveTarget = target?.closest(
+        'button, a, input, select, textarea, summary, label, [role="button"], [contenteditable="true"]'
+      );
+      if (!interactiveTarget) playAchievementSound(0.22);
       const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       setClickBursts((items) => [...items.slice(-5), { id, x: event.clientX, y: event.clientY }]);
       window.setTimeout(() => {
@@ -1409,7 +1412,6 @@ function App() {
 
   const handleNameAction = (event) => {
     event.stopPropagation();
-    playAchievementSound(0.34);
     setBurst(false);
     requestAnimationFrame(() => setBurst(true));
     window.setTimeout(() => setBurst(false), 850);
@@ -1477,7 +1479,6 @@ function App() {
             onClick={(event) => {
               event.stopPropagation();
               setShowQr((current) => !current);
-              playAchievementSound(0.28);
             }}
           >
             <QrCode size={17} />
