@@ -7,7 +7,7 @@
 - `public/assets/*-site*.png` → supplies WebDrop, Tutor-System, and TokaiHub previews to `ProjectCard` and `ProjectDetailView`.
 - `public/assets/claudeshot-preview.svg` → embeds `claudeshot-icon.png`; both feed the ClaudeShot card and detail page.
 - `public/assets/tokai-university-logo.svg` → is rendered by the profile metadata link.
-- `public/assets/retro-coin.mp3` → is preloaded by `src/main.jsx` and cloned for page, QR, and rocket interactions.
+- `public/assets/achievement-completed.wav` → is preloaded by `src/main.jsx` and cloned for page, QR, and rocket interactions.
 - `public/assets/profile.jpg` and `linkedin-qr.png` → feed the avatar, lightbox, and QR flip.
 - `public/resume/*.pdf` → is linked according to the active locale.
 - GitHub contributions API → feeds `ContributionGrid`, which falls back to embedded data when unavailable.

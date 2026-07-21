@@ -32,6 +32,7 @@
 | ADR-027 | Use fitted 16:9 project captures and lightweight system maps | Accepted |
 | ADR-028 | Full-width technology rails, ClaudeShot, and mobile shared-element expansion | Accepted |
 | ADR-029 | Expand the complete mobile project card and use a retro coin sound | Accepted |
+| ADR-030 | Use the supplied achievement-completed interaction sound | Accepted |
 
 ## ADR-001 - 2026-07-04 - Use Vite React Static Portfolio
 
@@ -332,3 +333,13 @@ Context: The first card-expand pass animated only the project screenshot into th
 Decision: On mobile, measure the complete tapped `.project`, store its `outerHTML`, and render that markup as an inert cloned face inside the fixed `.project-detail` surface. Animate the surface from the card rectangle to the viewport over 440ms with the reference `cubic-bezier(0.32, 0.72, 0, 1)` curve while the underlying page scales to 0.95 and fades to 0.65. Fade the clone into the real detail content during the latter part of the expansion. On close, reverse the surface into the measured source card over 380ms, restore the page, and only then unmount the detail route and reveal the original card. Reduced-motion and direct-link paths show the detail immediately. Replace `coin-tap.mp3` with the approximately 1.03-second Mixkit retro game coin sample at `retro-coin.mp3`, and crop the Tokai SVG to the official symbol path only.
 
 Consequences: The transition no longer depends on the preview and detail hero sharing a 16:9 shape; it depends on preserving clone-compatible project-card markup and CSS. Changes to `.project` structure must be checked both in the list and inside `.pd-expand-face`. The cloned face must remain inert and hidden from assistive technology. The renamed sound asset avoids stale caching of the old sample, and university name/faculty text stays in localized HTML rather than being baked into the logo.
+
+## ADR-030 - 2026-07-22 - Use the supplied achievement-completed interaction sound
+
+Status: Accepted (supersedes the audio choice in ADR-029)
+
+Context: After reviewing the retro coin sample in the live portfolio, the user supplied Mixkit's `mixkit-achievement-completed-2068.wav` and requested that exact sound instead.
+
+Decision: Copy the supplied WAV unchanged into the public asset directory as `achievement-completed.wav`, preload it once, and clone it for overlapping page, QR, and rocket interactions. Rename the JavaScript identifiers to describe an achievement sound instead of a coin. Remove the superseded `retro-coin.mp3` asset so only the selected interaction sound ships.
+
+Consequences: The selected sound is a 3.6-second stereo PCM WAV and is substantially larger than the prior MP3, but preserving the provided file avoids altering the sound the user explicitly chose. Future replacements must update both the public path and the preloaded `Audio` source.

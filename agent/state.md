@@ -1,12 +1,14 @@
 # State
 
-> Last updated: 2026-07-22 · HEAD: c23004b
+> Last updated: 2026-07-22 · HEAD: 967ffa9
 
 ## Current state summary
 
 The workspace contains a Vite React portfolio inspired by `manixh.dev`, populated with Mohamed Fuad's CV content. It uses a professional headshot with a two-sided LinkedIn QR card, bilingual EN/JA copy, expandable work rows, a live rolling-12-month GitHub contribution grid, GSAP motion, and hash-routed project detail views. The homepage positions Mohamed as a third-year Information and Communication Technology student working toward Forward Deployed Engineering, with the symbol-only Tokai University mark in the profile metadata. Project cards use consistent 16:9 previews and a full-width, single-line technology rail. ClaudeShot has replaced Codex Account Switcher. On mobile, the entire tapped project card expands into the full-screen detail overlay and reverses back to its original rectangle on close. Latest checks (2026-07-22) verified the transition in flight and at both endpoints, reverse navigation, desktop/mobile layout, the symbol-only university mark, no horizontal overflow, and a clean production build. Install and build with pnpm.
 
 ## Recent changes
+
+- 2026-07-22 (supplied achievement sound, ADR-030): Replaced the retro coin MP3 with the user's supplied 3.6-second Mixkit "Achievement completed" WAV. The interaction audio now preloads and clones `public/assets/achievement-completed.wav` for page, QR, and rocket clicks; the earlier `retro-coin.mp3` asset was removed. Production build and asset-path checks passed.
 
 - 2026-07-22 (reference-accurate full-card expansion, ADR-029): Superseded the preview-only mobile transition with a clone of the complete tapped project card. The clone expands from the measured card rectangle to the viewport over 440ms with the reference cubic-bezier curve while the page scales to 0.95 and fades to 0.65; closing reverses into the original card over 380ms. Replaced the short tap with a longer retro game coin sound, renamed the asset to `retro-coin.mp3`, and reduced the Tokai University asset to its symbol only. Verified the transition in flight, final fullscreen state, reverse close, reduced-motion fallback, 390px and 1440px layouts, and the production build.
 
