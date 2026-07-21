@@ -435,10 +435,11 @@ main {
 }
 
 .university-meta img {
-  width: 78px;
-  height: auto;
-  border-radius: 2px;
-  padding: 2px 5px;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  border-radius: 4px;
+  padding: 3px;
   background: rgba(255, 255, 255, 0.92);
 }
 
@@ -1312,10 +1313,33 @@ small.red {
   overflow-x: hidden;
   background: #0b0d0e;
   opacity: 0;
+  will-change: left, top, width, height, border-radius;
   -webkit-overflow-scrolling: touch;
 }
 
+.project.is-expand-origin {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.pd-expand-face {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  background: #0b0d0e;
+}
+
+.pd-expand-face .project {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
 .project-detail-inner {
+  position: relative;
+  z-index: 1;
   width: min(760px, calc(100% - 32px));
   margin: 0 auto;
   padding: 40px 0 80px;
@@ -1923,7 +1947,8 @@ footer {
   }
 
   .university-meta img {
-    width: 70px;
+    width: 21px;
+    height: 21px;
   }
 
   .skills {

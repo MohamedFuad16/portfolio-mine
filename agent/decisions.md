@@ -31,6 +31,7 @@
 | ADR-026 | Hash-routed bilingual project detail pages + Qiita notes + headshot | Accepted |
 | ADR-027 | Use fitted 16:9 project captures and lightweight system maps | Accepted |
 | ADR-028 | Full-width technology rails, ClaudeShot, and mobile shared-element expansion | Accepted |
+| ADR-029 | Expand the complete mobile project card and use a retro coin sound | Accepted |
 
 ## ADR-001 - 2026-07-04 - Use Vite React Static Portfolio
 
@@ -321,3 +322,13 @@ Decision:
 - Replace the synthesized three-note Web Audio chime with the local 125ms "Arcade game jump coin" preview from Mixkit (`coin-tap.mp3`). The asset is small enough to preload and clone per interaction, allowing overlapping taps without maintaining an AudioContext.
 
 Consequences: New project cards should keep five concise technology chips if they are expected to fit the current single-line mobile rail. Projects without a public demo should omit `live`; action rendering is conditional. The mobile transition depends on the preview and detail hero both remaining 16:9. If either shape changes, update the rect interpolation rather than adding a fixed clone size.
+
+## ADR-029 - 2026-07-22 - Expand the complete mobile project card and use a retro coin sound
+
+Status: Accepted (supersedes the mobile-transition and audio portions of ADR-028)
+
+Context: The first card-expand pass animated only the project screenshot into the detail hero, so it did not reproduce the supplied reference's defining behavior: the complete card becomes the full-screen surface. The 125ms click sample also read as a short tap instead of an arcade coin event, and the official university wordmark repeated text already present in the profile metadata.
+
+Decision: On mobile, measure the complete tapped `.project`, store its `outerHTML`, and render that markup as an inert cloned face inside the fixed `.project-detail` surface. Animate the surface from the card rectangle to the viewport over 440ms with the reference `cubic-bezier(0.32, 0.72, 0, 1)` curve while the underlying page scales to 0.95 and fades to 0.65. Fade the clone into the real detail content during the latter part of the expansion. On close, reverse the surface into the measured source card over 380ms, restore the page, and only then unmount the detail route and reveal the original card. Reduced-motion and direct-link paths show the detail immediately. Replace `coin-tap.mp3` with the approximately 1.03-second Mixkit retro game coin sample at `retro-coin.mp3`, and crop the Tokai SVG to the official symbol path only.
+
+Consequences: The transition no longer depends on the preview and detail hero sharing a 16:9 shape; it depends on preserving clone-compatible project-card markup and CSS. Changes to `.project` structure must be checked both in the list and inside `.pd-expand-face`. The cloned face must remain inert and hidden from assistive technology. The renamed sound asset avoids stale caching of the old sample, and university name/faculty text stays in localized HTML rather than being baked into the logo.

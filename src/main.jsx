@@ -6,6 +6,7 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { ScrollSmoother } from 'gsap/ScrollSmoother';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { SplitText } from 'gsap/SplitText';
+import { CustomEase } from 'gsap/CustomEase';
 import { useGSAP } from '@gsap/react';
 import { signaturePath, signatureViewBox, signatureStrokeWidth } from './signature-path';
 import {
@@ -50,7 +51,17 @@ import {
 } from 'react-icons/si';
 import './styles.css';
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, ScrollSmoother, DrawSVGPlugin, SplitText, useGSAP);
+gsap.registerPlugin(
+  ScrollTrigger,
+  ScrollToPlugin,
+  ScrollSmoother,
+  DrawSVGPlugin,
+  SplitText,
+  CustomEase,
+  useGSAP
+);
+
+const cardExpandEase = CustomEase.create('card-expand', '0.32, 0.72, 0, 1');
 
 const skills = [
   { label: 'JavaScript', Icon: SiJavascript, color: '#f7df1e' },
@@ -780,7 +791,7 @@ function ProjectArchitecture({ steps, locale }) {
   );
 }
 
-function ProjectDetailView({ project, t, locale, onClose, viewRef, shotRef }) {
+function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup }) {
   const Icon = project.icon;
   const d = project.detail;
   const pick = (obj) => (locale === 'ja' ? obj.ja : obj.en);
@@ -793,6 +804,14 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, shotRef }) {
       aria-modal="true"
       aria-label={project.title}
     >
+      {originMarkup && (
+        <div
+          className="pd-expand-face"
+          aria-hidden="true"
+          inert={true}
+          dangerouslySetInnerHTML={{ __html: originMarkup }}
+        />
+      )}
       <div className="project-detail-inner">
         <button type="button" className="pd-back pd-animate pd-reveal" onClick={onClose}>
           <ArrowLeft size={16} />
@@ -800,7 +819,7 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, shotRef }) {
         </button>
 
         <header className="pd-hero">
-          <div className="pd-shot pd-animate" ref={shotRef}>
+          <div className="pd-shot pd-animate">
             <img src={image} alt={`${project.title} interface preview`} />
             <span>{project.badge}</span>
           </div>
@@ -866,11 +885,11 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, shotRef }) {
   );
 }
 
-const coinTap = new Audio('/assets/coin-tap.mp3');
-coinTap.preload = 'auto';
+const retroCoin = new Audio('/assets/retro-coin.mp3');
+retroCoin.preload = 'auto';
 
 function playCoin(volume = 0.12) {
-  const sound = coinTap.cloneNode();
+  const sound = retroCoin.cloneNode();
   sound.volume = Math.min(1, Math.max(0, volume));
   sound.play().catch(() => {});
 }
@@ -894,13 +913,30 @@ function App() {
   const lightboxImgRef = useRef(null);
   const lightboxTlRef = useRef(null);
   const detailRef = useRef(null);
-  const detailShotRef = useRef(null);
   const detailOriginRef = useRef(null);
+  const detailOriginCardRef = useRef(null);
+  const detailOriginMarkupRef = useRef('');
   const t = copy[locale];
   const activeProject = projects.find((p) => route === `#/project/${p.slug}`) || null;
   const openProject = (slug, trigger) => {
     const mobile = window.matchMedia('(max-width: 640px)').matches;
-    detailOriginRef.current = mobile && trigger ? trigger.getBoundingClientRect().toJSON() : null;
+    const card = mobile ? trigger?.closest('.project') : null;
+    if (card) {
+      const rect = card.getBoundingClientRect();
+      detailOriginRef.current = {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      };
+      detailOriginMarkupRef.current = card.outerHTML;
+      detailOriginCardRef.current = card;
+      card.classList.add('is-expand-origin');
+    } else {
+      detailOriginRef.current = null;
+      detailOriginMarkupRef.current = '';
+      detailOriginCardRef.current = null;
+    }
     window.location.hash = `#/project/${slug}`;
   };
   const closeProject = () => {
@@ -931,17 +967,55 @@ function App() {
     }
     const el = detailRef.current;
     if (!shownProject || !el) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const origin = detailOriginRef.current;
+    const face = el.querySelector('.pd-expand-face');
+    const inner = el.querySelector('.project-detail-inner');
+    const mobile = window.matchMedia('(max-width: 640px)').matches;
+    const releaseOrigin = () => {
+      detailOriginCardRef.current?.classList.remove('is-expand-origin');
+      detailOriginCardRef.current = null;
+      detailOriginRef.current = null;
+      detailOriginMarkupRef.current = '';
+      gsap.set(mainRef.current, { clearProps: 'transform,opacity,transformOrigin' });
       setShownProject(null);
+    };
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      releaseOrigin();
       return;
     }
-    gsap.killTweensOf(el);
+
+    gsap.killTweensOf([el, face, inner, mainRef.current]);
+    if (mobile && origin && face && inner) {
+      el.scrollTop = 0;
+      gsap.set(face, { visibility: 'visible' });
+      gsap
+        .timeline({ onComplete: releaseOrigin })
+        .to(inner, { autoAlpha: 0, y: 18, duration: 0.18, ease: 'power2.in' }, 0)
+        .to(face, { autoAlpha: 1, duration: 0.18, ease: 'power1.out' }, 0.1)
+        .to(
+          el,
+          {
+            left: origin.left,
+            top: origin.top,
+            width: origin.width,
+            height: origin.height,
+            borderRadius: 10,
+            duration: 0.38,
+            ease: cardExpandEase,
+          },
+          0
+        )
+        .to(mainRef.current, { scale: 1, opacity: 1, duration: 0.38, ease: cardExpandEase }, 0)
+        .to(el, { autoAlpha: 0, duration: 0.06, ease: 'none' }, 0.35);
+      return;
+    }
+
     gsap.to(el, {
       autoAlpha: 0,
       y: 16,
       duration: 0.28,
       ease: 'power2.in',
-      onComplete: () => setShownProject(null),
+      onComplete: releaseOrigin,
     });
   }, [activeProject]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -952,49 +1026,64 @@ function App() {
       if (!shownProject || !el) return;
       el.scrollTop = 0;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        gsap.set(el, { autoAlpha: 1, y: 0 });
+        gsap.set(el, { autoAlpha: 1, y: 0, inset: 0, width: 'auto', height: 'auto' });
+        gsap.set(el.querySelector('.pd-expand-face'), { display: 'none' });
+        gsap.set(el.querySelector('.project-detail-inner'), { autoAlpha: 1 });
         return;
       }
-      const shot = detailShotRef.current;
       const origin = detailOriginRef.current;
       const mobile = window.matchMedia('(max-width: 640px)').matches;
       const timeline = gsap.timeline();
 
       gsap.set(el, { autoAlpha: 0, y: 0 });
 
-      if (mobile && origin && shot) {
-        const target = shot.getBoundingClientRect();
+      if (mobile && origin) {
+        const face = el.querySelector('.pd-expand-face');
+        const inner = el.querySelector('.project-detail-inner');
         const reveal = el.querySelectorAll('.pd-reveal');
+        if (!face || !inner) return;
+
+        gsap.set(el, {
+          autoAlpha: 1,
+          inset: 'auto',
+          left: origin.left,
+          top: origin.top,
+          width: origin.width,
+          height: origin.height,
+          borderRadius: 10,
+          overflow: 'hidden',
+        });
+        gsap.set(face, { autoAlpha: 1, visibility: 'visible' });
+        gsap.set(inner, { autoAlpha: 0 });
         gsap.set(reveal, { y: 18, opacity: 0 });
-        gsap.set(shot, {
-          x: origin.left - target.left,
-          y: origin.top - target.top,
-          scaleX: origin.width / target.width,
-          scaleY: origin.height / target.height,
-          transformOrigin: 'top left',
-          borderRadius: 4,
+        gsap.set(mainRef.current, {
+          transformOrigin: `${origin.left + origin.width / 2}px ${origin.top + origin.height / 2}px`,
         });
 
         timeline
-          .to(el, { autoAlpha: 1, duration: 0.16, ease: 'none' })
           .to(
-            shot,
+            el,
             {
-              x: 0,
-              y: 0,
-              scaleX: 1,
-              scaleY: 1,
-              borderRadius: 8,
+              left: 0,
+              top: 0,
+              width: window.innerWidth,
+              height: window.innerHeight,
+              borderRadius: 24,
               duration: 0.44,
-              ease: 'power3.out',
+              ease: cardExpandEase,
             },
             0
           )
+          .to(mainRef.current, { scale: 0.95, opacity: 0.65, duration: 0.44, ease: cardExpandEase }, 0)
+          .to(face, { autoAlpha: 0, duration: 0.2, ease: 'power1.out' }, 0.24)
+          .to(inner, { autoAlpha: 1, duration: 0.22, ease: 'power2.out' }, 0.22)
           .to(
             reveal,
-            { y: 0, opacity: 1, duration: 0.38, stagger: 0.045, ease: 'power2.out' },
-            0.2
-          );
+            { y: 0, opacity: 1, duration: 0.34, stagger: 0.04, ease: 'power2.out' },
+            0.25
+          )
+          .set(face, { visibility: 'hidden' })
+          .set(el, { overflowY: 'auto' });
         return;
       }
 
@@ -1359,7 +1448,7 @@ function App() {
           locale={locale}
           onClose={closeProject}
           viewRef={detailRef}
-          shotRef={detailShotRef}
+          originMarkup={detailOriginMarkupRef.current}
         />
       )}
       <div id="smooth-wrapper" ref={smoothWrapperRef}>

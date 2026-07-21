@@ -27,8 +27,8 @@ Static assets:
 - Profile photo crop: `public/assets/profile-yacht.jpg`
 - LinkedIn QR: `public/assets/linkedin-qr.png`
 - Project screenshots: WebDrop, Tutor-System, and TokaiHub EN/JA captures are 1440×810 PNGs under `public/assets/`; ClaudeShot uses `claudeshot-preview.svg` plus the repository's `claudeshot-icon.png`.
-- University mark: official Tokai University English wordmark at `public/assets/tokai-university-logo.svg`.
-- Interaction audio: `public/assets/coin-tap.mp3`, the 125ms "Arcade game jump coin" preview from Mixkit.
+- University mark: symbol-only official Tokai University mark at `public/assets/tokai-university-logo.svg`; the adjacent HTML supplies the localized faculty text.
+- Interaction audio: `public/assets/retro-coin.mp3`, the approximately 1.03-second "Winning a coin, video game" retro game preview from Mixkit.
 - Official work logos: `public/assets/altius-link-logo.png`, `public/assets/hotel-sui-akasaka-favicon.ico`
 
 Runtime public data:
