@@ -1070,8 +1070,8 @@ small.red {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: top left;
+  object-fit: contain;
+  object-position: center;
   transition: filter 200ms ease;
 }
 
@@ -1267,10 +1267,11 @@ small.red {
 }
 
 .pd-back {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   align-items: center;
   gap: 7px;
-  margin-bottom: 30px;
+  margin-bottom: 44px;
   border: 2px dashed #56595d;
   border-radius: 7px;
   padding: 9px 16px;
@@ -1292,12 +1293,12 @@ small.red {
   grid-template-columns: 320px 1fr;
   gap: 28px;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 30px;
 }
 
 .pd-shot {
   position: relative;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 8px;
   background: #151719;
@@ -1308,8 +1309,8 @@ small.red {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: top left;
+  object-fit: contain;
+  object-position: center;
 }
 
 .pd-shot span {
@@ -1426,6 +1427,61 @@ small.red {
   background: #6ea8ff;
 }
 
+.pd-map {
+  display: grid;
+  grid-template-columns: repeat(var(--map-columns), minmax(0, 1fr));
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pd-map-step {
+  position: relative;
+  min-width: 0;
+  border: 1px solid #30343a;
+  border-radius: 8px;
+  padding: 14px 12px 13px;
+  background: linear-gradient(145deg, #181b1f, #111315);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.035), 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+.pd-map-step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  top: 50%;
+  right: -19px;
+  color: #6ea8ff;
+  font-size: 17px;
+  transform: translateY(-50%);
+}
+
+.pd-map-number {
+  display: block;
+  margin-bottom: 10px;
+  color: #6ea8ff;
+  font: 600 10px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+}
+
+.pd-map-step strong,
+.pd-map-step small {
+  display: block;
+}
+
+.pd-map-step strong {
+  margin-bottom: 5px;
+  color: #f1f1f1;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.pd-map-step small {
+  color: #858b92;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
 .project-detail .tags {
   display: flex;
   flex-wrap: wrap;
@@ -1444,6 +1500,24 @@ small.red {
 
   .project-detail-inner {
     padding: 30px 0 64px;
+  }
+
+  .pd-back {
+    margin-bottom: 34px;
+  }
+
+  .pd-map {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .pd-map-step:not(:last-child)::after {
+    content: '↓';
+    top: auto;
+    right: auto;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 

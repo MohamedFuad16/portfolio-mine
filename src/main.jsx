@@ -92,11 +92,12 @@ const brandIcons = {
   qiita: SiQiita,
 };
 
-const QIITA_ARTICLE = 'https://qiita.com/mfuad16/items/6ad8a06c395cb3e8f013';
+const QIITA_PROFILE = 'https://qiita.com/mfuad16';
 
 const experience = [
   {
-    company: 'Altius Link',
+    company: 'Altius Link (formerly KDDI Evolva)',
+    companyJa: 'アルティウスリンク（旧KDDIエボルバ）',
     role: 'Translation Specialist',
     status: 'Active',
     statusJa: '在職中',
@@ -171,15 +172,17 @@ const copy = {
     lang: '日本語',
     building: 'Building AI agent tools',
     location: 'Tokyo, Japan',
-    student: 'Tokai University student',
+    student: 'Information and Communication Technology student',
     intro: (
       <>
-        Yup! I&apos;m a <b>full-stack developer</b> and third-year ICT student focused on{' '}
-        <b>AI agent orchestration</b>. I build multi-agent systems, LLM tool-calling flows,
-        secure <Highlight name="MCP" /> integrations, and production web apps across{' '}
-        <Highlight name="TypeScript" />, <Highlight name="Python" />, <Highlight name="Swift" />,{' '}
-        <Highlight name="Node" />, and <Highlight name="AWS" />. I use <Highlight name="React" /> to
-        shape fast interfaces and work in English and Japanese with JLPT N2 business-level Japanese.
+        I&apos;m a <b>full-stack developer</b> and a third-year Information and Communication
+        Technology student at Tokai University. My goal is to become a{' '}
+        <b>Forward Deployed Engineer</b>: someone who works close to real users, understands the
+        problem, and builds the product that solves it. I&apos;m comfortable working with LLMs,
+        agent workflows, tool calling, and secure <Highlight name="MCP" /> integrations, alongside
+        production apps built with <Highlight name="TypeScript" />, <Highlight name="Python" />,{' '}
+        <Highlight name="Swift" />, <Highlight name="Node" />, <Highlight name="AWS" />, and{' '}
+        <Highlight name="React" />. I work in English and Japanese, with JLPT N2 business-level Japanese.
       </>
     ),
     contactOr: 'OR',
@@ -191,19 +194,19 @@ const copy = {
     live: 'Live',
     moreProjects: 'More Projects',
     thoughtsTitle: 'Thoughts in words.',
-    thoughts: 'You really wanna read my notes? Check out my latest',
-    thoughtsLink: 'Qiita article',
+    thoughts: 'I write about the things I build and learn. Browse all of my posts on',
+    thoughtsLink: 'my Qiita profile',
     thoughtsTail: '.',
     connectTitle: "Let's Connect",
     connectText: 'Feel free to reach out through any of these platforms',
     resume: 'Resume',
     back: 'Back to projects',
     overview: 'Overview',
-    keyFeatures: 'Key Features',
-    howItWorks: 'How It Works',
+    keyFeatures: 'What it does',
+    howItWorks: 'How it works',
+    systemMap: 'System map',
     viewDetails: 'View details',
-    contribution: (total) => `This year, I shipped ${total} focused contributions`,
-    months: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+    contribution: (total) => `${total} contributions in the last 12 months`,
     less: 'Less',
     more: 'More',
     dayTooltip: (count, dateLabel) => `${count} contribution${count === 1 ? '' : 's'} on ${dateLabel}`,
@@ -212,15 +215,15 @@ const copy = {
     lang: 'English',
     building: 'AIツールを開発中',
     location: '東京都、日本',
-    student: '東海大学 ICT 学生',
+    student: '東海大学 情報通信学部',
     intro: (
       <>
-        はじめまして。私は<b>フルスタック開発者</b>で、AIエージェント連携に注力しているICT専攻の
-        3年生です。マルチエージェントシステム、LLMのツール呼び出し、安全な
-        <Highlight name="MCP" />連携、そして本番向けWebアプリを
+        東海大学情報通信学部3年の<b>フルスタック開発者</b>です。将来は、ユーザーの現場で課題を
+        理解し、必要なプロダクトを一緒に形にする<b>Forward Deployed Engineer</b>を目指しています。
+        LLM、エージェントワークフロー、ツール呼び出し、安全な<Highlight name="MCP" />連携に加え、
         <Highlight name="TypeScript" />、<Highlight name="Python" />、<Highlight name="Swift" />、
-        <Highlight name="Node" />、<Highlight name="AWS" />で開発しています。
-        <Highlight name="React" />で高速なUIを作り、英語と日本語で業務対応できます。
+        <Highlight name="Node" />、<Highlight name="AWS" />、<Highlight name="React" />を使った
+        本番向けアプリ開発に取り組んでいます。英語と日本語で業務対応ができ、日本語力はJLPT N2相当です。
       </>
     ),
     contactOr: 'または',
@@ -232,9 +235,9 @@ const copy = {
     live: '公開',
     moreProjects: '他のプロジェクト',
     thoughtsTitle: '言葉のメモ。',
-    thoughts: '開発メモを読みたい方は、最新の',
-    thoughtsLink: 'Qiita記事',
-    thoughtsTail: 'をご覧ください。',
+    thoughts: '開発や学びについて書いています。すべての記事は',
+    thoughtsLink: 'Qiitaプロフィール',
+    thoughtsTail: 'からご覧いただけます。',
     connectTitle: 'お問い合わせ',
     connectText: '以下のリンクからお気軽にご連絡ください',
     resume: '履歴書',
@@ -242,9 +245,9 @@ const copy = {
     overview: '概要',
     keyFeatures: '主な機能',
     howItWorks: '仕組み',
+    systemMap: 'システム構成',
     viewDetails: '詳細を見る',
-    contribution: (total) => `今年は ${total} 件の貢献`,
-    months: ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月'],
+    contribution: (total) => `直近12か月で ${total} 件のコントリビューション`,
     less: '少',
     more: '多',
     dayTooltip: (count, dateLabel) => `${dateLabel}に${count}件のコントリビューション`,
@@ -256,156 +259,170 @@ const projects = [
     title: 'WebDrop',
     slug: 'webdrop',
     badge: 'live app',
-    image: '/assets/webdrop-site.jpg',
-    imageJa: '/assets/webdrop-site-ja.png',
+    image: '/assets/webdrop-site.png',
+    imageJa: '/assets/webdrop-site-ja-new.png',
     icon: Radio,
     live: 'https://web-drop-lyart.vercel.app/',
     github: 'https://github.com/MohamedFuad16/WebDrop',
     description:
-      'AirDrop-style browser file sharing with bump pairing, ultrasonic Web Audio handshake, WebRTC streams, and OPFS storage.',
+      'Nearby file sharing in the browser, with proximity checks and direct WebRTC transfers.',
     descriptionJa:
       'ブラウザだけで使えるAirDrop風ファイル共有アプリ。バンプペアリング、超音波Web Audioハンドシェイク、WebRTCストリーム、OPFS保存に対応。',
     tech: ['JavaScript', 'WebRTC', 'OPFS', 'Web Audio', 'PWA'],
     detail: {
       tagline: {
-        en: 'AirDrop for the open web — proximity-verified, peer-to-peer file transfer in any modern browser.',
+        en: 'A browser-based way to send files to someone nearby without uploading them first.',
         ja: 'オープンウェブのためのAirDrop。近接検証つきのブラウザ完結型P2Pファイル転送。',
       },
       overview: {
-        en: 'WebDrop is a mobile-first, zero-build static PWA for AirDrop-style transfers between nearby devices — no install, no account, no cloud upload. Two phones discover each other, prove they are physically close, then stream files directly peer-to-peer over WebRTC. The file bytes never touch a server; the only backend is a lightweight Node signaling + TURN server that brokers the handshake.',
-        ja: 'WebDropはビルド不要・モバイルファーストのPWA。インストールもアカウントもクラウドアップロードも不要で、近くの端末同士がAirDrop風にファイルを共有します。2台が互いを検出し、物理的な近さを証明したうえで、WebRTCで直接P2P転送。ファイル本体はサーバーを一切経由せず、バックエンドはハンドシェイクを仲介する軽量なNodeシグナリング＋TURNサーバーのみです。',
+        en: 'I built WebDrop to make nearby file sharing work from a browser. Devices find each other through a small WebSocket signaling service, confirm that they are in the same place with ultrasound, motion, or a QR code, then open a direct WebRTC connection. The server helps with discovery and connection setup, but the file data moves between the devices.',
+        ja: 'WebDropは、ブラウザだけで近くの端末へファイルを送るために作ったPWAです。端末は小さなWebSocketシグナリングサービスを通じて互いを見つけ、超音波、端末の動き、またはQRコードで同じ場所にいることを確認します。その後WebRTCで直接接続するため、サーバーは検出と接続設定を助けますが、ファイル本体は端末間を移動します。',
       },
       features: [
         {
-          en: 'Physical-proximity pairing — an ultrasonic Web Audio handshake (~17.8–19.8 kHz, 4 lanes) plus bump + tilt detection. All three must pass, resisting remote relay.',
-          ja: '近接ペアリング — 超音波Web Audioハンドシェイク（約17.8〜19.8kHz・4レーン）に加え、バンプと傾きを検出。3条件すべてを満たす必要があり、遠隔リレーを防ぎます。',
+          en: 'Nearby devices appear on an orbit-style radar, so the sender can choose a person instead of entering a code.',
+          ja: '近くの端末を軌道型のレーダーに表示し、コードを入力せず相手を選べます。',
         },
         {
-          en: 'QR pairing fallback — scan a short-lived personalized QR code (with the sender’s avatar composited in) when acoustic pairing isn’t available.',
-          ja: 'QRフォールバック — 音響ペアリングが使えない場合は、送信者のアバターを合成した短命のパーソナルQRコードをスキャン。',
+          en: 'Pairing checks ultrasound and device motion together. A short-lived QR code is available when those sensors are not.',
+          ja: 'ペアリングでは超音波と端末の動きを組み合わせて確認します。センサーを使えない場合は短時間だけ有効なQRコードに切り替えられます。',
         },
         {
-          en: 'Direct P2P transfer — files stream over WebRTC data channels with a SHA-256 manifest, 256 KB chunking, backpressure, acks, retries and cancel — up to 500 MB per session.',
-          ja: '直接P2P転送 — SHA-256マニフェスト、256KBチャンク、バックプレッシャー、ACK、再送、キャンセルに対応し、1セッション最大500MB。',
+          en: 'Transfers use ordered WebRTC data channels, split files into 256 KB chunks, verify a SHA-256 manifest, and support retry, cancellation, and files up to 500 MB.',
+          ja: '転送には順序付きWebRTCデータチャネルを使います。ファイルを256KB単位に分け、SHA-256マニフェストで確認し、再送、キャンセル、最大500MBのファイルに対応します。',
         },
         {
-          en: 'Adaptive storage — automatically picks the best sink per device: IndexedDB chunking, StreamSaver streaming download, or an in-memory Blob fallback for iOS Safari.',
-          ja: 'アダプティブ保存 — 端末ごとに最適な保存先（IndexedDB / StreamSaver / メモリBlob）を自動選択。iOS Safariにも対応。',
+          en: 'Each browser writes data to the best storage option it supports, including OPFS, IndexedDB, StreamSaver, or an in-memory fallback on iOS.',
+          ja: 'OPFS、IndexedDB、StreamSaver、iOS向けのメモリ保存から、ブラウザが対応している方法を選んで書き込みます。',
         },
         {
-          en: 'Live transfer HUD & orbital radar — an iPhone-style Dynamic Island shows the pairing ladder and progress, while nearby peers orbit your avatar with swipe-to-send.',
-          ja: 'ライブHUDとオービタルレーダー — iPhone風のダイナミックアイランドがペアリングと進捗を表示し、周囲の端末が自分のアバターの周りを回りスワイプで送信。',
-        },
-        {
-          en: 'Installable PWA with an offline mock mode (15 simulated peers) so the whole UI works with no server, plus a full English / 日本語 interface.',
-          ja: 'オフラインのモックモード（15台の疑似端末）を備えたインストール可能なPWA。サーバーなしでUI全体が動作し、日英インターフェースに完全対応。',
+          en: 'The PWA includes English and Japanese UI, an offline shell, and mock peers for testing without the signaling server.',
+          ja: '日英UI、オフラインで開くアプリシェル、シグナリングサーバーなしで試せる疑似端末を用意しています。',
         },
       ],
       flow: {
-        en: 'Discovery → Intent → Verify (proximity ceremony or QR) → Connect (WebRTC SDP/ICE) → Transfer. Control plane is small WebSocket JSON; the data plane is the WebRTC channel — once connected, the server leaves the data path entirely.',
-        ja: '検出 → 意図 → 検証（近接セレモニーまたはQR）→ 接続（WebRTCのSDP/ICE）→ 転送。制御はWebSocketの小さなJSON、データはWebRTCチャネル。接続後はサーバーがデータ経路から完全に外れます。',
+        en: 'The sender discovers a nearby device and starts pairing. WebDrop confirms proximity, exchanges SDP and ICE details through WebSocket signaling, then opens the WebRTC data channels. After that, file chunks travel directly to the receiving browser and are written to local storage.',
+        ja: '送信側が近くの端末を見つけてペアリングを始めます。WebDropが近接を確認し、WebSocketシグナリングでSDPとICE情報を交換してから、WebRTCデータチャネルを開きます。その後、ファイルのチャンクは受信側ブラウザへ直接送られ、ローカルストレージに保存されます。',
       },
+      architecture: [
+        { label: { en: 'Discover', ja: '検出' }, detail: { en: 'WebSocket presence', ja: 'WebSocketプレゼンス' } },
+        { label: { en: 'Verify', ja: '近接確認' }, detail: { en: 'Audio, motion, or QR', ja: '音声・動き・QR' } },
+        { label: { en: 'Connect', ja: '接続' }, detail: { en: 'SDP and ICE exchange', ja: 'SDP・ICE交換' } },
+        { label: { en: 'Transfer', ja: '転送' }, detail: { en: 'WebRTC to local storage', ja: 'WebRTCから端末保存' } },
+      ],
     },
   },
   {
     title: 'Tutor-System',
     slug: 'tutor-system',
     badge: 'long-term project',
-    image: '/assets/tutor-site.jpg',
-    imageJa: '/assets/tutor-site-ja.png',
+    image: '/assets/tutor-site-new.png',
+    imageJa: '/assets/tutor-site-ja-new.png',
     icon: Sparkles,
     live: 'https://tutor-system-architecture.vercel.app/',
     github: 'https://github.com/MohamedFuad16/Tutor-System',
     description:
-      'AI learning app with function-calling tutor tools, realtime voice tutoring, source-aware PDF chat, and learner memory.',
+      'A PDF study workspace with source-aware chat, voice tutoring, learner memory, and revision tools.',
     descriptionJa:
       '関数呼び出し型のチューターツール、リアルタイム音声指導、出典つきPDFチャット、学習者メモリを備えたAI学習アプリ。',
     tech: ['React 19', 'TypeScript', 'OpenRouter', 'Deepgram', 'Dexie'],
     detail: {
       tagline: {
-        en: 'A local-first learning system for PDFs, source-aware tutoring, voice mode, and inspectable AI workflows.',
+        en: 'A study workspace that keeps answers tied to the learner, the conversation, and the source material.',
         ja: 'PDF学習・出典つきチュータリング・音声モード・可視化されたAIワークフローを備えたローカルファーストの学習システム。',
       },
       overview: {
-        en: 'Tutor is a local-first study workspace for reading papers and textbooks, asking a source-aware tutor questions, speaking with a realtime voice tutor, and turning useful sessions into revision books. The learner brain is not hidden model memory — it is an auditable local system of records: books, PDFs, concepts, evidence, BKT mastery, artifacts, corrections, and model runs.',
-        ja: 'Tutorは、論文や教科書を読み、出典を踏まえたチューターに質問し、リアルタイム音声チューターと会話し、学習セッションを復習ノートに変換できるローカルファーストの学習ワークスペースです。学習者の「脳」は隠れたモデル記憶ではなく、書籍・PDF・概念・エビデンス・BKT習熟度・成果物・修正・モデル実行履歴という監査可能なローカル記録です。',
+        en: 'I built Tutor for studying papers and textbooks without losing track of where an answer came from. A learner can upload PDFs, ask questions by text or voice, and turn useful sessions into revision material. The app stores books, evidence, concepts, corrections, and model runs as local records, so its memory can be inspected instead of being hidden inside a chat model.',
+        ja: 'Tutorは、回答の根拠を見失わずに論文や教科書を学ぶためのワークスペースです。PDFを取り込み、テキストまたは音声で質問し、役立った対話を復習教材に変えられます。書籍、根拠、概念、訂正、モデル実行履歴をローカルの記録として保存するため、学習メモリをチャットモデルの中に隠さず確認できます。',
       },
       features: [
         {
-          en: 'Source-aware tutoring — builds a per-user context packet from PDFs, selected text, the current page, prior discussion, semantic memory, and learner state before answering.',
-          ja: '出典対応チュータリング — 回答前に、PDF・選択テキスト・現在ページ・過去の対話・意味記憶・学習者状態からユーザー単位のコンテキストパケットを構築。',
+          en: 'Before answering, Tutor builds a context packet from the current PDF page, selected text, earlier messages, retrieved evidence, and the learner state.',
+          ja: '回答前に、現在のPDFページ、選択した文章、過去の対話、検索した根拠、学習者の状態からコンテキストを組み立てます。',
         },
         {
-          en: 'Realtime voice tutor — Deepgram STT/TTS through a custom local broker, with an optional read-aloud path for answers.',
-          ja: 'リアルタイム音声チューター — カスタムローカルブローカー経由のDeepgram STT/TTS。回答の読み上げにも任意対応。',
+          en: 'Chat responses stream into the study view with citations, Markdown, diagrams, math, code, and optional text-to-speech.',
+          ja: '引用、Markdown、図、数式、コードを含む回答を学習画面へストリーミングし、必要に応じて読み上げます。',
         },
         {
-          en: 'Local-first learner store — per-user folders, SQLite, and document / extracted-text / artifact files that stay on the machine.',
-          ja: 'ローカルファーストの学習ストア — ユーザーごとのフォルダ、SQLite、文書・抽出テキスト・成果物ファイルを端末内に保持。',
+          en: 'Voice mode uses Deepgram through a local broker, while the same tutor context keeps the spoken and typed sessions connected.',
+          ja: '音声モードはローカルブローカー経由でDeepgramを使い、テキストと音声の対話で同じ学習コンテキストを共有します。',
         },
         {
-          en: 'Foreground + background split — answer immediately in the foreground tutor, then delegate slow work to request-correlated background tasks.',
-          ja: '前景＋背景の分離 — 前景チューターで即座に回答し、重い処理はリクエストに対応づいたバックグラウンドタスクへ委譲。',
+          en: 'Fast teaching stays in the foreground. Slower retrieval and tool work runs as request-linked background jobs that can be inspected later.',
+          ja: 'すぐに必要な説明は前景で返し、検索やツール処理はリクエストに紐づくバックグラウンドジョブとして実行します。',
         },
         {
-          en: 'Rich output — React Markdown, Mermaid, Shiki, KaTeX and Recharts render diagrams, math, code and charts inline.',
-          ja: 'リッチ出力 — React Markdown・Mermaid・Shiki・KaTeX・Rechartsで、図・数式・コード・グラフをインライン表示。',
-        },
-        {
-          en: 'BYOK & safe fallbacks — browser BYOK for local development; server-side OpenRouter/Deepgram fallbacks stay disabled behind explicit flags.',
-          ja: 'BYOKと安全なフォールバック — ローカル開発はブラウザBYOK。サーバー側のOpenRouter/Deepgramは明示的なフラグで有効化するまで無効。',
+          en: 'Durable learner data stays in user-scoped SQLite and files. Dexie keeps smaller browser-side cache and interface state.',
+          ja: '学習データはユーザー単位のSQLiteとファイルに保存し、Dexieはブラウザ側の軽いキャッシュと画面状態を管理します。',
         },
       ],
       flow: {
-        en: 'Open a local profile → upload PDFs into a book → ask by chat or voice → assemble the context packet → answer in the foreground → delegate slow work to the background → store evidence, artifacts and revision material for the active learner.',
-        ja: 'ローカルプロフィールを開く → PDFを書籍に取り込む → チャットまたは音声で質問 → コンテキストパケットを構築 → 前景で回答 → 重い処理は背景へ委譲 → エビデンス・成果物・復習教材を学習者ごとに保存。',
+        en: 'The learner opens a local profile, adds PDFs to a book, and asks a question by chat or voice. Tutor gathers the relevant page, earlier discussion, evidence, and learner state before sending the request to the foreground tutor. Slow jobs continue in the background, and the useful results are saved as evidence, artifacts, or revision material for that learner.',
+        ja: '学習者がローカルプロフィールを開き、PDFを書籍に追加して、チャットまたは音声で質問します。Tutorは関連ページ、過去の対話、根拠、学習状態を集めて前景チューターへ渡します。時間のかかる処理は背景で続き、結果はその学習者の根拠、成果物、復習教材として保存されます。',
       },
+      architecture: [
+        { label: { en: 'Study input', ja: '学習入力' }, detail: { en: 'PDF, text, or voice', ja: 'PDF・文章・音声' } },
+        { label: { en: 'Context', ja: 'コンテキスト' }, detail: { en: 'Sources and learner state', ja: '出典と学習状態' } },
+        { label: { en: 'Tutor', ja: 'チューター' }, detail: { en: 'LLM, voice, and tools', ja: 'LLM・音声・ツール' } },
+        { label: { en: 'Learning record', ja: '学習記録' }, detail: { en: 'SQLite, files, and Dexie', ja: 'SQLite・ファイル・Dexie' } },
+      ],
     },
   },
   {
     title: 'TokaiHub',
     slug: 'tokaihub',
     badge: 'student PWA',
-    image: '/assets/tokaihub-site.jpg',
-    imageJa: '/assets/tokaihub-site-ja.png',
+    image: '/assets/tokaihub-site-new.png',
+    imageJa: '/assets/tokaihub-site-ja-new.png',
     icon: Smartphone,
     live: 'https://mohamedfuad16.github.io/TokaiHub/',
     github: 'https://github.com/MohamedFuad16/TokaiHub',
     description:
-      'Mobile-first bilingual student portal PWA for Tokai University with AWS Cognito authentication and OTP flows.',
+      'A bilingual Tokai University student portal backed by Cognito, Lambda, and DynamoDB.',
     descriptionJa:
       '東海大学向けのモバイルファーストな日英バイリンガル学生ポータルPWA。AWS Cognito認証とOTPフローを実装。',
     tech: ['React', 'Tailwind', 'Amplify', 'Cognito', 'Vite'],
     detail: {
       tagline: {
-        en: 'The modern, central student portal for Tokai University — a native-feeling bilingual PWA on AWS.',
+        en: 'A bilingual student portal that brings Tokai University services into one mobile-friendly PWA.',
         ja: '東海大学のためのモダンな中央学生ポータル。AWS上で動く、ネイティブアプリのようなバイリンガルPWA。',
       },
       overview: {
-        en: 'TokaiHub consolidates academic workflows, course tracking, and campus networking into a single, beautifully animated Progressive Web App. It feels like a native mobile app but runs straight from the browser with zero installs, and is built on AWS with a fully custom Cognito authentication experience.',
-        ja: 'TokaiHubは、履修管理・コース追跡・キャンパスのつながりを、美しくアニメーションする単一のPWAに集約します。インストール不要でブラウザから動作しながらネイティブアプリのような操作感を実現し、AWS上に構築、Cognito認証は完全カスタムUIです。',
+        en: 'I built TokaiHub around the routines students repeat every week: checking a schedule, finding course information, managing enrollment, and updating a profile. It runs as an installable React PWA in English and Japanese. Authentication and the student data live on AWS, while the interface stays focused on quick mobile use.',
+        ja: 'TokaiHubは、時間割の確認、授業情報の検索、履修管理、プロフィール更新など、学生が毎週行う操作を一つにまとめたReact PWAです。英語と日本語に対応し、インストールして使えます。認証と学生データはAWSで管理し、画面はスマートフォンですばやく操作できるように設計しています。',
       },
       features: [
         {
-          en: 'Custom Cognito auth — bypasses the hosted UI; the raw studentId (e.g. 4CJE1108) is the Cognito username with email-alias login, virtually eliminating collision attacks.',
-          ja: 'カスタムCognito認証 — ホストUIを使わず、学籍番号（例:4CJE1108）をCognitoのユーザー名に、メールエイリアスでログイン。衝突攻撃をほぼ排除。',
+          en: 'The custom Cognito sign-in keeps students inside the app. Student IDs are the underlying usernames, while email aliases keep login familiar.',
+          ja: 'Cognitoのホスト画面へ移動せず、アプリ内のフォームでログインできます。内部では学籍番号をユーザー名に使い、メールアドレスでもログインできます。',
         },
         {
-          en: 'Cognito OTP onboarding — registration dispatches SES-backed verification codes, driving an in-app "check your email" step built entirely from scratch.',
-          ja: 'Cognito OTPオンボーディング — 登録時にSESベースの確認コードを送信し、一から構築したアプリ内「メール確認」ステップを実現。',
+          en: 'Registration sends a verification code through Cognito and SES, then completes the confirmation step inside the onboarding flow.',
+          ja: '登録時はCognitoとSESから確認コードを送り、オンボーディング画面の中で認証を完了します。',
         },
         {
-          en: 'Serverless AWS backend — Lambda functions handle schedule fetching, dashboard aggregation, course browse/detail, enrollment, and profile updates, wired to Cognito lifecycle triggers.',
-          ja: 'サーバーレスAWSバックエンド — 時間割取得・ダッシュボード集計・コース閲覧/詳細・履修・プロフィール更新をLambdaで処理し、Cognitoのライフサイクルトリガーと連携。',
+          en: 'Lambda functions handle schedules, dashboard summaries, course lookup, enrollment, and profile updates.',
+          ja: '時間割、ダッシュボード集計、授業検索、履修、プロフィール更新をLambda関数で処理します。',
         },
         {
-          en: 'DynamoDB persistence — a single-table userclass-entity model stores student profiles, the course catalog, enrollment, and schedule data.',
-          ja: 'DynamoDB永続化 — シングルテーブルのuserclass-entity設計で、学生プロフィール・コースカタログ・履修・時間割を保存。',
+          en: 'DynamoDB stores student profiles, the course catalog, enrollment records, and schedule data in a single-table model.',
+          ja: '学生プロフィール、授業一覧、履修記録、時間割をDynamoDBのシングルテーブル設計で保存します。',
         },
         {
-          en: 'Interactive onboarding — a multi-step campus, course and GPA wizard polished with motion/react layout animations, plus dark/light modes and EN/JP throughout.',
-          ja: 'インタラクティブなオンボーディング — キャンパス・コース・GPA入力の多段ウィザードをmotion/reactのレイアウトアニメで洗練。ダーク/ライトと日英に全面対応。',
+          en: 'The onboarding flow collects campus, course, and GPA details, with English and Japanese copy plus light and dark themes throughout the app.',
+          ja: 'オンボーディングでキャンパス、コース、GPAを登録できます。アプリ全体で日英表示とライト・ダークテーマに対応しています。',
         },
+      ],
+      flow: {
+        en: 'The React PWA signs the student in through Cognito and sends authenticated requests to Lambda. Each function handles one part of the portal, such as schedules or enrollment, and reads or writes the matching records in DynamoDB. Cognito lifecycle triggers also prepare the student profile after registration.',
+        ja: 'React PWAがCognitoで学生を認証し、認証済みのリクエストをLambdaへ送ります。各Lambda関数が時間割や履修などの処理を担当し、DynamoDBの対象レコードを読み書きします。登録後の学生プロフィール作成にはCognitoのライフサイクルトリガーも使います。',
+      },
+      architecture: [
+        { label: { en: 'React PWA', ja: 'React PWA' }, detail: { en: 'Bilingual mobile UI', ja: '日英モバイルUI' } },
+        { label: { en: 'Cognito', ja: 'Cognito' }, detail: { en: 'Identity and OTP', ja: '認証とOTP' } },
+        { label: { en: 'Lambda API', ja: 'Lambda API' }, detail: { en: 'Portal workflows', ja: 'ポータル処理' } },
+        { label: { en: 'DynamoDB', ja: 'DynamoDB' }, detail: { en: 'Student and course data', ja: '学生・授業データ' } },
       ],
     },
   },
@@ -418,40 +435,50 @@ const projects = [
     live: 'https://github.com/MohamedFuad16/Codex-Acc-Switcher',
     github: 'https://github.com/MohamedFuad16/Codex-Acc-Switcher',
     description:
-      'Native macOS menu bar utility for switching Codex accounts, showing usage budgets, and restarting sessions.',
+      'A native macOS menu bar utility for switching Codex accounts and checking usage limits.',
     descriptionJa:
       'Codexアカウント切り替え、使用量表示、セッション再起動を行うネイティブmacOSメニューバーアプリ。',
     tech: ['Swift', 'AppKit', 'QuartzCore', 'Shell', 'macOS'],
     detail: {
       tagline: {
-        en: 'A premium, native macOS menu bar utility to switch active Codex accounts in a single click.',
-        ja: 'ワンクリックでCodexアカウントを切り替える、プレミアムなネイティブmacOSメニューバーアプリ。',
+        en: 'A small native macOS utility for changing Codex accounts without leaving the menu bar.',
+        ja: 'メニューバーから離れずにCodexアカウントを切り替える、小さなmacOSネイティブアプリ。',
       },
       overview: {
-        en: 'An ultra-lightweight, blazing-fast macOS menu bar utility built in pure Swift. With zero external dependencies and a footprint under 300 KB, it integrates directly with macOS system APIs to hot-swap account tokens, safely restart the active desktop app, and display real-time usage budgets right in the status bar.',
-        ja: '純Swift製の超軽量・高速なmacOSメニューバーアプリ。外部依存ゼロ、300KB未満のフットプリントで、macOSのシステムAPIと直接連携し、アカウントトークンを瞬時に切り替え、実行中のデスクトップアプリを安全に再起動し、使用量をステータスバーにリアルタイム表示します。',
+        en: 'I built Codex Account Switcher because changing accounts from the command line was interrupting my work. The app keeps saved profiles in a native AppKit menu, calls the local codex-auth helper to switch credentials, restarts Codex so the new session takes effect, and shows the remaining five-hour and weekly usage limits in the menu bar.',
+        ja: 'コマンドラインでアカウントを切り替えるたびに作業が止まっていたため、Codex Account Switcherを作りました。保存したプロファイルをAppKitのメニューに表示し、ローカルのcodex-authを呼び出して認証情報を切り替えます。その後Codexを再起動して新しいセッションを反映し、5時間と週間の残り使用量をメニューバーに表示します。',
       },
       features: [
         {
-          en: 'One-click account switching — swap between saved profiles from the menu bar; the active Codex app is terminated, purged, and restarted to apply the new session.',
-          ja: 'ワンクリック切り替え — メニューバーから保存済みプロファイルを切り替え。実行中のCodexアプリを終了・消去・再起動して新しいセッションを適用。',
+          en: 'Saved profiles can be selected directly from the menu bar, with custom labels for accounts that are hard to tell apart.',
+          ja: '保存済みプロファイルをメニューバーから選び、区別しにくいアカウントには独自ラベルを付けられます。',
         },
         {
-          en: 'Redesigned menu UI — each account is a rich card with a deterministic avatar hue from your email, a plan badge, and a green Active pill.',
-          ja: '刷新されたメニューUI — 各アカウントを、メール由来の固定色アバター・プランバッジ・緑のActiveピルを備えたリッチなカードで表示。',
+          en: 'Each account card shows its email, plan, active state, and a stable avatar color derived from the email address.',
+          ja: '各アカウントカードにメール、プラン、使用中の状態、メールアドレスから決まる固定のアバター色を表示します。',
         },
         {
-          en: 'Glass-effect usage bars — animated gradient progress bars with a liquid-glass specular highlight that ease in smoothly when the menu opens.',
-          ja: 'グラス効果の使用量バー — 液体ガラスのハイライトを備えたグラデーションのプログレスバーが、メニューを開くと滑らかにイーズイン。',
+          en: 'Usage rows show the remaining five-hour and weekly limits. Missing API data is displayed as unavailable instead of zero.',
+          ja: '5時間と週間の残り使用量を表示します。APIから取得できない場合は、誤って0とせず利用不可として示します。',
         },
         {
-          en: 'Native macOS feel — SF Symbol icons on every action, styled uppercase section headers, and full dark & light mode adaptation.',
-          ja: 'ネイティブなmacOS体験 — すべての操作にSFシンボル、装飾された大文字のセクション見出し、ダーク/ライト完全対応。',
+          en: 'The interface uses AppKit, SF Symbols, system colors, and Core Animation, so it follows the active macOS appearance.',
+          ja: 'AppKit、SF Symbols、システムカラー、Core Animationを使い、macOSの外観設定に合わせて表示します。',
         },
         {
-          en: 'Zero dependencies — pure Swift plus system APIs only, in a binary under 300 KB.',
-          ja: '依存ゼロ — 純SwiftとシステムAPIのみで、300KB未満のバイナリ。',
+          en: 'The app is written in Swift with system frameworks only and builds to a binary under 300 KB.',
+          ja: 'Swiftと標準フレームワークだけで作られており、ビルド後のバイナリは300KB未満です。',
         },
+      ],
+      flow: {
+        en: 'A menu selection tells codex-auth which saved profile to activate. The app snapshots the current token, switches credentials, stops the active Codex processes, and relaunches the desktop app. While that happens, AppKit and Core Animation keep the status item responsive and show progress.',
+        ja: 'メニューで選んだプロファイルをcodex-authへ渡します。現在のトークンを保存して認証情報を切り替え、実行中のCodexプロセスを終了してデスクトップアプリを再起動します。処理中もAppKitとCore Animationでステータス項目を動かし、進行状況を表示します。',
+      },
+      architecture: [
+        { label: { en: 'Menu action', ja: 'メニュー操作' }, detail: { en: 'AppKit account picker', ja: 'AppKitアカウント選択' } },
+        { label: { en: 'Credential switch', ja: '認証切替' }, detail: { en: 'codex-auth helper', ja: 'codex-authヘルパー' } },
+        { label: { en: 'Restart', ja: '再起動' }, detail: { en: 'POSIX process control', ja: 'POSIXプロセス制御' } },
+        { label: { en: 'Status', ja: '状態表示' }, detail: { en: 'Usage and animation', ja: '使用量とアニメーション' } },
       ],
     },
   },
@@ -537,7 +564,7 @@ function useContributionData() {
       return { date: cellDate.toISOString().slice(0, 10), count, level };
     });
   }, []);
-  const [data, setData] = useState({ cells: fallbackCells, total: 392 });
+  const [data, setData] = useState({ cells: fallbackCells, total: 561 });
 
   useEffect(() => {
     let cancelled = false;
@@ -550,7 +577,7 @@ function useContributionData() {
           count: Number(day.count) || 0,
           level: Number(day.level) || 0,
         }));
-        setData({ cells, total: Number(payload.total?.lastYear) || 392 });
+        setData({ cells, total: Number(payload.total?.lastYear) || 561 });
       })
       .catch(() => {});
 
@@ -574,13 +601,28 @@ function formatCellDate(dateStr, locale) {
 
 function ContributionGrid({ t, locale }) {
   const { cells, total } = useContributionData();
+  const monthLabels = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'en-US', {
+      month: 'short',
+    });
+    const labels = [];
+    let previousMonth = '';
+    cells.forEach((day) => {
+      const [year, month] = day.date.split('-').map(Number);
+      const key = `${year}-${month}`;
+      if (key === previousMonth) return;
+      labels.push(formatter.format(new Date(year, (month || 1) - 1, 1)));
+      previousMonth = key;
+    });
+    return labels.slice(-9);
+  }, [cells, locale]);
 
   return (
     <section className="dashed contribution" aria-label="Contribution grid">
       <div className="calendar-scroll">
         <div className="months">
-          {t.months.map((month) => (
-            <span key={month}>{month}</span>
+          {monthLabels.map((month, index) => (
+            <span key={`${month}-${index}`}>{month}</span>
           ))}
         </div>
         <div className="grid" aria-hidden="true">
@@ -614,6 +656,7 @@ function ExperienceItem({ item, locale }) {
   const status = locale === 'ja' ? item.statusJa : item.status;
   const date = locale === 'ja' ? item.dateJa : item.date;
   const details = locale === 'ja' ? item.detailsJa : item.details;
+  const company = locale === 'ja' && item.companyJa ? item.companyJa : item.company;
   return (
     <article className={`experience-item ${open ? 'open' : ''}`}>
       <div className="experience-summary">
@@ -640,7 +683,7 @@ function ExperienceItem({ item, locale }) {
         <div className="experience-copy">
           <h3>
             <a href={item.url} target="_blank" rel="noreferrer">
-              <span className="company-name">{item.company}</span>
+              <span className="company-name">{company}</span>
               <ExternalLink size={13} />
             </a>
             <small className={item.tone}>
@@ -655,7 +698,7 @@ function ExperienceItem({ item, locale }) {
           className="chevron"
           type="button"
           aria-expanded={open}
-          aria-label={`Toggle ${item.company} details`}
+          aria-label={`Toggle ${company} details`}
           onClick={() => setOpen((current) => !current)}
         >
           <ChevronDown size={15} />
@@ -720,6 +763,21 @@ function ProjectCard({ project, t, locale, onOpen }) {
   );
 }
 
+function ProjectArchitecture({ steps, locale }) {
+  const pick = (value) => (locale === 'ja' ? value.ja : value.en);
+  return (
+    <ol className="pd-map" style={{ '--map-columns': steps.length }}>
+      {steps.map((step, index) => (
+        <li className="pd-map-step" key={step.label.en}>
+          <span className="pd-map-number">{String(index + 1).padStart(2, '0')}</span>
+          <strong>{pick(step.label)}</strong>
+          <small>{pick(step.detail)}</small>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 function ProjectDetailView({ project, t, locale, onClose, viewRef }) {
   const Icon = project.icon;
   const d = project.detail;
@@ -781,6 +839,13 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef }) {
           <section className="pd-block pd-animate">
             <h2 className="pd-h">{t.howItWorks}</h2>
             <p className="pd-overview">{pick(d.flow)}</p>
+          </section>
+        )}
+
+        {d.architecture && (
+          <section className="pd-block pd-animate">
+            <h2 className="pd-h">{t.systemMap}</h2>
+            <ProjectArchitecture steps={d.architecture} locale={locale} />
           </section>
         )}
 
@@ -1404,7 +1469,7 @@ function App() {
       <section className="dashed blog-content">
         <p>
           {t.thoughts}{' '}
-          <a className="qiita-link" href={QIITA_ARTICLE} target="_blank" rel="noreferrer">
+          <a className="qiita-link" href={QIITA_PROFILE} target="_blank" rel="noreferrer">
             <BrandIcon name="qiita" />
             {t.thoughtsLink}
           </a>

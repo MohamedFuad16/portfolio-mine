@@ -1,5 +1,36 @@
 # Decisions
 
+## Index
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| ADR-001 | Use Vite React Static Portfolio | Accepted |
+| ADR-002 | Generate Local Bitmap Portfolio Visuals | Accepted |
+| ADR-003 | Use Live Project Screenshots And Public Logo Assets | Accepted |
+| ADR-004 | Match Reference Portfolio Measurements | Accepted |
+| ADR-005 | Use Local Avatar Decoration Layer | Accepted |
+| ADR-006 | Prefer Local Icon Components And Bilingual Runtime Copy | Accepted |
+| ADR-007 | Use Flip QR Avatar And Browser-Locale Copy | Accepted |
+| ADR-008 | Download Remote Favicons Locally, Never Hotlink | Accepted |
+| ADR-009 | Untrack node_modules and dist, Never Commit Build Output | Accepted |
+| ADR-010 | Prevent Title Wrapping With Ellipsis, Not Just flex-wrap | Accepted |
+| ADR-011 | Delay `visibility` Transitions Instead of Snapping Them | Accepted |
+| ADR-012 | Give Every Interactive Element a Transitioned Hover State | Accepted |
+| ADR-013 | Add GSAP + ScrollTrigger for Scroll Reveals via useGSAP | Accepted |
+| ADR-014 | Timeline Dots: Keep Flat Original Style, Fix Only Alignment | Accepted |
+| ADR-015 | Project Title: nowrap + Wrapping Heading Row | Accepted |
+| ADR-016 | Adapt Reference-Image UI Patterns | Accepted |
+| ADR-017 | GSAP Pass 2: Coordinated Reveals and Parallax | Accepted |
+| ADR-018 | ScrollSmoother + DrawSVG Signature + SplitText Gotchas | Accepted |
+| ADR-019 | Round-2 Reference Adaptations and Responsive Restructure | Accepted |
+| ADR-020 | Drop the Signature Pin; Reorder the Hero | Accepted |
+| ADR-021 | Redesign the Signature as a Single-Stroke Monoline | Accepted |
+| ADR-022 | Add a Perpetual Signature Tracing Highlight | Accepted |
+| ADR-023 | Mobile Layout Polish and Android-Jank Mitigation | Accepted |
+| ADR-024 | Replace Tap Particles with Water-Ripple Rings | Accepted |
+| ADR-026 | Hash-Routed Bilingual Project Detail Pages | Accepted |
+| ADR-027 | Use Fitted 16:9 Project Captures and Lightweight System Maps | Accepted |
+
 ## ADR-001 - 2026-07-04 - Use Vite React Static Portfolio
 
 Status: Accepted
@@ -264,3 +295,13 @@ Decision:
 - **Headshot:** `public/assets/profile.jpg` (sips → 1000×750 JPG, ~130 KB) replaces `profile-yacht.jpg` in the avatar + lightbox.
 
 Consequences: New projects need a `slug` + `detail` block to get a page. The overlay assumes single-level routing (`#/project/<slug>`). A **new site logo is still pending** — the user will supply the file.
+
+## ADR-027 - 2026-07-21 - Use fitted 16:9 project captures and lightweight system maps
+
+Status: Accepted
+
+Context: The live-project previews had mixed dimensions, including a 1280×1021 Japanese WebDrop capture, while cards and detail heroes cropped with `object-fit: cover`. Project detail copy also read like README or AI-generated marketing text, and the detail pages did not explain system architecture visually.
+
+Decision: Recapture every browser-based live project in English and Japanese at 1440×810. Render previews with `object-fit: contain` and use a 16:9 detail hero. Rewrite each project's tagline, overview, features, and workflow in direct first-person portfolio language based on the current repository README. Add a localized four-step `ProjectArchitecture` flow rendered with semantic HTML and CSS instead of shipping a Mermaid runtime. The flow is horizontal on desktop and vertical on mobile. Also label contribution data as a rolling 12-month total because the runtime endpoint uses `y=last`.
+
+Consequences: Project screenshots no longer lose interface edges. New project details should include four concise architecture steps with localized labels and descriptions. The system map stays small, accessible, theme-consistent, and dependency-free; use Mermaid only if a future project needs branching too complex for the four-step component.

@@ -11,7 +11,7 @@ Key identity:
 - GitHub: `MohamedFuad16`
 - LinkedIn: `mohamed-fuad-6b8483278`
 
-Focus areas: AI agent orchestration, full-stack development, LLM tool-calling, MCP, TypeScript, Python, Swift, Node, AWS, English/Japanese.
+Focus areas: Forward Deployed Engineering, full-stack product development, LLM systems, agent workflows, tool-calling, MCP, TypeScript, Python, Swift, Node, AWS, English/Japanese.
 
 Localized copy:
 - `src/main.jsx` contains `copy.en` and `copy.ja` for section labels, intro/contact text, contribution labels, and project/work descriptions.
@@ -26,8 +26,8 @@ Current project links:
 Static assets:
 - Profile photo crop: `public/assets/profile-yacht.jpg`
 - LinkedIn QR: `public/assets/linkedin-qr.png`
-- Project screenshots: `public/assets/*-site.jpg`
+- Project screenshots: new WebDrop, Tutor-System, and TokaiHub EN/JA captures are 1440×810 PNGs under `public/assets/`; the Codex utility keeps its 1425×808 JPG capture.
 - Official work logos: `public/assets/altius-link-logo.png`, `public/assets/hotel-sui-akasaka-favicon.ico`
 
 Runtime public data:
-- Contribution grid fetches `https://github-contributions-api.jogruber.de/v4/MohamedFuad16?y=last`; fallback total is 392.
+- Contribution grid fetches `https://github-contributions-api.jogruber.de/v4/MohamedFuad16?y=last`; verified live total and fallback are 561 as of 2026-07-21. The UI labels this as a rolling 12-month total.
