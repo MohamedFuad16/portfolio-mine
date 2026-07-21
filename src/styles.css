@@ -417,6 +417,35 @@ main {
   font-size: 13px;
 }
 
+.meta-location,
+.university-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-location svg {
+  flex: 0 0 auto;
+}
+
+.university-meta {
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.university-meta img {
+  width: 78px;
+  height: auto;
+  border-radius: 2px;
+  padding: 2px 5px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.university-meta:hover span {
+  color: #e8e8e8;
+}
+
 .intro {
   margin: 0 0 22px;
   color: #a7a7a7;
@@ -1035,8 +1064,8 @@ small.red {
 
 .project {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 34px;
+  grid-template-columns: minmax(0, 1.06fr) minmax(250px, 0.94fr);
+  gap: 15px 28px;
   min-height: 209px;
   padding: 18px 19px;
 }
@@ -1044,9 +1073,10 @@ small.red {
 .project-shot {
   position: relative;
   display: block;
-  width: 300px;
-  height: 170px;
-  min-height: 170px;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
   padding: 0;
   border: 0;
   overflow: hidden;
@@ -1070,9 +1100,13 @@ small.red {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   transition: filter 200ms ease;
+}
+
+.project-tutor-system .project-shot img {
+  transform: scale(1.12);
 }
 
 .project-shot:hover img,
@@ -1161,20 +1195,41 @@ small.red {
   line-height: 1.55;
 }
 
+.project-body {
+  min-width: 0;
+  align-self: center;
+}
+
+.project-tech {
+  display: flex;
+  grid-column: 1 / -1;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
 .project strong {
   display: block;
-  margin-bottom: 9px;
+  flex: 0 0 auto;
+  margin: 0;
   font-size: 14px;
 }
 
-/* Lay tech tags out as a tidy 3-per-row grid so five tags always read as a
-   balanced 3 + 2 rather than an orphaned 4 + 1 (every project has five). */
 .tags {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
-  justify-content: start;
-  justify-items: start;
-  gap: 8px 7px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.project-tech .tags {
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.project-tech .tags::-webkit-scrollbar {
+  display: none;
 }
 
 .tags span {
@@ -1309,7 +1364,7 @@ small.red {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
 }
 
@@ -1699,11 +1754,33 @@ footer {
     padding: 20px;
   }
 
+  .project-tech {
+    grid-column: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .project-tech .tags {
+    width: 100%;
+    gap: 4px;
+  }
+
+  .project-tech .tags span {
+    padding: 2px 5px;
+    font-size: 10px;
+  }
+
   .project-shot {
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
-    min-height: 190px;
+    min-height: 0;
+  }
+
+  .project-shot-hint {
+    opacity: 1;
+    transform: none;
   }
 
   .timeline {
@@ -1835,6 +1912,18 @@ footer {
   .meta {
     gap: 6px;
     font-size: 10.5px;
+  }
+
+  .meta-separator {
+    display: none;
+  }
+
+  .university-meta {
+    flex-basis: 100%;
+  }
+
+  .university-meta img {
+    width: 70px;
   }
 
   .skills {

@@ -21,12 +21,14 @@ Current project links:
 - WebDrop: `https://web-drop-lyart.vercel.app/`, GitHub `https://github.com/MohamedFuad16/WebDrop`
 - Tutor-System: `https://tutor-system-architecture.vercel.app/`, GitHub `https://github.com/MohamedFuad16/Tutor-System`
 - TokaiHub: `https://mohamedfuad16.github.io/TokaiHub/`, GitHub `https://github.com/MohamedFuad16/TokaiHub`
-- Codex Account Switcher: `https://github.com/MohamedFuad16/Codex-Acc-Switcher`
+- ClaudeShot: `https://github.com/MohamedFuad16/ClaudeShot`
 
 Static assets:
 - Profile photo crop: `public/assets/profile-yacht.jpg`
 - LinkedIn QR: `public/assets/linkedin-qr.png`
-- Project screenshots: new WebDrop, Tutor-System, and TokaiHub EN/JA captures are 1440×810 PNGs under `public/assets/`; the Codex utility keeps its 1425×808 JPG capture.
+- Project screenshots: WebDrop, Tutor-System, and TokaiHub EN/JA captures are 1440×810 PNGs under `public/assets/`; ClaudeShot uses `claudeshot-preview.svg` plus the repository's `claudeshot-icon.png`.
+- University mark: official Tokai University English wordmark at `public/assets/tokai-university-logo.svg`.
+- Interaction audio: `public/assets/coin-tap.mp3`, the 125ms "Arcade game jump coin" preview from Mixkit.
 - Official work logos: `public/assets/altius-link-logo.png`, `public/assets/hotel-sui-akasaka-favicon.ico`
 
 Runtime public data:

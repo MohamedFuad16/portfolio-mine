@@ -19,17 +19,18 @@
 | ADR-013 | Add GSAP + ScrollTrigger for Scroll Reveals via useGSAP | Accepted |
 | ADR-014 | Timeline Dots: Keep Flat Original Style, Fix Only Alignment | Accepted |
 | ADR-015 | Project Title: nowrap + Wrapping Heading Row | Accepted |
-| ADR-016 | Adapt Reference-Image UI Patterns | Accepted |
-| ADR-017 | GSAP Pass 2: Coordinated Reveals and Parallax | Accepted |
-| ADR-018 | ScrollSmoother + DrawSVG Signature + SplitText Gotchas | Accepted |
+| ADR-016 | Adapt Reference-Image UI Patterns: Timeline Nodes, Segmented Locale Pill, Waveform Divider | Accepted |
+| ADR-017 | GSAP Pass 2: Coordinated Hero Timeline, Per-Card Reveals, Scrubbed Parallax, ScrollTo Anchors | Accepted |
+| ADR-018 | ScrollSmoother + DrawSVG Signature + SplitText: the Three Gotchas That Cost Debugging Time | Accepted |
 | ADR-019 | Round-2 Reference Adaptations and Responsive Restructure | Accepted |
-| ADR-020 | Drop the Signature Pin; Reorder the Hero | Accepted |
-| ADR-021 | Redesign the Signature as a Single-Stroke Monoline | Accepted |
-| ADR-022 | Add a Perpetual Signature Tracing Highlight | Accepted |
-| ADR-023 | Mobile Layout Polish and Android-Jank Mitigation | Accepted |
-| ADR-024 | Replace Tap Particles with Water-Ripple Rings | Accepted |
-| ADR-026 | Hash-Routed Bilingual Project Detail Pages | Accepted |
-| ADR-027 | Use Fitted 16:9 Project Captures and Lightweight System Maps | Accepted |
+| ADR-020 | Drop the Signature Pin; Hero Order Is Name → Building → Handle | Accepted |
+| ADR-021 | Signature redesign: single-stroke "hello"-style monoline (Hershey Script), replacing the Great Vibes fill | Accepted |
+| ADR-022 | Signature: drop the red dot, add a perpetual tracing-highlight loop | Accepted |
+| ADR-023 | Mobile layout polish, brighter dashed borders, and Android-jank mitigation | Accepted |
+| ADR-024 | Tap effect: water-ripple rings (user pick) replacing the ring + dots | Accepted |
+| ADR-026 | Hash-routed bilingual project detail pages + Qiita notes + headshot | Accepted |
+| ADR-027 | Use fitted 16:9 project captures and lightweight system maps | Accepted |
+| ADR-028 | Full-width technology rails, ClaudeShot, and mobile shared-element expansion | Accepted |
 
 ## ADR-001 - 2026-07-04 - Use Vite React Static Portfolio
 
@@ -305,3 +306,18 @@ Context: The live-project previews had mixed dimensions, including a 1280×1021 
 Decision: Recapture every browser-based live project in English and Japanese at 1440×810. Render previews with `object-fit: contain` and use a 16:9 detail hero. Rewrite each project's tagline, overview, features, and workflow in direct first-person portfolio language based on the current repository README. Add a localized four-step `ProjectArchitecture` flow rendered with semantic HTML and CSS instead of shipping a Mermaid runtime. The flow is horizontal on desktop and vertical on mobile. Also label contribution data as a rolling 12-month total because the runtime endpoint uses `y=last`.
 
 Consequences: Project screenshots no longer lose interface edges. New project details should include four concise architecture steps with localized labels and descriptions. The system map stays small, accessible, theme-consistent, and dependency-free; use Mermaid only if a future project needs branching too complex for the four-step component.
+
+## ADR-028 - 2026-07-21 - Full-width technology rails, ClaudeShot, and mobile shared-element expansion
+
+Status: Accepted
+
+Context: Tutor-System and Codex Account Switcher showed uneven empty space because the image and five technology chips competed inside a narrow two-column card. The user also preferred ClaudeShot as the fourth project, wanted the Tokai University logo visible, requested the App Store-style card expansion from rselmi.com's card-expand lab on mobile, and wanted the page click sound to feel like a coin rather than a water droplet.
+
+Decision:
+- Project cards keep a two-column preview/body row, while `.project-tech` spans both columns below it. Its five chips use a no-wrap rail; at the mobile breakpoint the chip type and padding reduce just enough for every current project to fit at 390px. Tutor's card preview is scaled to 1.12 so the central study cards read clearly without changing the source screenshot.
+- Replace Codex Account Switcher with ClaudeShot, using the repository README as the source for EN/JA copy and a local SVG workflow preview built around the repository icon. ClaudeShot has only a GitHub action because it has no public web demo.
+- Add the official Tokai University English wordmark beside the localized faculty label and link it to the university site.
+- Mobile opening follows the reference recipe directly: measure the tapped `.project-shot`, mount the detail overlay in its final layout, then animate the detail `.pd-shot` from the measured rectangle to its final rectangle. Duration is 440ms with a calm `power3.out` curve; the detail copy begins revealing after 200ms. Reduced-motion users skip the transform. Desktop keeps the existing entrance.
+- Replace the synthesized three-note Web Audio chime with the local 125ms "Arcade game jump coin" preview from Mixkit (`coin-tap.mp3`). The asset is small enough to preload and clone per interaction, allowing overlapping taps without maintaining an AudioContext.
+
+Consequences: New project cards should keep five concise technology chips if they are expected to fit the current single-line mobile rail. Projects without a public demo should omit `live`; action rendering is conditional. The mobile transition depends on the preview and detail hero both remaining 16:9. If either shape changes, update the rect interpolation rather than adding a fixed clone size.

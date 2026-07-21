@@ -1,10 +1,24 @@
 # Graph
 
-- `index.html` → loads `src/main.jsx`
-- `src/main.jsx` → imports `src/styles.css`, `lucide-react`, and static assets from `public/`
-- `src/styles.css` → styles all page sections and responsive behavior
-- `public/assets/profile-yacht.jpg` → used by the profile avatar
-- `public/assets/avatar-decoration.png` → used by the decorative profile overlay
-- `public/assets/linkedin-qr.png` → used by the profile QR overlay
-- `public/assets/*-site.jpg` → used by `ProjectCard`
-- `public/resume/Mohamed_Fuad_CV.pdf` → linked from the resume action
+- `index.html` → boots `src/main.jsx` through Vite.
+- `src/main.jsx` → owns localized portfolio data, UI components, hash routing, GitHub contribution loading, click audio, and GSAP orchestration.
+- `src/main.jsx` → imports `src/styles.css` and `src/signature-path.js`; changing its card/detail markup affects both responsive CSS and GSAP selectors.
+- `src/styles.css` → controls the shared dashed UI, two-column project cards, full-width technology rails, mobile shared-element target layout, and every responsive breakpoint.
+- `public/assets/*-site*.png` → supplies WebDrop, Tutor-System, and TokaiHub previews to `ProjectCard` and `ProjectDetailView`.
+- `public/assets/claudeshot-preview.svg` → embeds `claudeshot-icon.png`; both feed the ClaudeShot card and detail page.
+- `public/assets/tokai-university-logo.svg` → is rendered by the profile metadata link.
+- `public/assets/coin-tap.mp3` → is preloaded by `src/main.jsx` and cloned for page, QR, and rocket interactions.
+- `public/assets/profile.jpg` and `linkedin-qr.png` → feed the avatar, lightbox, and QR flip.
+- `public/resume/*.pdf` → is linked according to the active locale.
+- GitHub contributions API → feeds `ContributionGrid`, which falls back to embedded data when unavailable.
+
+## Change impact
+
+- Project data shape → `ProjectCard`, `ProjectDetailView`, localized actions, and system maps.
+- `.project-shot` geometry → mobile detail-origin measurement and the shared-element transform.
+- `.pd-shot` geometry → final mobile expansion target; keep it 16:9 with the card preview.
+- `src/main.jsx` class names → GSAP selectors and `src/styles.css`; rename only with both consumers updated.
+- Static asset filenames → hard-coded public URLs in `src/main.jsx` and, for ClaudeShot, the nested SVG image reference.
+
+## Last generated
+- 2026-07-22 via dependency-cruiser (npx).

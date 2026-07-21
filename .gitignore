@@ -3,3 +3,4 @@ dist/
 .tools/
 .DS_Store
 *.log
+graphify-out/

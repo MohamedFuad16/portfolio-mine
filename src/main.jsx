@@ -11,15 +11,14 @@ import { signaturePath, signatureViewBox, signatureStrokeWidth } from './signatu
 import {
   ArrowLeft,
   ArrowUpRight,
-  Bot,
   BriefcaseBusiness,
+  Camera,
   Check,
   ChevronDown,
   Code2,
   Database,
   ExternalLink,
   FileDown,
-  GraduationCap,
   Languages,
   Mail,
   MapPin,
@@ -427,58 +426,57 @@ const projects = [
     },
   },
   {
-    title: 'Codex Account Switcher',
-    slug: 'codex-account-switcher',
-    badge: 'macOS tool',
-    image: '/assets/codexacc-site.jpg',
-    icon: Bot,
-    live: 'https://github.com/MohamedFuad16/Codex-Acc-Switcher',
-    github: 'https://github.com/MohamedFuad16/Codex-Acc-Switcher',
+    title: 'ClaudeShot',
+    slug: 'claudeshot',
+    badge: 'macOS utility',
+    image: '/assets/claudeshot-preview.svg',
+    icon: Camera,
+    github: 'https://github.com/MohamedFuad16/ClaudeShot',
     description:
-      'A native macOS menu bar utility for switching Codex accounts and checking usage limits.',
+      'A native macOS shortcut that captures the frontmost window and pastes it into Claude.',
     descriptionJa:
-      'Codexアカウント切り替え、使用量表示、セッション再起動を行うネイティブmacOSメニューバーアプリ。',
-    tech: ['Swift', 'AppKit', 'QuartzCore', 'Shell', 'macOS'],
+      '最前面のウィンドウを撮影し、そのままClaudeへ貼り付けるmacOSネイティブツール。',
+    tech: ['SwiftUI', 'ScreenCaptureKit', 'AppKit', 'Carbon', 'macOS'],
     detail: {
       tagline: {
-        en: 'A small native macOS utility for changing Codex accounts without leaving the menu bar.',
-        ja: 'メニューバーから離れずにCodexアカウントを切り替える、小さなmacOSネイティブアプリ。',
+        en: 'Press one shortcut to move the window in front of you straight into a Claude conversation.',
+        ja: 'ショートカット一つで、目の前のウィンドウをClaudeの会話へ送れます。',
       },
       overview: {
-        en: 'I built Codex Account Switcher because changing accounts from the command line was interrupting my work. The app keeps saved profiles in a native AppKit menu, calls the local codex-auth helper to switch credentials, restarts Codex so the new session takes effect, and shows the remaining five-hour and weekly usage limits in the menu bar.',
-        ja: 'コマンドラインでアカウントを切り替えるたびに作業が止まっていたため、Codex Account Switcherを作りました。保存したプロファイルをAppKitのメニューに表示し、ローカルのcodex-authを呼び出して認証情報を切り替えます。その後Codexを再起動して新しいセッションを反映し、5時間と週間の残り使用量をメニューバーに表示します。',
+        en: 'I built ClaudeShot to remove the small interruptions between seeing something on screen and asking Claude about it. Shift + Command + 1 captures only the frontmost window, places the PNG on the clipboard, opens Claude, and pastes it into the active conversation. It stays in the menu bar and uses macOS frameworks throughout, so there is no upload service or extra account to manage.',
+        ja: 'ClaudeShotは、画面で見つけた内容をClaudeへ相談するまでの細かな手間をなくすために作りました。Shift + Command + 1を押すと最前面のウィンドウだけを撮影し、PNGをクリップボードへ保存してClaudeを開き、現在の会話へ貼り付けます。メニューバーに常駐し、macOS標準フレームワークだけで動くため、別のアップロードサービスやアカウントは不要です。',
       },
       features: [
         {
-          en: 'Saved profiles can be selected directly from the menu bar, with custom labels for accounts that are hard to tell apart.',
-          ja: '保存済みプロファイルをメニューバーから選び、区別しにくいアカウントには独自ラベルを付けられます。',
+          en: 'The global Shift + Command + 1 shortcut works from any app without bringing ClaudeShot to the front.',
+          ja: 'Shift + Command + 1のグローバルショートカットは、どのアプリを使っていても動作します。',
         },
         {
-          en: 'Each account card shows its email, plan, active state, and a stable avatar color derived from the email address.',
-          ja: '各アカウントカードにメール、プラン、使用中の状態、メールアドレスから決まる固定のアバター色を表示します。',
+          en: 'ScreenCaptureKit targets the frontmost window, so the screenshot excludes the desktop and unrelated windows.',
+          ja: 'ScreenCaptureKitで最前面のウィンドウだけを対象にし、デスクトップや無関係な画面を除外します。',
         },
         {
-          en: 'Usage rows show the remaining five-hour and weekly limits. Missing API data is displayed as unavailable instead of zero.',
-          ja: '5時間と週間の残り使用量を表示します。APIから取得できない場合は、誤って0とせず利用不可として示します。',
+          en: 'The capture is copied as a PNG, then AppKit activates Claude and sends the paste command automatically.',
+          ja: '撮影した画像をPNGとしてコピーし、AppKitでClaudeを前面に出して自動的に貼り付けます。',
         },
         {
-          en: 'The interface uses AppKit, SF Symbols, system colors, and Core Animation, so it follows the active macOS appearance.',
-          ja: 'AppKit、SF Symbols、システムカラー、Core Animationを使い、macOSの外観設定に合わせて表示します。',
+          en: 'A short flash and settling animation confirms the capture without opening a separate window.',
+          ja: '短いフラッシュと収束アニメーションで、別ウィンドウを開かずに撮影完了を伝えます。',
         },
         {
-          en: 'The app is written in Swift with system frameworks only and builds to a binary under 300 KB.',
-          ja: 'Swiftと標準フレームワークだけで作られており、ビルド後のバイナリは300KB未満です。',
+          en: 'English and Japanese menus, launch-at-login, and selectable sounds keep the utility practical for daily use.',
+          ja: '日英メニュー、自動起動、選べる効果音を備え、毎日使いやすい形にしています。',
         },
       ],
       flow: {
-        en: 'A menu selection tells codex-auth which saved profile to activate. The app snapshots the current token, switches credentials, stops the active Codex processes, and relaunches the desktop app. While that happens, AppKit and Core Animation keep the status item responsive and show progress.',
-        ja: 'メニューで選んだプロファイルをcodex-authへ渡します。現在のトークンを保存して認証情報を切り替え、実行中のCodexプロセスを終了してデスクトップアプリを再起動します。処理中もAppKitとCore Animationでステータス項目を動かし、進行状況を表示します。',
+        en: 'Carbon listens for the global shortcut. ClaudeShot then asks ScreenCaptureKit for the frontmost window, renders it as a PNG, and writes the image to the macOS pasteboard. AppKit activates Claude and sends Command + V, leaving the screenshot ready for the next prompt.',
+        ja: 'Carbonがグローバルショートカットを受け取ると、ScreenCaptureKitで最前面のウィンドウを取得し、PNGとしてmacOSのペーストボードへ書き込みます。その後AppKitでClaudeを起動してCommand + Vを送り、次のプロンプトに画像を使える状態にします。',
       },
       architecture: [
-        { label: { en: 'Menu action', ja: 'メニュー操作' }, detail: { en: 'AppKit account picker', ja: 'AppKitアカウント選択' } },
-        { label: { en: 'Credential switch', ja: '認証切替' }, detail: { en: 'codex-auth helper', ja: 'codex-authヘルパー' } },
-        { label: { en: 'Restart', ja: '再起動' }, detail: { en: 'POSIX process control', ja: 'POSIXプロセス制御' } },
-        { label: { en: 'Status', ja: '状態表示' }, detail: { en: 'Usage and animation', ja: '使用量とアニメーション' } },
+        { label: { en: 'Shortcut', ja: 'ショートカット' }, detail: { en: 'Carbon hotkey', ja: 'Carbonホットキー' } },
+        { label: { en: 'Capture', ja: '撮影' }, detail: { en: 'ScreenCaptureKit', ja: 'ScreenCaptureKit' } },
+        { label: { en: 'Clipboard', ja: 'クリップボード' }, detail: { en: 'PNG pasteboard item', ja: 'PNGペーストボード' } },
+        { label: { en: 'Claude', ja: 'Claude' }, detail: { en: 'Activate and paste', ja: '起動して貼り付け' } },
       ],
     },
   },
@@ -718,9 +716,9 @@ function ExperienceItem({ item, locale }) {
 function ProjectCard({ project, t, locale, onOpen }) {
   const Icon = project.icon;
   const image = locale === 'ja' && project.imageJa ? project.imageJa : project.image;
-  const open = () => onOpen(project.slug);
+  const open = (event) => onOpen(project.slug, event.currentTarget);
   return (
-    <article className="project dashed">
+    <article className={`project project-${project.slug} dashed`}>
       <button
         type="button"
         className="project-shot"
@@ -741,10 +739,12 @@ function ProjectCard({ project, t, locale, onOpen }) {
             <Icon size={17} />
           </h3>
           <div className="project-actions">
-            <a href={project.live} target="_blank" rel="noreferrer">
-              <ExternalLink size={14} />
-              {t.live}
-            </a>
+            {project.live && (
+              <a href={project.live} target="_blank" rel="noreferrer">
+                <ExternalLink size={14} />
+                {t.live}
+              </a>
+            )}
             <a href={project.github} target="_blank" rel="noreferrer">
               <BrandIcon name="github" />
               GitHub
@@ -752,6 +752,8 @@ function ProjectCard({ project, t, locale, onOpen }) {
           </div>
         </div>
         <p>{locale === 'ja' ? project.descriptionJa : project.description}</p>
+      </div>
+      <div className="project-tech">
         <strong>{t.tech}</strong>
         <div className="tags">
           {project.tech.map((tech) => (
@@ -778,7 +780,7 @@ function ProjectArchitecture({ steps, locale }) {
   );
 }
 
-function ProjectDetailView({ project, t, locale, onClose, viewRef }) {
+function ProjectDetailView({ project, t, locale, onClose, viewRef, shotRef }) {
   const Icon = project.icon;
   const d = project.detail;
   const pick = (obj) => (locale === 'ja' ? obj.ja : obj.en);
@@ -792,27 +794,29 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef }) {
       aria-label={project.title}
     >
       <div className="project-detail-inner">
-        <button type="button" className="pd-back pd-animate" onClick={onClose}>
+        <button type="button" className="pd-back pd-animate pd-reveal" onClick={onClose}>
           <ArrowLeft size={16} />
           {t.back}
         </button>
 
-        <header className="pd-hero pd-animate">
-          <div className="pd-shot">
+        <header className="pd-hero">
+          <div className="pd-shot pd-animate" ref={shotRef}>
             <img src={image} alt={`${project.title} interface preview`} />
             <span>{project.badge}</span>
           </div>
-          <div className="pd-headline">
+          <div className="pd-headline pd-animate pd-reveal">
             <h1>
               <span>{project.title}</span>
               <Icon size={22} />
             </h1>
             <p className="pd-tagline">{pick(d.tagline)}</p>
             <div className="pd-actions">
-              <a href={project.live} target="_blank" rel="noreferrer">
-                <ExternalLink size={15} />
-                {t.live}
-              </a>
+              {project.live && (
+                <a href={project.live} target="_blank" rel="noreferrer">
+                  <ExternalLink size={15} />
+                  {t.live}
+                </a>
+              )}
               <a href={project.github} target="_blank" rel="noreferrer">
                 <BrandIcon name="github" />
                 GitHub
@@ -821,12 +825,12 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef }) {
           </div>
         </header>
 
-        <section className="pd-block pd-animate">
+        <section className="pd-block pd-animate pd-reveal">
           <h2 className="pd-h">{t.overview}</h2>
           <p className="pd-overview">{pick(d.overview)}</p>
         </section>
 
-        <section className="pd-block pd-animate">
+        <section className="pd-block pd-animate pd-reveal">
           <h2 className="pd-h">{t.keyFeatures}</h2>
           <ul className="pd-features">
             {d.features.map((f, i) => (
@@ -836,20 +840,20 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef }) {
         </section>
 
         {d.flow && (
-          <section className="pd-block pd-animate">
+          <section className="pd-block pd-animate pd-reveal">
             <h2 className="pd-h">{t.howItWorks}</h2>
             <p className="pd-overview">{pick(d.flow)}</p>
           </section>
         )}
 
         {d.architecture && (
-          <section className="pd-block pd-animate">
+          <section className="pd-block pd-animate pd-reveal">
             <h2 className="pd-h">{t.systemMap}</h2>
             <ProjectArchitecture steps={d.architecture} locale={locale} />
           </section>
         )}
 
-        <section className="pd-block pd-animate">
+        <section className="pd-block pd-animate pd-reveal">
           <h2 className="pd-h">{t.tech}</h2>
           <div className="tags">
             {project.tech.map((tech) => (
@@ -862,29 +866,13 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef }) {
   );
 }
 
-function playChime(volume = 0.08) {
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContext) return;
+const coinTap = new Audio('/assets/coin-tap.mp3');
+coinTap.preload = 'auto';
 
-  const context = new AudioContext();
-  const now = context.currentTime;
-  const notes = [659.25, 880, 1174.66];
-
-  notes.forEach((frequency, index) => {
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(frequency, now + index * 0.055);
-    gain.gain.setValueAtTime(0.0001, now + index * 0.055);
-    gain.gain.exponentialRampToValueAtTime(volume, now + index * 0.055 + 0.012);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.055 + 0.18);
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start(now + index * 0.055);
-    oscillator.stop(now + index * 0.055 + 0.2);
-  });
-
-  window.setTimeout(() => context.close(), 450);
+function playCoin(volume = 0.12) {
+  const sound = coinTap.cloneNode();
+  sound.volume = Math.min(1, Math.max(0, volume));
+  sound.play().catch(() => {});
 }
 
 function App() {
@@ -906,9 +894,13 @@ function App() {
   const lightboxImgRef = useRef(null);
   const lightboxTlRef = useRef(null);
   const detailRef = useRef(null);
+  const detailShotRef = useRef(null);
+  const detailOriginRef = useRef(null);
   const t = copy[locale];
   const activeProject = projects.find((p) => route === `#/project/${p.slug}`) || null;
-  const openProject = (slug) => {
+  const openProject = (slug, trigger) => {
+    const mobile = window.matchMedia('(max-width: 640px)').matches;
+    detailOriginRef.current = mobile && trigger ? trigger.getBoundingClientRect().toJSON() : null;
     window.location.hash = `#/project/${slug}`;
   };
   const closeProject = () => {
@@ -963,9 +955,50 @@ function App() {
         gsap.set(el, { autoAlpha: 1, y: 0 });
         return;
       }
+      const shot = detailShotRef.current;
+      const origin = detailOriginRef.current;
+      const mobile = window.matchMedia('(max-width: 640px)').matches;
+      const timeline = gsap.timeline();
+
       gsap.set(el, { autoAlpha: 0, y: 0 });
-      gsap
-        .timeline()
+
+      if (mobile && origin && shot) {
+        const target = shot.getBoundingClientRect();
+        const reveal = el.querySelectorAll('.pd-reveal');
+        gsap.set(reveal, { y: 18, opacity: 0 });
+        gsap.set(shot, {
+          x: origin.left - target.left,
+          y: origin.top - target.top,
+          scaleX: origin.width / target.width,
+          scaleY: origin.height / target.height,
+          transformOrigin: 'top left',
+          borderRadius: 4,
+        });
+
+        timeline
+          .to(el, { autoAlpha: 1, duration: 0.16, ease: 'none' })
+          .to(
+            shot,
+            {
+              x: 0,
+              y: 0,
+              scaleX: 1,
+              scaleY: 1,
+              borderRadius: 8,
+              duration: 0.44,
+              ease: 'power3.out',
+            },
+            0
+          )
+          .to(
+            reveal,
+            { y: 0, opacity: 1, duration: 0.38, stagger: 0.045, ease: 'power2.out' },
+            0.2
+          );
+        return;
+      }
+
+      timeline
         .to(el, { autoAlpha: 1, duration: 0.3, ease: 'power2.out' })
         .from(
           el.querySelectorAll('.pd-animate'),
@@ -1273,7 +1306,7 @@ function App() {
       // keyboard-activated clicks (which have no meaningful pointer position).
       if (event.detail === 0) return;
       if (event.target.closest('.name-action, .qr-toggle-btn')) return;
-      playChime(0.055);
+      playCoin(0.22);
       const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       setClickBursts((items) => [...items.slice(-5), { id, x: event.clientX, y: event.clientY }]);
       window.setTimeout(() => {
@@ -1287,7 +1320,7 @@ function App() {
 
   const handleNameAction = (event) => {
     event.stopPropagation();
-    playChime(0.11);
+    playCoin(0.34);
     setBurst(false);
     requestAnimationFrame(() => setBurst(true));
     window.setTimeout(() => setBurst(false), 850);
@@ -1326,6 +1359,7 @@ function App() {
           locale={locale}
           onClose={closeProject}
           viewRef={detailRef}
+          shotRef={detailShotRef}
         />
       )}
       <div id="smooth-wrapper" ref={smoothWrapperRef}>
@@ -1354,7 +1388,7 @@ function App() {
             onClick={(event) => {
               event.stopPropagation();
               setShowQr((current) => !current);
-              playChime(0.08);
+              playCoin(0.28);
             }}
           >
             <QrCode size={17} />
@@ -1396,11 +1430,20 @@ function App() {
             </span>
           </p>
           <p className="meta">
-            <MapPin size={14} />
-            {t.location}
-            <span>•</span>
-            <GraduationCap size={14} />
-            {t.student}
+            <span className="meta-location">
+              <MapPin size={14} />
+              {t.location}
+            </span>
+            <span className="meta-separator">•</span>
+            <a
+              className="university-meta"
+              href="https://www.u-tokai.ac.jp/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <img src="/assets/tokai-university-logo.svg" alt="Tokai University" />
+              <span>{t.student}</span>
+            </a>
           </p>
         </div>
       </section>

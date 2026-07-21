@@ -1,0 +1,46 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+    pad: 40
+    center: true
+  }
+}
+direction: down
+
+visitor: "Portfolio visitor" {shape: person}
+
+browser: "Browser" {
+  shell: "Vite shell"
+  app: "React App"
+  cards: "Project cards"
+  details: "Detail overlay"
+  activity: "Contribution grid"
+
+  shell -> app
+  app -> cards
+  cards -> details: "hash route + measured rect"
+  app -> activity
+}
+
+presentation: "Presentation" {
+  styles: "Responsive CSS"
+  motion: "GSAP motion"
+  audio: "Coin tap"
+}
+
+content: "Local content" {
+  data: "EN / JA data"
+  media: "Project assets"
+  resume: "Resume PDFs"
+}
+
+github: "GitHub contributions API" {shape: cloud}
+
+visitor -> browser.shell: "visit / interact"
+browser.app -> presentation.styles
+browser.app -> presentation.motion
+browser.app -> presentation.audio
+browser.app -> content.data
+browser.cards -> content.media
+browser.app -> content.resume
+browser.activity -> github: "rolling 12 months"
