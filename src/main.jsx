@@ -8,6 +8,8 @@ import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { SplitText } from 'gsap/SplitText';
 import { CustomEase } from 'gsap/CustomEase';
 import { useGSAP } from '@gsap/react';
+import { BorderBeam } from 'border-beam';
+import { ThinkingOrb } from 'thinking-orbs';
 import { signaturePath, signatureViewBox, signatureStrokeWidth } from './signature-path';
 import {
   ArrowLeft,
@@ -62,6 +64,23 @@ gsap.registerPlugin(
 );
 
 const cardExpandEase = CustomEase.create('card-expand', '0.32, 0.72, 0, 1');
+
+/**
+ * Freeze `.project-detail-inner` at the width and offset it settles on when the
+ * overlay fills the viewport. The mobile open/close animates the overlay's
+ * width, and the inner column is sized `min(760px, 100% - 32px)`; letting that
+ * track the animation re-wraps the tagline mid-flight and shoves every heading
+ * below it up and down. Pinning it keeps the text layout still while only the
+ * frame moves (ADR-036).
+ */
+function pinnedInnerLayout() {
+  const width = Math.min(760, window.innerWidth - 32);
+  return {
+    width,
+    marginLeft: Math.max(0, (window.innerWidth - width) / 2),
+    marginRight: 0,
+  };
+}
 
 const skills = [
   { label: 'JavaScript', Icon: SiJavascript, color: '#f7df1e' },
@@ -215,6 +234,7 @@ const copy = {
     keyFeatures: 'What it does',
     howItWorks: 'How it works',
     systemMap: 'System map',
+    architecture: 'System architecture',
     viewDetails: 'View details',
     contribution: (total) => `${total} contributions in the last 12 months`,
     less: 'Less',
@@ -255,7 +275,8 @@ const copy = {
     overview: '概要',
     keyFeatures: '主な機能',
     howItWorks: '仕組み',
-    systemMap: 'システム構成',
+    systemMap: 'システムの流れ',
+    architecture: 'システム構成',
     viewDetails: '詳細を見る',
     contribution: (total) => `直近12か月で ${total} 件のコントリビューション`,
     less: '少',
@@ -320,6 +341,42 @@ const projects = [
         { label: { en: 'Connect', ja: '接続' }, detail: { en: 'SDP and ICE exchange', ja: 'SDP・ICE交換' } },
         { label: { en: 'Transfer', ja: '転送' }, detail: { en: 'WebRTC to local storage', ja: 'WebRTCから端末保存' } },
       ],
+      stack: [
+        {
+          kind: 'terminal',
+          title: { en: 'Sender browser', ja: '送信側ブラウザ' },
+          sub: { en: 'Installable PWA', ja: 'インストール可能なPWA' },
+          edge: { en: 'presence', ja: '在席通知' },
+        },
+        {
+          title: { en: 'Signaling server', ja: 'シグナリングサーバー' },
+          sub: { en: 'Node WebSocket', ja: 'Node WebSocket' },
+          edge: { en: 'peer found', ja: '端末を検出' },
+        },
+        {
+          kind: 'decision',
+          title: { en: 'Close enough?', ja: '近接を確認' },
+          edge: { en: 'yes', ja: 'はい' },
+          branch: {
+            title: { en: 'QR pairing', ja: 'QRペアリング' },
+            edge: { en: 'no', ja: 'いいえ' },
+          },
+        },
+        {
+          title: { en: 'WebRTC data channel', ja: 'WebRTCデータチャネル' },
+          sub: { en: 'SDP + ICE, TURN relay', ja: 'SDP + ICE / TURN' },
+          edge: { en: '256 KB chunks', ja: '256KBチャンク' },
+          branch: {
+            title: { en: 'SHA-256 manifest', ja: 'SHA-256マニフェスト' },
+            edge: { en: 'verify', ja: '検証' },
+          },
+        },
+        {
+          kind: 'store',
+          title: { en: 'Receiver storage', ja: '受信側ストレージ' },
+          sub: { en: 'OPFS / IndexedDB / StreamSaver', ja: 'OPFS / IndexedDB / StreamSaver' },
+        },
+      ],
     },
   },
   {
@@ -376,6 +433,37 @@ const projects = [
         { label: { en: 'Context', ja: 'コンテキスト' }, detail: { en: 'Sources and learner state', ja: '出典と学習状態' } },
         { label: { en: 'Tutor', ja: 'チューター' }, detail: { en: 'LLM, voice, and tools', ja: 'LLM・音声・ツール' } },
         { label: { en: 'Learning record', ja: '学習記録' }, detail: { en: 'SQLite, files, and Dexie', ja: 'SQLite・ファイル・Dexie' } },
+      ],
+      stack: [
+        {
+          kind: 'terminal',
+          title: { en: 'Question', ja: '質問' },
+          sub: { en: 'Chat, PDF selection, or voice', ja: 'チャット・PDF選択・音声' },
+          edge: { en: 'assemble', ja: '構築' },
+          branch: {
+            title: { en: 'Deepgram STT', ja: 'Deepgram STT' },
+            edge: { en: 'if voice', ja: '音声時' },
+          },
+        },
+        {
+          title: { en: 'Context packet', ja: 'コンテキストパケット' },
+          sub: { en: 'Sources + learner state', ja: '出典 + 学習者状態' },
+          edge: { en: 'prompt', ja: 'プロンプト' },
+        },
+        {
+          title: { en: 'Tutor model', ja: 'チューターモデル' },
+          sub: { en: 'OpenRouter LLM + tools', ja: 'OpenRouter LLM + ツール' },
+          edge: { en: 'answer', ja: '回答' },
+          branch: {
+            title: { en: 'Background tasks', ja: 'バックグラウンド処理' },
+            edge: { en: 'slow work', ja: '重い処理' },
+          },
+        },
+        {
+          kind: 'store',
+          title: { en: 'Local learning record', ja: 'ローカル学習記録' },
+          sub: { en: 'SQLite, Dexie, artifacts', ja: 'SQLite・Dexie・成果物' },
+        },
       ],
     },
   },
@@ -434,6 +522,33 @@ const projects = [
         { label: { en: 'Lambda API', ja: 'Lambda API' }, detail: { en: 'Portal workflows', ja: 'ポータル処理' } },
         { label: { en: 'DynamoDB', ja: 'DynamoDB' }, detail: { en: 'Student and course data', ja: '学生・授業データ' } },
       ],
+      stack: [
+        {
+          kind: 'terminal',
+          title: { en: 'Student opens PWA', ja: '学生がPWAを開く' },
+          sub: { en: 'React + Tailwind, EN / JA', ja: 'React + Tailwind / 日英' },
+          edge: { en: 'sign in', ja: 'サインイン' },
+        },
+        {
+          kind: 'decision',
+          title: { en: 'Signed in?', ja: '認証済み？' },
+          edge: { en: 'yes', ja: 'はい' },
+          branch: {
+            title: { en: 'Cognito email OTP', ja: 'Cognitoメール OTP' },
+            edge: { en: 'no', ja: 'いいえ' },
+          },
+        },
+        {
+          title: { en: 'Lambda API', ja: 'Lambda API' },
+          sub: { en: 'Schedule, courses, profile', ja: '時間割・授業・プロフィール' },
+          edge: { en: 'query', ja: 'クエリ' },
+        },
+        {
+          kind: 'store',
+          title: { en: 'DynamoDB', ja: 'DynamoDB' },
+          sub: { en: 'Single-table student data', ja: 'シングルテーブルの学生データ' },
+        },
+      ],
     },
   },
   {
@@ -489,9 +604,51 @@ const projects = [
         { label: { en: 'Clipboard', ja: 'クリップボード' }, detail: { en: 'PNG pasteboard item', ja: 'PNGペーストボード' } },
         { label: { en: 'Claude', ja: 'Claude' }, detail: { en: 'Activate and paste', ja: '起動して貼り付け' } },
       ],
+      stack: [
+        {
+          kind: 'terminal',
+          title: { en: 'Global hotkey', ja: 'グローバルホットキー' },
+          sub: { en: 'Carbon event handler', ja: 'Carbonイベント' },
+          edge: { en: 'trigger', ja: '起動' },
+          branch: {
+            title: { en: 'Menu bar item', ja: 'メニューバー項目' },
+            edge: { en: 'or', ja: 'または' },
+          },
+        },
+        {
+          title: { en: 'Capture region', ja: '範囲をキャプチャ' },
+          sub: { en: 'ScreenCaptureKit', ja: 'ScreenCaptureKit' },
+          edge: { en: 'PNG', ja: 'PNG' },
+        },
+        {
+          kind: 'store',
+          title: { en: 'Clipboard', ja: 'クリップボード' },
+          sub: { en: 'NSPasteboard item', ja: 'NSPasteboard項目' },
+          edge: { en: 'activate', ja: 'アクティブ化' },
+        },
+        {
+          kind: 'terminal',
+          title: { en: 'Claude', ja: 'Claude' },
+          sub: { en: 'Paste and send', ja: '貼り付けて送信' },
+        },
+      ],
     },
   },
 ];
+
+/** Live prefers-reduced-motion flag, so decorative loops can stand down. */
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = (event) => setReduced(event.matches);
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
+  return reduced;
+}
 
 function SectionTitle({ children }) {
   return <h2 className="section-title">{children}</h2>;
@@ -560,6 +717,13 @@ function SkillPill({ skill }) {
   );
 }
 
+// Contribution data has three tiers, newest wins:
+//   1. a synthetic placeholder so the grid never renders empty,
+//   2. public/assets/contributions.json — refreshed every 6 hours by the
+//      "Update contributions" GitHub Action, so a fresh page load is accurate
+//      even when the third-party API is slow or down,
+//   3. the live API, which catches anything committed since the last run.
+// See ADR-033.
 function useContributionData() {
   const fallbackCells = useMemo(() => {
     const today = new Date();
@@ -577,18 +741,34 @@ function useContributionData() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch('https://github-contributions-api.jogruber.de/v4/MohamedFuad16?y=last')
-      .then((response) => (response.ok ? response.json() : Promise.reject(new Error('GitHub calendar unavailable'))))
+
+    const normalise = (days) =>
+      days.slice(-245).map((day) => ({
+        date: day.date,
+        count: Number(day.count) || 0,
+        level: Number(day.level) || 0,
+      }));
+
+    const loadSnapshot = fetch('/assets/contributions.json', { cache: 'no-cache' })
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error('no snapshot'))))
       .then((payload) => {
-        if (cancelled || !Array.isArray(payload.contributions)) return;
-        const cells = payload.contributions.slice(-245).map((day) => ({
-          date: day.date,
-          count: Number(day.count) || 0,
-          level: Number(day.level) || 0,
-        }));
-        setData({ cells, total: Number(payload.total?.lastYear) || 561 });
+        if (cancelled || !Array.isArray(payload.cells)) return;
+        setData({ cells: normalise(payload.cells), total: Number(payload.total) || 561 });
       })
       .catch(() => {});
+
+    // Always follow the snapshot with a live read so same-day pushes show up.
+    loadSnapshot.then(() =>
+      fetch('https://github-contributions-api.jogruber.de/v4/MohamedFuad16?y=last')
+        .then((response) => (response.ok ? response.json() : Promise.reject(new Error('GitHub calendar unavailable'))))
+        .then((payload) => {
+          if (cancelled || !Array.isArray(payload.contributions)) return;
+          const today = new Date().toISOString().slice(0, 10);
+          const days = payload.contributions.filter((day) => day.date <= today);
+          setData({ cells: normalise(days), total: Number(payload.total?.lastYear) || 561 });
+        })
+        .catch(() => {})
+    );
 
     return () => {
       cancelled = true;
@@ -669,6 +849,8 @@ function ExperienceItem({ item, locale }) {
   return (
     <article className={`experience-item ${open ? 'open' : ''}`}>
       <div className="experience-summary">
+        {/* Lives inside the summary so it centres on the row at any height —
+            the summary is the positioned ancestor (ADR-032). */}
         <span className={`dot ${item.tone}`} aria-hidden="true">
           {item.tone !== 'green' && <Check size={7.5} strokeWidth={3} />}
         </span>
@@ -691,7 +873,7 @@ function ExperienceItem({ item, locale }) {
         </span>
         <div className="experience-copy">
           <h3>
-            <a href={item.url} target="_blank" rel="noreferrer">
+            <a href={item.url} target="_blank" rel="noopener noreferrer">
               <span className="company-name">{company}</span>
               <ExternalLink size={13} />
             </a>
@@ -751,12 +933,12 @@ function ProjectCard({ project, t, locale, onOpen }) {
           </h3>
           <div className="project-actions">
             {project.live && (
-              <a href={project.live} target="_blank" rel="noreferrer">
+              <a href={project.live} target="_blank" rel="noopener noreferrer">
                 <ExternalLink size={14} />
                 {t.live}
               </a>
             )}
-            <a href={project.github} target="_blank" rel="noreferrer">
+            <a href={project.github} target="_blank" rel="noopener noreferrer">
               <BrandIcon name="github" />
               GitHub
             </a>
@@ -788,6 +970,254 @@ function ProjectArchitecture({ steps, locale }) {
         </li>
       ))}
     </ol>
+  );
+}
+
+/**
+ * A real system flow chart, drawn as SVG so boxes and arrows always line up at
+ * any width (ADR-035). Data drives it: `stages` run down a centre lane, and a
+ * stage may carry a `branch` that hangs off to the right — the shape a genuine
+ * flow chart needs. Shapes follow flow-chart convention: rounded terminators
+ * for the start/end, rectangles for processes, a diamond for a decision, and a
+ * cylinder for storage.
+ */
+// Lane geometry, in SVG user units. Two tunings: `wide` for desktop and
+// `compact` for phones, where the viewBox is close to the rendered width so the
+// type stays legible instead of being scaled down to nothing (ADR-035).
+// The branch gap is sized to fit an edge label above the connecting arrow.
+const FLOW_WIDE = {
+  width: 620,
+  laneX: 40,
+  boxW: 250,
+  boxH: 58,
+  gapY: 56, // vertical arrow length between stages
+  branchGap: 76,
+  branchW: 214,
+  branchH: 48,
+  titleSize: 13.5,
+  subSize: 10.5,
+  edgeSize: 10,
+  padY: 14,
+};
+
+const FLOW_COMPACT = {
+  width: 344,
+  laneX: 6,
+  boxW: 194,
+  boxH: 60,
+  gapY: 46,
+  branchGap: 24,
+  branchW: 116,
+  branchH: 44,
+  titleSize: 11,
+  subSize: 8.2,
+  edgeSize: 8.2,
+  padY: 14,
+  // The side arrow is too short here to carry a label, so branch labels sit
+  // above their box instead of across the arrow.
+  branchLabelAbove: true,
+};
+
+function FlowBox({ x, y, w, h, kind, title, sub, geo }) {
+  const cx = x + w / 2;
+  const gap = geo.subSize + 3;
+  const label = (
+    <>
+      <text
+        x={cx}
+        y={sub ? y + h / 2 - gap / 2 + 1 : y + h / 2 + 1}
+        className="fc-title"
+        style={{ fontSize: geo.titleSize }}
+      >
+        {title}
+      </text>
+      {sub && (
+        <text
+          x={cx}
+          y={y + h / 2 + gap}
+          className="fc-sub"
+          style={{ fontSize: geo.subSize }}
+        >
+          {sub}
+        </text>
+      )}
+    </>
+  );
+
+  if (kind === 'decision') {
+    const mx = x + w / 2;
+    const my = y + h / 2;
+    return (
+      <g>
+        <path
+          className="fc-shape fc-decision"
+          d={`M ${mx} ${y - 8} L ${x + w} ${my} L ${mx} ${y + h + 8} L ${x} ${my} Z`}
+        />
+        {label}
+      </g>
+    );
+  }
+
+  if (kind === 'store') {
+    const ry = 7;
+    return (
+      <g>
+        <path
+          className="fc-shape fc-store"
+          d={`M ${x} ${y + ry} a ${w / 2} ${ry} 0 0 1 ${w} 0 v ${h - ry * 2} a ${w / 2} ${ry} 0 0 1 ${-w} 0 Z`}
+        />
+        <path className="fc-store-lip" d={`M ${x} ${y + ry} a ${w / 2} ${ry} 0 0 0 ${w} 0`} />
+        {label}
+      </g>
+    );
+  }
+
+  return (
+    <g>
+      <rect
+        className={`fc-shape ${kind === 'terminal' ? 'fc-terminal' : 'fc-process'}`}
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={kind === 'terminal' ? h / 2 : 8}
+      />
+      {label}
+    </g>
+  );
+}
+
+function FlowArrow({ from, to, label, variant = 'down', geo }) {
+  const path =
+    variant === 'down'
+      ? `M ${from.x} ${from.y} L ${to.x} ${to.y}`
+      : `M ${from.x} ${from.y} H ${to.x}`;
+  return (
+    <g>
+      <path className="fc-edge" d={path} markerEnd="url(#fc-arrow)" />
+      {label && (
+        <text
+          className="fc-edge-label"
+          style={{ fontSize: geo.edgeSize }}
+          x={variant === 'down' ? from.x + 10 : (from.x + to.x) / 2}
+          y={variant === 'down' ? (from.y + to.y) / 2 + geo.edgeSize / 3 : from.y - 9}
+          textAnchor={variant === 'down' ? 'start' : 'middle'}
+        >
+          {label}
+        </text>
+      )}
+    </g>
+  );
+}
+
+/** Live flag for the compact (phone) flow-chart tuning. */
+function useCompactFlow() {
+  const [compact, setCompact] = useState(
+    () => window.matchMedia('(max-width: 640px)').matches
+  );
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 640px)');
+    const onChange = (event) => setCompact(event.matches);
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
+  return compact;
+}
+
+function ProjectFlowChart({ stages, locale, label }) {
+  const pick = (value) => (value ? (locale === 'ja' ? value.ja : value.en) : null);
+  const geo = useCompactFlow() ? FLOW_COMPACT : FLOW_WIDE;
+  const { width, laneX, boxW, boxH, gapY, branchGap, branchW, branchH, padY } = geo;
+  const branchX = laneX + boxW + branchGap;
+  const rowH = boxH + gapY;
+  const height = stages.length * boxH + (stages.length - 1) * gapY + padY * 2;
+  const laneMid = laneX + boxW / 2;
+
+  return (
+    <div className="pd-flow">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="pd-flow-svg"
+        role="img"
+        aria-label={label}
+        preserveAspectRatio="xMidYMin meet"
+      >
+        <defs>
+          <marker
+            id="fc-arrow"
+            viewBox="0 0 10 10"
+            refX="9"
+            refY="5"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" className="fc-arrowhead" />
+          </marker>
+        </defs>
+
+        {stages.map((stage, index) => {
+          const y = padY + index * rowH;
+          const next = stages[index + 1];
+          const branch = stage.branch;
+          // A diamond's tip sits 8 units past the box, so the arrow starts there.
+          const tip = stage.kind === 'decision' ? 8 : 0;
+          return (
+            <g key={stage.title.en}>
+              {next && (
+                <FlowArrow
+                  geo={geo}
+                  from={{ x: laneMid, y: y + boxH + tip }}
+                  to={{ x: laneMid, y: y + rowH - 3 }}
+                  label={pick(stage.edge)}
+                />
+              )}
+              {branch && (
+                <>
+                  <FlowArrow
+                    geo={geo}
+                    from={{ x: laneX + boxW + 3, y: y + boxH / 2 }}
+                    to={{ x: branchX - 3, y: y + boxH / 2 }}
+                    label={geo.branchLabelAbove ? null : pick(branch.edge)}
+                    variant="right"
+                  />
+                  {geo.branchLabelAbove && branch.edge && (
+                    <text
+                      className="fc-edge-label"
+                      style={{ fontSize: geo.edgeSize }}
+                      x={branchX + branchW / 2}
+                      y={y + (boxH - branchH) / 2 - 6}
+                      textAnchor="middle"
+                    >
+                      {pick(branch.edge)}
+                    </text>
+                  )}
+                  <FlowBox
+                    geo={geo}
+                    x={branchX}
+                    y={y + (boxH - branchH) / 2}
+                    w={branchW}
+                    h={branchH}
+                    kind={branch.kind || 'process'}
+                    title={pick(branch.title)}
+                  />
+                </>
+              )}
+              <FlowBox
+                geo={geo}
+                x={laneX}
+                y={y}
+                w={boxW}
+                h={boxH}
+                kind={stage.kind || 'process'}
+                title={pick(stage.title)}
+                sub={pick(stage.sub)}
+              />
+            </g>
+          );
+        })}
+      </svg>
+    </div>
   );
 }
 
@@ -831,12 +1261,12 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup 
             <p className="pd-tagline">{pick(d.tagline)}</p>
             <div className="pd-actions">
               {project.live && (
-                <a href={project.live} target="_blank" rel="noreferrer">
+                <a href={project.live} target="_blank" rel="noopener noreferrer">
                   <ExternalLink size={15} />
                   {t.live}
                 </a>
               )}
-              <a href={project.github} target="_blank" rel="noreferrer">
+              <a href={project.github} target="_blank" rel="noopener noreferrer">
                 <BrandIcon name="github" />
                 GitHub
               </a>
@@ -869,6 +1299,13 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup 
           <section className="pd-block pd-animate pd-reveal">
             <h2 className="pd-h">{t.systemMap}</h2>
             <ProjectArchitecture steps={d.architecture} locale={locale} />
+          </section>
+        )}
+
+        {d.stack && (
+          <section className="pd-block pd-animate pd-reveal">
+            <h2 className="pd-h">{t.architecture}</h2>
+            <ProjectFlowChart stages={d.stack} locale={locale} label={t.architecture} />
           </section>
         )}
 
@@ -906,6 +1343,7 @@ function App() {
   const [clickBursts, setClickBursts] = useState([]);
   const [route, setRoute] = useState(() => window.location.hash);
   const [shownProject, setShownProject] = useState(null);
+  const reducedMotion = useReducedMotion();
   const mainRef = useRef(null);
   const smoothWrapperRef = useRef(null);
   const smoothContentRef = useRef(null);
@@ -988,6 +1426,9 @@ function App() {
     if (mobile && origin && face && inner) {
       el.scrollTop = 0;
       gsap.set(face, { visibility: 'visible' });
+      // Same pin as the open: the closing container shrinks, so without it the
+      // content would re-wrap and jump on the way out too (ADR-036).
+      gsap.set(inner, pinnedInnerLayout());
       gsap
         .timeline({ onComplete: releaseOrigin })
         .to(inner, { autoAlpha: 0, y: 18, duration: 0.18, ease: 'power2.in' }, 0)
@@ -1054,7 +1495,10 @@ function App() {
           overflow: 'hidden',
         });
         gsap.set(face, { autoAlpha: 1, visibility: 'visible' });
-        gsap.set(inner, { autoAlpha: 0 });
+        // Pin the content to the width it will END at. Otherwise its
+        // `calc(100% - 32px)` width tracks the animating container, the tagline
+        // re-wraps mid-flight and every heading below it jumps (ADR-036).
+        gsap.set(inner, { autoAlpha: 0, ...pinnedInnerLayout() });
         gsap.set(reveal, { y: 18, opacity: 0 });
         gsap.set(mainRef.current, {
           transformOrigin: `${origin.left + origin.width / 2}px ${origin.top + origin.height / 2}px`,
@@ -1083,6 +1527,9 @@ function App() {
             0.25
           )
           .set(face, { visibility: 'hidden' })
+          // Hand layout back to CSS once nothing is animating, so the page
+          // stays responsive to rotation and resize.
+          .set(inner, { clearProps: 'width,marginLeft,marginRight' })
           .set(el, { overflowY: 'auto' });
         return;
       }
@@ -1457,6 +1904,22 @@ function App() {
         <div id="smooth-content" ref={smoothContentRef}>
           <main ref={mainRef}>
       <section className="profile">
+        {/* The beam traces the photo's edge; the QR toggle is a sibling of the
+            beam, not a child, so BorderBeam keeps its own clipping and the
+            button is never cut off or haloed (ADR-034). */}
+        <div className="avatar-shell">
+        <BorderBeam
+          className="avatar-beam"
+          size="md"
+          colorVariant="colorful"
+          theme="dark"
+          borderRadius={10}
+          strength={1}
+          brightness={1.9}
+          saturation={1.6}
+          duration={2.8}
+          active={!reducedMotion}
+        >
         <div className={`avatar ${showQr ? 'is-flipped' : ''}`}>
           <div className="avatar-card">
             <div className="avatar-face avatar-front">
@@ -1472,17 +1935,19 @@ function App() {
               <img src="/assets/linkedin-qr.png" alt="LinkedIn QR code" />
             </div>
           </div>
-          <button
-            className="qr-toggle-btn"
-            type="button"
-            aria-label={showQr ? 'Show profile photo' : 'Show LinkedIn QR code'}
-            onClick={(event) => {
-              event.stopPropagation();
-              setShowQr((current) => !current);
-            }}
-          >
-            <QrCode size={17} />
-          </button>
+        </div>
+        </BorderBeam>
+        <button
+          className="qr-toggle-btn"
+          type="button"
+          aria-label={showQr ? 'Show profile photo' : 'Show LinkedIn QR code'}
+          onClick={(event) => {
+            event.stopPropagation();
+            setShowQr((current) => !current);
+          }}
+        >
+          <QrCode size={17} />
+        </button>
         </div>
         <div className="identity">
           <h1>
@@ -1494,9 +1959,22 @@ function App() {
               <i />
             </button>
           </h1>
+          {/* The thinking orb stands in for the sparkle: an agent-UI motif for
+              the line that says he builds AI agent tools (ADR-034). */}
           <a className="building" href="#projects">
             {t.building}
-            <Sparkles size={14} />
+            {/* Rendered at the 64px preset (its own dot count and tuning, not a
+                scaled-up 20px orb) and displayed at 30px, so it reads clearly
+                on the line without dominating it. */}
+            <ThinkingOrb
+              className="building-orb"
+              state="searching"
+              size={64}
+              theme="dark"
+              speed={0.9}
+              paused={reducedMotion}
+              aria-hidden="true"
+            />
           </a>
           <p className="handle">
             @MohamedFuad16
@@ -1529,7 +2007,7 @@ function App() {
               className="university-meta"
               href="https://www.u-tokai.ac.jp/"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               <img src="/assets/tokai-university-logo.svg" alt="Tokai University" />
               <span>{t.student}</span>
@@ -1541,7 +2019,7 @@ function App() {
       <p className="intro">{t.intro}</p>
 
       <nav className="actions" aria-label="Contact links">
-        <a href="https://www.linkedin.com/in/mohamed-fuad-6b8483278" target="_blank" rel="noreferrer">
+        <a href="https://www.linkedin.com/in/mohamed-fuad-6b8483278" target="_blank" rel="noopener noreferrer">
           <span className="btn-icon">
             <BrandIcon name="linkedin" />
           </span>
@@ -1553,10 +2031,10 @@ function App() {
           {t.email}
         </a>
         <i />
-        <a className="square" href="https://github.com/MohamedFuad16" target="_blank" rel="noreferrer">
+        <a className="square" href="https://github.com/MohamedFuad16" target="_blank" rel="noopener noreferrer">
           <BrandIcon name="github" />
         </a>
-        <a className="square" href={resumeHref} target="_blank" rel="noreferrer">
+        <a className="square" href={resumeHref} target="_blank" rel="noopener noreferrer">
           <FileDown size={16} />
         </a>
       </nav>
@@ -1592,7 +2070,7 @@ function App() {
       </section>
 
       <div className="more-projects-row">
-        <a className="view-all-btn" href="https://github.com/MohamedFuad16" target="_blank" rel="noreferrer">
+        <a className="view-all-btn" href="https://github.com/MohamedFuad16" target="_blank" rel="noopener noreferrer">
           {t.moreProjects}
           <ArrowUpRight size={17} />
         </a>
@@ -1602,7 +2080,7 @@ function App() {
       <section className="dashed blog-content">
         <p>
           {t.thoughts}{' '}
-          <a className="qiita-link" href={QIITA_PROFILE} target="_blank" rel="noreferrer">
+          <a className="qiita-link" href={QIITA_PROFILE} target="_blank" rel="noopener noreferrer">
             <BrandIcon name="qiita" />
             {t.thoughtsLink}
           </a>
@@ -1618,15 +2096,15 @@ function App() {
             <Mail size={14} />
             Email
           </a>
-          <a href="https://github.com/MohamedFuad16" target="_blank" rel="noreferrer">
+          <a href="https://github.com/MohamedFuad16" target="_blank" rel="noopener noreferrer">
             <BrandIcon name="github" />
             GitHub
           </a>
-          <a href={resumeHref} target="_blank" rel="noreferrer">
+          <a href={resumeHref} target="_blank" rel="noopener noreferrer">
             <FileDown size={14} />
             {t.resume}
           </a>
-          <a href="https://www.linkedin.com/in/mohamed-fuad-6b8483278" target="_blank" rel="noreferrer">
+          <a href="https://www.linkedin.com/in/mohamed-fuad-6b8483278" target="_blank" rel="noopener noreferrer">
             <span className="btn-icon">
               <BrandIcon name="linkedin" />
             </span>

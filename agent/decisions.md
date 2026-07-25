@@ -354,3 +354,53 @@ Context: The global window click listener made the achievement sound play during
 Decision: Treat buttons, links, form controls, summaries, labels, elements with `role="button"`, and contenteditable elements as interactive targets and skip audio whenever the click originates inside one. Remove the explicit sound calls from the rocket and QR buttons. Keep ripple creation separate so visual tap feedback can remain without forcing audio.
 
 Consequences: The achievement sound now belongs only to clicks on non-interactive page surfaces. New custom controls must use semantic HTML or an appropriate role so they automatically inherit the silent behavior.
+
+## ADR-032 - 2026-07-25 - Whole experience card toggles, dots re-anchored
+
+Status: Accepted
+
+Context: The work rows only expanded via the small chevron, which is a poor target on touch. Making the row clickable required a positioned container, which silently moved the timeline dots off the dashed line.
+
+Decision: Use the stretched-link pattern — the chevron stays the single real control and its `::after` covers the whole `.experience-summary`, which becomes `position: relative`. The company link is raised above it with `z-index`. `.dot` stays inside the summary and is centred with `top: 50%`, with `left` compensating for the summary's negative margin per breakpoint.
+
+Consequences: One button, full keyboard access and no nested interactive elements. Dots now centre on rows of any height (fixes the wrapped "Altius Link (formerly KDDI Evolva)" row on mobile). The `left` value is coupled to the summary's margin — noted in errors.md.
+
+## ADR-033 - 2026-07-25 - Contribution snapshot refreshed by GitHub Actions
+
+Status: Accepted
+
+Context: The grid depended on a single third-party API call at page load, so a slow or failed request left visitors looking at synthetic placeholder data.
+
+Decision: `scripts/fetch-contributions.mjs` writes `public/assets/contributions.json`, run every 6 hours by `.github/workflows/update-contributions.yml`, committing only when the data actually changed. It prefers GitHub's own GraphQL API (Actions `GITHUB_TOKEN`) and falls back to the public mirror. The client reads the committed snapshot first, then still refreshes from the live API so same-day pushes appear.
+
+Consequences: Accurate data on first paint with no API dependency, and the workflow needs no extra secret. The snapshot is committed, so contribution refreshes appear in git history.
+
+## ADR-034 - 2026-07-25 - Border beam and thinking orb
+
+Status: Accepted
+
+Context: The user asked for the effects from beam.jakubantalik.com and orbs.jakubantalik.com.
+
+Decision: Use the published packages. `border-beam` wraps the profile photo (`size="md"`, colourful, brightness 1.9) and `thinking-orbs` replaces the sparkle on the "Building AI agent tools" line, where an agent-UI motif fits the copy. Both stand down under `prefers-reduced-motion` via a shared `useReducedMotion` hook.
+
+Consequences: Two small runtime dependencies. Forcing `overflow: visible` through BorderBeam's wrappers broke its own clipping and bled a square halo around the QR toggle, so the avatar is now wrapped in `.avatar-shell`: the beam fills it and keeps its clipping, and the QR button is a sibling pinned to the corner with a page-coloured ring so the beam passes cleanly behind it. The orb renders at the 64px preset displayed at 30px (its own tuning, not a scaled 20px orb).
+
+## ADR-035 - 2026-07-25 - Project detail gains a real flow chart
+
+Status: Accepted
+
+Context: The detail pages had a four-step system map. The user wanted an actual system-architecture flow chart alongside it, not a stack of layers.
+
+Decision: `ProjectFlowChart` renders SVG from per-project `detail.stack` data: stages run down a centre lane with optional `branch` nodes to the right, using flow-chart shapes (rounded terminators, rectangles, a decision diamond, a cylinder datastore) and labelled arrows. SVG keeps shapes and arrows aligned at any width without a diagram runtime.
+
+Consequences: Genuine flow charts that match the dark dashed UI. Geometry is tuned twice — `FLOW_WIDE` for desktop and `FLOW_COMPACT` for phones, chosen live by `useCompactFlow` — because a 620-unit viewBox squeezed into ~325px rendered the type at ~7px. In compact mode the side arrow is too short to carry a label, so branch labels sit above their box. Node labels must stay short because SVG text does not wrap.
+
+## ADR-036 - 2026-07-25 - Pin detail content width during the mobile expand
+
+Status: Accepted
+
+Context: Opening a project on mobile animates the overlay's width from the card rectangle to the viewport. `.project-detail-inner` is sized `min(760px, 100% - 32px)`, so it tracked that animation: the tagline re-wrapped mid-flight (70px -> 47px) and every heading below jumped ~18px, which read as the title bouncing.
+
+Decision: Pin the inner column to its final width and centred offset for the duration of the open and close (`pinnedInnerLayout()`), then `clearProps` so CSS resumes owning layout.
+
+Consequences: Measured title shift during the expand is now 0px with no re-wrap. Only the frame animates; the text never reflows.

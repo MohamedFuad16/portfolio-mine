@@ -408,6 +408,39 @@ main {
   color: #c8ccd2;
 }
 
+/* Thinking orb sits on the line like the icon it replaced. Drawn at the 64px
+   preset and shown at 30px — downscaling keeps the dots crisp. */
+.building-orb {
+  flex: 0 0 auto;
+  display: block;
+  width: 30px !important;
+  height: 30px !important;
+  margin: -6px 0;
+  opacity: 0.95;
+}
+
+/* The shell owns the avatar's footprint. The beam fills it and keeps its own
+   clipping intact; the QR toggle is a sibling pinned to the corner, so the beam
+   never bleeds a halo around the button (ADR-034). */
+.avatar-shell {
+  position: relative;
+  width: 120px;
+  height: 124px;
+  flex: 0 0 auto;
+}
+
+.avatar-beam {
+  width: 100%;
+  height: 100%;
+}
+
+/* Sits above the beam, with a ring in the page colour so the travelling beam
+   passes cleanly behind it instead of cutting across the button. */
+.qr-toggle-btn {
+  z-index: 5;
+  box-shadow: 0 0 0 3px #0b0d0e;
+}
+
 .meta {
   display: flex;
   flex-wrap: wrap;
@@ -707,6 +740,7 @@ main {
 }
 
 .experience-summary {
+  position: relative;
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr) auto 18px;
   gap: 10px;
@@ -715,6 +749,7 @@ main {
   padding: 0 12px;
   margin: 0 -12px;
   border-radius: 8px;
+  cursor: pointer;
   transition: background-color 160ms ease;
 }
 
@@ -722,14 +757,23 @@ main {
   background-color: rgba(255, 255, 255, 0.035);
 }
 
+/* Keep the company link clickable above the stretched chevron hit area. */
+.experience-copy h3 a {
+  position: relative;
+  z-index: 1;
+}
+
 .experience-copy {
   min-width: 0;
 }
 
+/* Sits on the timeline's dashed line, vertically centred on its row. The
+   summary is the positioned ancestor and overhangs the item by its negative
+   margin, so `left` is the line offset (-26.5px) plus that overhang (ADR-032). */
 .dot {
   position: absolute;
-  left: -26.5px;
-  top: 33px;
+  left: -14.5px;
+  top: 50%;
   display: grid;
   place-items: center;
   width: 16px;
@@ -871,8 +915,28 @@ small.red {
   transition: color 160ms ease;
 }
 
+/* Stretched hit area: the chevron button is the single real control, but its
+   ::after covers the whole summary row so the card is clickable anywhere
+   (ADR-032). The company link sits above it via z-index. */
+.chevron::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+}
+
+.experience-summary:hover .chevron,
 .chevron:hover {
   color: #f0f0f0;
+}
+
+.chevron:focus-visible {
+  outline: none;
+}
+
+.chevron:focus-visible::after {
+  outline: 2px solid rgba(255, 255, 255, 0.45);
+  outline-offset: 2px;
 }
 
 .chevron svg {
@@ -1153,32 +1217,44 @@ small.red {
   transform: translateY(0);
 }
 
+/* Title and the Live/GitHub actions always share one line so every card reads
+   identically — longer titles (Tutor-System) shrink instead of wrapping the
+   buttons onto a second row (ADR-032). */
 .project-heading {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: space-between;
   gap: 8px 14px;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 8px;
 }
 
 .project h3 {
   display: inline-flex;
   align-items: center;
-  flex-shrink: 0;
+  flex: 0 1 auto;
+  min-width: 0;
   gap: 7px;
   margin: 0;
   font-size: 18px;
 }
 
+.project h3 svg {
+  flex-shrink: 0;
+}
+
 .project-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .project-actions {
   display: flex;
-  flex-shrink: 0;
+  flex: 0 0 auto;
   gap: 7px;
+  white-space: nowrap;
 }
 
 .project-actions a {
@@ -1561,6 +1637,84 @@ small.red {
   line-height: 1.45;
 }
 
+/* System-architecture flow chart, drawn as SVG so shapes and arrows stay
+   aligned at any width (ADR-035). Palette matches the system map above it. */
+.pd-flow {
+  border: 1px solid #30343a;
+  border-radius: 10px;
+  padding: 18px 14px;
+  background: linear-gradient(145deg, #16191d, #0f1113);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.03), 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+.pd-flow-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.fc-shape {
+  fill: #1b1f24;
+  stroke: #3a4046;
+  stroke-width: 1.2;
+}
+
+.fc-terminal {
+  fill: #16232f;
+  stroke: #3f6087;
+}
+
+.fc-decision {
+  fill: #23201a;
+  stroke: #6b5a34;
+}
+
+.fc-store {
+  fill: #16211c;
+  stroke: #35624b;
+}
+
+.fc-store-lip {
+  fill: none;
+  stroke: #35624b;
+  stroke-width: 1.2;
+}
+
+/* Font sizes come from the flow-chart geometry (wide vs compact tuning). */
+.fc-title {
+  fill: #eef1f4;
+  font-family: 'Figtree', sans-serif;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.fc-sub {
+  fill: #8d949b;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.fc-edge {
+  fill: none;
+  stroke: #4d545c;
+  stroke-width: 1.4;
+}
+
+.fc-arrowhead {
+  fill: #6ea8ff;
+}
+
+.fc-edge-label {
+  fill: #6ea8ff;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
 .project-detail .tags {
   display: flex;
   flex-wrap: wrap;
@@ -1588,6 +1742,10 @@ small.red {
   .pd-map {
     grid-template-columns: 1fr;
     gap: 25px;
+  }
+
+  .pd-flow {
+    padding: 14px 8px;
   }
 
   .pd-map-step:not(:last-child)::after {
@@ -1884,6 +2042,11 @@ footer {
     row-gap: 0;
     padding: 9px 10px;
     margin: 0 -10px;
+  }
+
+  /* Summary overhang shrinks to 10px here, so the dot follows it. */
+  .dot {
+    left: -15.5px;
   }
 
   .company-icon {

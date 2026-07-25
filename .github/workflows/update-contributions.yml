@@ -1,0 +1,45 @@
+name: Update contributions
+
+# Keeps public/assets/contributions.json in sync with GitHub so the grid shows
+# current data even before the browser reaches the live API.
+on:
+  schedule:
+    # Every 6 hours (03:17 / 09:17 / 15:17 / 21:17 UTC — off the hour so we are
+    # not competing with the top-of-hour spike on GitHub's scheduler).
+    - cron: '17 3,9,15,21 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-contributions
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fetch latest contributions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_USER: MohamedFuad16
+        run: node scripts/fetch-contributions.mjs
+
+      - name: Commit when the snapshot changed
+        run: |
+          if [[ -z "$(git status --porcelain public/assets/contributions.json)" ]]; then
+            echo "No contribution changes to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/contributions.json
+          git commit -m "chore: refresh contribution snapshot"
+          git push
