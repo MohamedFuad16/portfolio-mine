@@ -1285,7 +1285,7 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup 
         />
       )}
       <div className="project-detail-inner">
-        <button type="button" className="pd-back pd-animate pd-reveal" onClick={onClose}>
+        <button type="button" className="pd-back pd-animate" onClick={onClose}>
           <ArrowLeft size={16} />
           {t.back}
         </button>
@@ -1295,7 +1295,7 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup 
             <img src={image} alt={`${project.title} interface preview`} />
             <span>{project.badge}</span>
           </div>
-          <div className="pd-headline pd-animate pd-reveal">
+          <div className="pd-headline pd-animate">
             <h1>
               <span>{project.title}</span>
               <Icon size={22} />

@@ -442,3 +442,13 @@ Decision: Self-hosted the actual font. `@excalidraw/excalidraw` (MIT-licensed, a
 - Verified zero text-overflow / label-overlap / out-of-viewbox issues across all four projects at both the wide and compact geometries (same automated check as ADR-035/036).
 
 Consequences: One additional static asset (`public/fonts/Excalifont-Regular.woff2`, ~24 KB, no new runtime dependency — the npm package used to extract it was not added to package.json). Extending `FLOW_TONE` covers any new stage `kind` values added later.
+
+## ADR-040 - 2026-07-26 - Mobile detail header shares the image's animation track, not the staggered reveal
+
+Status: Accepted
+
+Context: Even after ADR-038's `measureOrigin()` fix, the user still saw the mobile detail overlay "glitch up and down" on open: the image appeared first, then the back button and title visibly popped in afterward. The user's own diagnosis was correct.
+
+Decision: `.pd-back` and `.pd-headline` carried both `pd-animate` and `pd-reveal`, but `.pd-shot` (the hero image) only ever carried `pd-animate`. The open timeline sets every `.pd-reveal` element to `{y:18, opacity:0}` and tweens it in with a stagger starting at t=0.25 — so the back button/title lagged visibly behind the already-visible image. Removed `pd-reveal` from `.pd-back` and `.pd-headline` so all three appear together on the immediate `pd-animate` track. `.pd-block` sections (Overview, What it does, etc.) keep `pd-reveal` — they're below the fold, so a staggered reveal there is fine.
+
+Consequences: The mobile open animation now reads as one cohesive motion (frame + image + header together, content sections staggering in below). Any future element added to the detail header should get `pd-animate` only, not `pd-reveal`, to stay on the same track as the image.
