@@ -452,3 +452,13 @@ Context: Even after ADR-038's `measureOrigin()` fix, the user still saw the mobi
 Decision: `.pd-back` and `.pd-headline` carried both `pd-animate` and `pd-reveal`, but `.pd-shot` (the hero image) only ever carried `pd-animate`. The open timeline sets every `.pd-reveal` element to `{y:18, opacity:0}` and tweens it in with a stagger starting at t=0.25 — so the back button/title lagged visibly behind the already-visible image. Removed `pd-reveal` from `.pd-back` and `.pd-headline` so all three appear together on the immediate `pd-animate` track. `.pd-block` sections (Overview, What it does, etc.) keep `pd-reveal` — they're below the fold, so a staggered reveal there is fine.
 
 Consequences: The mobile open animation now reads as one cohesive motion (frame + image + header together, content sections staggering in below). Any future element added to the detail header should get `pd-animate` only, not `pd-reveal`, to stay on the same track as the image.
+
+## ADR-041 - 2026-07-26 - Flow chart connector lines: filter region must not depend on a zero-area bounding box
+
+Status: Accepted
+
+Context: The user reported the flow chart's connector lines were not visible at all. Inspecting the live SVG (`getBBox()` on every `.fc-edge`) showed each connector's bounding box has width `0` (vertical connectors) or height `0` (horizontal branch connectors), because every connector is a straight axis-aligned line. The shared `#fc-sketch` filter (ADR-039, for the hand-drawn wobble) used the default `objectBoundingBox` filter units, whose region is a percentage of the filtered element's own bounding box — a percentage of a zero-width or zero-height box is zero, so the filter region collapsed to nothing and the browser drew nothing for any line using it. Boxes and diamonds have real bounding boxes so they rendered fine; every connector was silently dropped.
+
+Decision: Changed `#fc-sketch` to `filterUnits="userSpaceOnUse"` with an explicit region (`x={-40} y={-40} width={width + 80} height={height + 80}`, in the flow chart's own SVG coordinate space) instead of relying on the filtered element's bounding box.
+
+Consequences: Any future SVG filter shared across shapes and thin/straight strokes in this codebase must use `userSpaceOnUse` with an explicit region, not the `objectBoundingBox` default — the default silently breaks on any zero-width or zero-height element (straight horizontal/vertical lines being the most common case). Verified connector lines and arrowheads render with labels at both flow-chart geometries (mobile 375px and desktop), no console errors, clean production build.

@@ -1,12 +1,14 @@
 # State
 
-> Last updated: 2026-07-26 · HEAD: 9ee4a7e
+> Last updated: 2026-07-26 · HEAD: 730551f
 
 ## Current state summary
 
 The workspace contains a Vite React portfolio inspired by `manixh.dev`, populated with Mohamed Fuad's CV content. It uses a professional headshot with a two-sided LinkedIn QR card, bilingual EN/JA copy, expandable work rows, a live rolling-12-month GitHub contribution grid, GSAP motion, and hash-routed project detail views. The homepage positions Mohamed as a third-year Information and Communication Technology student working toward Forward Deployed Engineering, with the symbol-only Tokai University mark in the profile metadata. Project cards use consistent 16:9 previews and a full-width, single-line technology rail. ClaudeShot has replaced Codex Account Switcher. On mobile, the entire tapped project card expands into the full-screen detail overlay and reverses back to its original rectangle on close. Latest checks (2026-07-22) verified the transition in flight and at both endpoints, reverse navigation, desktop/mobile layout, the symbol-only university mark, no horizontal overflow, and a clean production build. Install and build with pnpm.
 
 ## Recent changes
+
+- 2026-07-26 (flow chart connector lines invisible, ADR-041): The user reported the system-architecture flow chart's connecting lines were not visible at all. Confirmed via `getBBox()` on the live `.fc-edge` paths: every connector is a straight axis-aligned line, so its bounding box has zero width or zero height — and the shared `#fc-sketch` hand-drawn-wobble filter used the SVG default `objectBoundingBox` units, whose region is a percentage of that box. A percentage of zero is zero, so the filter region collapsed to nothing and every connector line silently failed to render (boxes/diamonds were unaffected since they have real bounding boxes). Fixed by switching `#fc-sketch` to `filterUnits="userSpaceOnUse"` with an explicit pixel region sized to the chart's own SVG dimensions. Verified live at both 375px and desktop widths: every connector line and arrowhead now renders with its label, no console errors, clean production build.
 
 - 2026-07-26 (mobile detail header desync fix, ADR-040): The user reported the mobile project-detail overlay still glitched on open after the ADR-038 origin-measurement fix — the hero image appeared, then the back button and title visibly popped in afterward, reading as an "up and down" settle. Root cause: `.pd-back` and `.pd-headline` carried both `pd-animate` and `pd-reveal`, while `.pd-shot` (the image) only ever carried `pd-animate` — so the header sat on the delayed, staggered `pd-reveal` track (tween starts at t=0.25 in the open timeline) while the image rendered immediately. Fixed by dropping `pd-reveal` from `.pd-back`/`.pd-headline` so all three appear together; `.pd-block` sections (below the fold) intentionally kept their stagger. Verified live at 375px width: `.pd-back`/`.pd-headline`/`.pd-shot` all read `className` without `pd-reveal` and all sit at `opacity:1` together at the same instant, no console errors. Production build clean.
 

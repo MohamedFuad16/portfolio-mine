@@ -1185,8 +1185,12 @@ function ProjectFlowChart({ stages, locale, label }) {
           </marker>
           {/* A gentle wobble on every stroke — the hand-drawn Excalidraw look
               the user asked for. Only ever one flow chart is mounted at a
-              time (routed detail view), so a single static id is safe. */}
-          <filter id="fc-sketch" x="-8%" y="-25%" width="116%" height="150%">
+              time (routed detail view), so a single static id is safe.
+              userSpaceOnUse (not the default objectBoundingBox) because the
+              connector lines are perfectly axis-aligned: their bounding box
+              has zero width or height, which collapses a percentage-based
+              filter region to nothing and makes the line disappear. */}
+          <filter id="fc-sketch" filterUnits="userSpaceOnUse" x={-40} y={-40} width={width + 80} height={height + 80}>
             <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="7" result="fc-noise" />
             <feDisplacementMap
               in="SourceGraphic"
