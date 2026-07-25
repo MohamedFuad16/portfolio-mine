@@ -202,18 +202,21 @@ const copy = {
     building: 'Building AI agent tools',
     location: 'Tokyo, Japan',
     student: 'Information and Communication Technology student',
-    intro: (
+    introParagraphs: [
       <>
         I&apos;m a <b>full-stack developer</b> and a third-year Information and Communication
         Technology student at Tokai University. My goal is to become a{' '}
         <b>Forward Deployed Engineer</b>: someone who works close to real users, understands the
-        problem, and builds the product that solves it. I&apos;m comfortable working with LLMs,
-        agent workflows, tool calling, and secure <Highlight name="MCP" /> integrations, alongside
-        production apps built with <Highlight name="TypeScript" />, <Highlight name="Python" />,{' '}
-        <Highlight name="Swift" />, <Highlight name="Node" />, <Highlight name="AWS" />, and{' '}
-        <Highlight name="React" />. I work in English and Japanese, with JLPT N2 business-level Japanese.
-      </>
-    ),
+        problem, and builds the product that solves it.
+      </>,
+      <>
+        I&apos;m comfortable working with LLMs, agent workflows, tool calling, and secure{' '}
+        <Highlight name="MCP" /> integrations, alongside production apps built with{' '}
+        <Highlight name="TypeScript" />, <Highlight name="Python" />, <Highlight name="Swift" />,{' '}
+        <Highlight name="Node" />, <Highlight name="AWS" />, and <Highlight name="React" />. I work
+        in English and Japanese, with JLPT N2 business-level Japanese.
+      </>,
+    ],
     contactOr: 'OR',
     email: 'Email Me',
     skills: 'My Skills',
@@ -246,16 +249,18 @@ const copy = {
     building: 'AIツールを開発中',
     location: '東京都、日本',
     student: '東海大学 情報通信学部',
-    intro: (
+    introParagraphs: [
       <>
         東海大学情報通信学部3年の<b>フルスタック開発者</b>です。将来は、ユーザーの現場で課題を
         理解し、必要なプロダクトを一緒に形にする<b>Forward Deployed Engineer</b>を目指しています。
+      </>,
+      <>
         LLM、エージェントワークフロー、ツール呼び出し、安全な<Highlight name="MCP" />連携に加え、
         <Highlight name="TypeScript" />、<Highlight name="Python" />、<Highlight name="Swift" />、
         <Highlight name="Node" />、<Highlight name="AWS" />、<Highlight name="React" />を使った
         本番向けアプリ開発に取り組んでいます。英語と日本語で業務対応ができ、日本語力はJLPT N2相当です。
-      </>
-    ),
+      </>,
+    ],
     contactOr: 'または',
     email: 'メール',
     skills: 'スキル',
@@ -1031,9 +1036,20 @@ const FLOW_COMPACT = {
   branchLabelAbove: true,
 };
 
+// Excalidraw's own default swatches, mapped one per stage role so the
+// diagram reads as a family the same way the user's reference does (each
+// step's own color carrying through its box outline and subtitle).
+const FLOW_TONE = {
+  terminal: '#2f9e44', // green — entry / exit points
+  process: '#1971c2', // blue — the default "does work" step
+  decision: '#e8590c', // orange — a branch point
+  store: '#9c36b5', // violet — where data comes to rest
+};
+
 function FlowBox({ x, y, w, h, kind, title, sub, geo }) {
   const cx = x + w / 2;
   const gap = geo.subSize + 3;
+  const tone = FLOW_TONE[kind] || FLOW_TONE.process;
   const label = (
     <>
       <text
@@ -1061,9 +1077,9 @@ function FlowBox({ x, y, w, h, kind, title, sub, geo }) {
     const mx = x + w / 2;
     const my = y + h / 2;
     return (
-      <g>
+      <g style={{ '--fc-tone': tone }}>
         <path
-          className="fc-shape fc-decision"
+          className="fc-shape"
           d={`M ${mx} ${y - 8} L ${x + w} ${my} L ${mx} ${y + h + 8} L ${x} ${my} Z`}
         />
         {label}
@@ -1074,9 +1090,9 @@ function FlowBox({ x, y, w, h, kind, title, sub, geo }) {
   if (kind === 'store') {
     const ry = 7;
     return (
-      <g>
+      <g style={{ '--fc-tone': tone }}>
         <path
-          className="fc-shape fc-store"
+          className="fc-shape"
           d={`M ${x} ${y + ry} a ${w / 2} ${ry} 0 0 1 ${w} 0 v ${h - ry * 2} a ${w / 2} ${ry} 0 0 1 ${-w} 0 Z`}
         />
         <path className="fc-store-lip" d={`M ${x} ${y + ry} a ${w / 2} ${ry} 0 0 0 ${w} 0`} />
@@ -1086,14 +1102,14 @@ function FlowBox({ x, y, w, h, kind, title, sub, geo }) {
   }
 
   return (
-    <g>
+    <g style={{ '--fc-tone': tone }}>
       <rect
-        className={`fc-shape ${kind === 'terminal' ? 'fc-terminal' : 'fc-process'}`}
+        className="fc-shape"
         x={x}
         y={y}
         width={w}
         height={h}
-        rx={kind === 'terminal' ? h / 2 : 8}
+        rx={kind === 'terminal' ? h / 2 : Math.min(18, h / 2.6)}
       />
       {label}
     </g>
@@ -1167,6 +1183,19 @@ function ProjectFlowChart({ stages, locale, label }) {
           >
             <path d="M 0 0 L 10 5 L 0 10 z" className="fc-arrowhead" />
           </marker>
+          {/* A gentle wobble on every stroke — the hand-drawn Excalidraw look
+              the user asked for. Only ever one flow chart is mounted at a
+              time (routed detail view), so a single static id is safe. */}
+          <filter id="fc-sketch" x="-8%" y="-25%" width="116%" height="150%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="7" result="fc-noise" />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="fc-noise"
+              scale="2.4"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
         </defs>
 
         {stages.map((stage, index) => {
@@ -1364,7 +1393,6 @@ function App() {
   const lightboxImgRef = useRef(null);
   const lightboxTlRef = useRef(null);
   const detailRef = useRef(null);
-  const detailOriginRef = useRef(null);
   const detailOriginCardRef = useRef(null);
   const detailOriginMarkupRef = useRef('');
   const t = copy[locale];
@@ -1373,22 +1401,27 @@ function App() {
     const mobile = window.matchMedia('(max-width: 640px)').matches;
     const card = mobile ? trigger?.closest('.project') : null;
     if (card) {
-      const rect = card.getBoundingClientRect();
-      detailOriginRef.current = {
-        left: rect.left,
-        top: rect.top,
-        width: rect.width,
-        height: rect.height,
-      };
       detailOriginMarkupRef.current = card.outerHTML;
       detailOriginCardRef.current = card;
       card.classList.add('is-expand-origin');
     } else {
-      detailOriginRef.current = null;
       detailOriginMarkupRef.current = '';
       detailOriginCardRef.current = null;
     }
     window.location.hash = `#/project/${slug}`;
+  };
+  // The hash change re-renders asynchronously, and GSAP ScrollSmoother's
+  // touch-flick momentum can still be settling the list between the tap and
+  // that render — a gap a synthetic click never has, which is why this only
+  // ever showed up on a real phone. Re-measuring the live card at the moment
+  // each animation actually builds (instead of trusting a rect captured at
+  // click time) keeps the origin and the animation perfectly in sync no
+  // matter how much the page kept moving in between (ADR-038).
+  const measureOrigin = () => {
+    const card = detailOriginCardRef.current;
+    if (!card) return null;
+    const rect = card.getBoundingClientRect();
+    return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
   };
   const closeProject = () => {
     if (window.history.length > 1) window.history.back();
@@ -1418,14 +1451,13 @@ function App() {
     }
     const el = detailRef.current;
     if (!shownProject || !el) return;
-    const origin = detailOriginRef.current;
+    const origin = measureOrigin();
     const face = el.querySelector('.pd-expand-face');
     const inner = el.querySelector('.project-detail-inner');
     const mobile = window.matchMedia('(max-width: 640px)').matches;
     const releaseOrigin = () => {
       detailOriginCardRef.current?.classList.remove('is-expand-origin');
       detailOriginCardRef.current = null;
-      detailOriginRef.current = null;
       detailOriginMarkupRef.current = '';
       gsap.set(mainRef.current, { clearProps: 'transform,opacity,transformOrigin' });
       setShownProject(null);
@@ -1485,7 +1517,7 @@ function App() {
         gsap.set(el.querySelector('.project-detail-inner'), { autoAlpha: 1 });
         return;
       }
-      const origin = detailOriginRef.current;
+      const origin = measureOrigin();
       const mobile = window.matchMedia('(max-width: 640px)').matches;
       const timeline = gsap.timeline();
 
@@ -2029,7 +2061,11 @@ function App() {
         </div>
       </section>
 
-      <p className="intro">{t.intro}</p>
+      <div className="intro">
+        {t.introParagraphs.map((paragraph, index) => (
+          <p key={index}>{paragraph}</p>
+        ))}
+      </div>
 
       <nav className="actions" aria-label="Contact links">
         <a href="https://www.linkedin.com/in/mohamed-fuad-6b8483278" target="_blank" rel="noopener noreferrer">

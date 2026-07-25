@@ -417,3 +417,28 @@ Decision:
 - Experience rows appeared empty during investigation too, but that traced back entirely to `javascript_exec`-driven `scrollIntoView()` not producing a real scroll for ScrollSmoother/ScrollTrigger to react to — not a code bug. A real scroll/tap resolved it immediately.
 
 Consequences: Verification of scroll-triggered or animated UI in this environment must use a real scroll/click gesture (the `computer` tool), not JS-dispatched scrolling — see errors.md. Any other component that swaps fallback data for fetched data under a scroll-triggered reveal should follow the same `ScrollTrigger.refresh()` pattern.
+
+## ADR-038 - 2026-07-26 - Avatar glow offset on mobile, bio split, and a real mobile card-expand bug
+
+Status: Accepted
+
+Context: Three more issues surfaced from the user's own device testing. (1) The border beam's glow appeared visibly offset from the avatar photo specifically on mobile. (2) The bio paragraph was too long as one block. (3) Despite the earlier "fixed" claim, opening a project's mobile card-expand still glitched on a real phone (title jumping, appears to reverse) even though it was clean on desktop and in every synthetic-click test.
+
+Decision:
+- Avatar glow offset: `.avatar` had its own hardcoded size (120x124, overridden to 108x108 at <=760px) that was never mirrored onto `.avatar-shell` (which sizes the beam). Removed the duplication: `.avatar` and `.avatar-beam` are now always `width:100%; height:100%;`, and only `.avatar-shell` carries pixel sizes per breakpoint — one sizing authority, so the beam can never drift out of sync with the photo again.
+- Bio: split into `introParagraphs: [para1, para2]` per locale, rendered as two `<p>` inside an `.intro` div (was a single `<p>`), with a 14px gap between them.
+- Mobile card-expand: the real bug was that the origin card's rect was measured once at click time and reused later inside the entrance/exit `useGSAP` effects, which only run after `window.location.hash` completes an async round trip. GSAP ScrollSmoother's touch-flick momentum can still be moving content during that gap on a real device — something no synthetic click can reproduce, which is exactly why prior verification missed it. Fixed by re-measuring the live `detailOriginCardRef` element fresh at the moment each animation actually builds (`measureOrigin()`), for both open and close, instead of carrying a click-time snapshot through the async re-render.
+
+Consequences: Any future "measure once, animate later" pattern in this codebase must account for the gap between a user gesture and the React effect that consumes the measurement — re-measure at the latest synchronous point instead of assuming the DOM hasn't moved. Verified this pass with a real scroll-then-immediately-tap sequence (the worst case for stale measurements), not just a settled click.
+
+## ADR-039 - 2026-07-26 - Excalidraw-style hand-drawn flow chart
+
+Status: Accepted
+
+Context: The user wanted the project detail flow charts redesigned to match a specific reference (rounded colored-outline boxes, a legend-square motif, and — explicitly — "this exact font"), which is Excalidraw's own diagram style and its bundled hand-drawn typeface ("Excalifont", formerly "Virgil").
+
+Decision: Self-hosted the actual font. `@excalidraw/excalidraw` (MIT-licensed, and its README explicitly documents self-hosting `dist/prod/fonts` as supported usage) was fetched via `npm pack` into scratch space; the largest Latin-covering subset (`Excalifont-Regular-*.woff2`, unicode-range U+20-7E plus Latin-1/typographic extras, ~24 KB) was copied to `public/fonts/Excalifont-Regular.woff2` and declared via `@font-face` with a matching `unicode-range` (so Japanese text correctly falls through to the system font stack rather than mixing scripts). `ProjectFlowChart` now uses Excalifont for all diagram text, recolors box outlines to Excalidraw's own default swatches mapped by stage kind (`FLOW_TONE`: green terminal, blue process, orange decision, violet store) via a `--fc-tone` CSS variable per node, increased corner rounding, and applies a shared `#fc-sketch` SVG filter (`feTurbulence` + `feDisplacementMap`, subtle) to every shape/edge stroke — but not to text — for the hand-drawn wobble, while keeping title text bright/neutral for legibility on the dark card.
+- `#fc-sketch` and the arrow marker use static ids; safe because only one `ProjectFlowChart` is ever mounted at a time (the routed detail view unmounts the rest).
+- Verified zero text-overflow / label-overlap / out-of-viewbox issues across all four projects at both the wide and compact geometries (same automated check as ADR-035/036).
+
+Consequences: One additional static asset (`public/fonts/Excalifont-Regular.woff2`, ~24 KB, no new runtime dependency — the npm package used to extract it was not added to package.json). Extending `FLOW_TONE` covers any new stage `kind` values added later.
