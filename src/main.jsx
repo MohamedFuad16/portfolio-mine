@@ -790,6 +790,19 @@ function formatCellDate(dateStr, locale) {
 
 function ContributionGrid({ t, locale }) {
   const { cells, total } = useContributionData();
+
+  // `cells` swaps from synthetic fallback data to the real snapshot/API data
+  // after mount. Cells share `key={day.date}`, and recent dates commonly
+  // coincide between the two data sets, so React reuses those DOM nodes
+  // instead of remounting them — which means the cell-reveal ScrollTrigger's
+  // cached trigger position (measured against the fallback layout) never
+  // updates, and the tween it queued can be left stuck at its opacity:0
+  // "from" state forever if that position no longer lines up. Refresh once
+  // the real data lands so ScrollTrigger re-measures the final layout.
+  useEffect(() => {
+    ScrollTrigger.refresh();
+  }, [cells, total]);
+
   const monthLabels = useMemo(() => {
     const formatter = new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'en-US', {
       month: 'short',

@@ -404,3 +404,16 @@ Context: Opening a project on mobile animates the overlay's width from the card 
 Decision: Pin the inner column to its final width and centred offset for the duration of the open and close (`pinnedInnerLayout()`), then `clearProps` so CSS resumes owning layout.
 
 Consequences: Measured title shift during the expand is now 0px with no re-wrap. Only the frame animates; the text never reflows.
+
+## ADR-037 - 2026-07-26 - Fix real bugs found after the previous session's mobile "verification"
+
+Status: Accepted
+
+Context: The previous session reported mobile verification as clean, but real device/real-scroll testing surfaced two genuine regressions it missed: a colored glow bleeding out past the avatar's rounded corner, and the entire Work Experience list / contribution grid rendering as permanently empty (both stuck at their GSAP `opacity:0` "from" state).
+
+Decision:
+- Avatar glow: `.avatar-beam` gains `contain: paint`. BorderBeam's own `overflow: hidden` does not reliably clip its blurred bloom layer in this engine; `contain: paint` is a stronger guarantee that forces every descendant, filtered or not, to clip to the box.
+- Contribution grid: added a `useEffect(() => ScrollTrigger.refresh(), [cells, total])` inside `ContributionGrid`. Cells key by `day.date`, and fallback/real data share enough recent dates that React reuses the DOM nodes across the swap rather than remounting, leaving the cell-reveal ScrollTrigger's cached trigger position stale (measured before the real data changed the section height) and the tween stuck at its initial state.
+- Experience rows appeared empty during investigation too, but that traced back entirely to `javascript_exec`-driven `scrollIntoView()` not producing a real scroll for ScrollSmoother/ScrollTrigger to react to — not a code bug. A real scroll/tap resolved it immediately.
+
+Consequences: Verification of scroll-triggered or animated UI in this environment must use a real scroll/click gesture (the `computer` tool), not JS-dispatched scrolling — see errors.md. Any other component that swaps fallback data for fetched data under a scroll-triggered reveal should follow the same `ScrollTrigger.refresh()` pattern.

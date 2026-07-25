@@ -432,6 +432,12 @@ main {
 .avatar-beam {
   width: 100%;
   height: 100%;
+  /* BorderBeam's own `overflow: hidden` doesn't reliably clip its blurred glow
+     layer in this engine — a known filter-vs-overflow-clip quirk — so the
+     bloom bled a green/blue smear past the avatar's rounded corner (bottom
+     edge, worst on mobile). `contain: paint` forces every descendant,
+     filtered or not, to be clipped to this box (ADR-034 follow-up). */
+  contain: paint;
 }
 
 /* Sits above the beam, with a ring in the page colour so the travelling beam
