@@ -462,3 +462,31 @@ Context: The user reported the flow chart's connector lines were not visible at 
 Decision: Changed `#fc-sketch` to `filterUnits="userSpaceOnUse"` with an explicit region (`x={-40} y={-40} width={width + 80} height={height + 80}`, in the flow chart's own SVG coordinate space) instead of relying on the filtered element's bounding box.
 
 Consequences: Any future SVG filter shared across shapes and thin/straight strokes in this codebase must use `userSpaceOnUse` with an explicit region, not the `objectBoundingBox` default — the default silently breaks on any zero-width or zero-height element (straight horizontal/vertical lines being the most common case). Verified connector lines and arrowheads render with labels at both flow-chart geometries (mobile 375px and desktop), no console errors, clean production build.
+
+## ADR-042 - 2026-07-29 - Repository-wide bug sweep: layout drift, modal semantics, toolchain pinning
+
+Status: Accepted
+
+Context: A full audit of the repo (source, CSS, build config, workflow, and the running app) after pulling four automated snapshot commits. Everything below was reproduced by measurement in the browser or on disk, not inferred.
+
+Decision:
+
+1. **Timeline dots, 561-760px.** `.dot { left: -25.5px }` in the `<=760px` block had been computed as if `.experience-summary` carried no negative margin, but the `-10px` override only starts at `<=560px` — so the whole band still used `-12px` and every dot sat 12px left of the dashed line (measured: line centre 52.5px, dot centre 41px). Corrected to `-13.5px` (`35 - 52.5 + 12 - 8`). Verified 0.5px at 320/400/561/700/760/761/1280 — the residual half-pixel is the pre-existing 3px-dashed-border centring, unchanged from desktop.
+
+2. **Project heading at <=470px.** `flex-direction: column` inherited `align-items: center` from the row layout, centring the title and Live/GitHub buttons over a card whose body text is left-aligned (measured 149.6 / 130.1 / 44.9px). Added `align-items: flex-start`; all three now share 44.9px.
+
+3. **Contribution grid rebuilt as week columns.** It rendered 245 days row-major in 35 columns under a header of nine evenly-spaced month labels — a column meant nothing, so the labels sat above unrelated days, and the caption claimed 12 months over roughly 8 months of data. Now 52 columns x 7 rows with `grid-auto-flow: column`, `--grid-columns` driven from the data, and each month label anchored with `grid-column: <start> / span <n>` to the week its 1st falls in (months spanning fewer than 3 columns are dropped, as GitHub does). `scripts/fetch-contributions.mjs` DAYS and the app's window both moved to 52*7=364. Verified every label's `offsetLeft` equals the `offsetLeft` of the first cell in its column.
+
+4. **"Back to projects" could leave the site.** `history.length > 1` says the tab has history, not that the previous entry is ours — a shared `#/project/...` link opened from another site sent the visitor back to that site. Now a `pushedDetailRef` records whether this app pushed the entry; deep-linked visits strip the hash with `replaceState` (plus a direct `setRoute`, since `replaceState` fires no `hashchange`) instead of pushing an entry that Back would only re-open.
+
+5. **The detail overlay now behaves like the modal it declares.** It carried `role="dialog" aria-modal="true"` while Escape did nothing, focus never entered it, and all 33 background controls stayed tabbable. Added an Escape handler, `inert` on `#smooth-wrapper`, and focus into `.pd-back` on open / back to the originating card on close. Focus is deferred with a `requestAnimationFrame` poll on the dialog's computed `visibility`, not a fixed delay: the entrance timeline starts the overlay at `autoAlpha: 0` (`visibility: hidden`) and focusing a hidden element is silently a no-op.
+
+6. **Toolchain pinned.** Added `.nvmrc` and an `engines` field (`^20.19.0 || >=22.12.0`); the machine default of Node 20.11.0 fails every Vite 8 command. Added `vite.config.js` with `@vitejs/plugin-react` (previously absent, so there was no Fast Refresh), moved `vite`/`@vitejs/plugin-react` to `devDependencies`, dropped the unused `qrcode` dependency, and marked the package `private`.
+
+7. **Root guard.** Enabling the React plugin turns on HMR, and a re-executed entry module would call `createRoot` twice on the same container. The root is now cached on the element.
+
+8. **Error boundary.** The page renders third-party contribution data straight into JSX with no boundary, so one malformed row blanked the whole document. Added a top-level boundary with a readable fallback, plus a date-shape filter in `normalise` and a guard in `formatCellDate`.
+
+9. **Honest defaults and content.** `public/resume/Mohamed_Fuad_CV_JA.pdf` was a byte-identical copy of the English CV (same MD5), so Japanese visitors downloaded the English résumé under a Japanese filename. The user supplied the real 履歴書・職務経歴書, which now sits at that path, and the locale-aware `resumeHref` branch is restored. The hardcoded `561` contribution fallback (stale; real total 575) is now derived from the data, and `|| 561` no longer rewrites a legitimate zero. Screen-reader strings that were hardcoded English in the Japanese locale are localized. CDN icon URLs are pinned (devicon v2.17.0, simple-icons 16.27.1) with an `onError` that hides a failed logo instead of leaving a broken glyph mid-sentence. 16 unused images (~916 KB) were deleted from `public/assets/`, which ships wholesale into `dist/`.
+
+Consequences: `--grid-columns` is now the single source of truth for the contribution grid's width — the month header, the cell grid and `.calendar-scroll`'s mobile `min-width` all derive from it, so changing the window means changing `CONTRIBUTION_WEEKS` and the script's `DAYS` together and nothing else. The edge-aware tooltip rules count from both ends (`:nth-child(-n+14)` / `:nth-last-child(-n+14)`) rather than assuming a row length, so they survive a different week count. Any future element added to the detail overlay inherits the modal behaviour for free, but anything that needs focus on open must wait for visibility the same way. The JA résumé is a real document now, so `resumeHref` is locale-aware again; keep the two PDFs in step when either is refreshed.

@@ -105,14 +105,20 @@ const skillRows = [
   skills.slice(8).concat(skills.slice(0, 1)),
 ];
 
+// Pinned, not `@latest`: an unpinned CDN tag silently re-points at whatever the
+// upstream project ships next, so an icon can be renamed or restyled without a
+// commit here. Each URL below was verified to resolve at this version.
+const DEVICON = 'https://cdn.jsdelivr.net/gh/devicons/devicon@v2.17.0/icons';
+const SIMPLE_ICONS = 'https://cdn.jsdelivr.net/npm/simple-icons@16.27.1/icons';
+
 const highlightLogos = {
-  React: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg',
-  TypeScript: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg',
-  Python: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg',
-  Swift: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg',
-  Node: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg',
-  AWS: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-original-wordmark.svg',
-  MCP: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/modelcontextprotocol.svg',
+  React: `${DEVICON}/react/react-original.svg`,
+  TypeScript: `${DEVICON}/typescript/typescript-original.svg`,
+  Python: `${DEVICON}/python/python-original.svg`,
+  Swift: `${DEVICON}/swift/swift-original.svg`,
+  Node: `${DEVICON}/nodejs/nodejs-original.svg`,
+  AWS: `${DEVICON}/amazonwebservices/amazonwebservices-original-wordmark.svg`,
+  MCP: `${SIMPLE_ICONS}/modelcontextprotocol.svg`,
 };
 
 const brandIcons = {
@@ -243,6 +249,24 @@ const copy = {
     less: 'Less',
     more: 'More',
     dayTooltip: (count, dateLabel) => `${count} contribution${count === 1 ? '' : 's'} on ${dateLabel}`,
+    // Screen-reader-only strings. These used to be hardcoded English, so a
+    // Japanese visitor got a fully translated page with English controls.
+    a11y: {
+      language: 'Language',
+      skillsCarousel: 'Technical skills carousel',
+      contributionGrid: 'Contribution grid',
+      contactLinks: 'Contact links',
+      moreContactLinks: 'More contact links',
+      toggleDetails: (company) => `Toggle ${company} details`,
+      viewPhoto: 'View photo',
+      profilePhoto: 'Profile photo',
+      enlargedPhoto: 'Mohamed Fuad, enlarged',
+      showPhoto: 'Show profile photo',
+      showQr: 'Show LinkedIn QR code',
+      linkedinQr: 'LinkedIn QR code',
+      preview: (title) => `${title} interface preview`,
+      closeDialog: 'Close',
+    },
   },
   ja: {
     lang: 'English',
@@ -287,6 +311,22 @@ const copy = {
     less: '少',
     more: '多',
     dayTooltip: (count, dateLabel) => `${dateLabel}に${count}件のコントリビューション`,
+    a11y: {
+      language: '言語',
+      skillsCarousel: '技術スキルのカルーセル',
+      contributionGrid: 'コントリビューショングリッド',
+      contactLinks: '連絡先リンク',
+      moreContactLinks: 'その他の連絡先リンク',
+      toggleDetails: (company) => `${company}の詳細を開閉`,
+      viewPhoto: '写真を表示',
+      profilePhoto: 'プロフィール写真',
+      enlargedPhoto: 'モハメド・フアド（拡大表示）',
+      showPhoto: 'プロフィール写真を表示',
+      showQr: 'LinkedInのQRコードを表示',
+      linkedinQr: 'LinkedInのQRコード',
+      preview: (title) => `${title}の画面プレビュー`,
+      closeDialog: '閉じる',
+    },
   },
 };
 
@@ -692,8 +732,25 @@ function WaveDivider() {
   );
 }
 
+/**
+ * The label is decorative *only while the image renders* — the technology name
+ * is repeated as text right beside it. If the third-party CDN is blocked or the
+ * icon 404s, `onError` drops the element entirely rather than leaving a broken
+ * image glyph inline in a sentence.
+ */
 function Logo({ src, label }) {
-  return <img src={src} alt="" aria-hidden="true" loading="lazy" />;
+  return (
+    <img
+      src={src}
+      alt=""
+      title={label}
+      aria-hidden="true"
+      loading="lazy"
+      onError={(event) => {
+        event.currentTarget.style.display = 'none';
+      }}
+    />
+  );
 }
 
 function BrandIcon({ name }) {
@@ -729,36 +786,62 @@ function SkillPill({ skill }) {
 //      even when the third-party API is slow or down,
 //   3. the live API, which catches anything committed since the last run.
 // See ADR-033.
+// 52 whole weeks, so the grid actually covers the "last 12 months" its caption
+// claims and each column is one week — which is what lets the month labels line
+// up with the days underneath them (ADR-042).
+const CONTRIBUTION_WEEKS = 52;
+const CONTRIBUTION_DAYS = CONTRIBUTION_WEEKS * 7;
+
+const sumCounts = (cells) => cells.reduce((total, day) => total + (Number(day.count) || 0), 0);
+
 function useContributionData() {
   const fallbackCells = useMemo(() => {
     const today = new Date();
-    return Array.from({ length: 245 }, (_, index) => {
+    return Array.from({ length: CONTRIBUTION_DAYS }, (_, index) => {
       const wave = Math.sin(index * 0.43) + Math.cos(index * 0.17);
       const highlighted = index > 88 && index < 118 ? 2 : 0;
       const level = Math.max(0, Math.min(4, Math.round(wave + highlighted + (index % 13 === 0 ? 2 : 0))));
       const count = level === 0 ? 0 : level * 2 + (index % 3);
       const cellDate = new Date(today);
-      cellDate.setDate(cellDate.getDate() - (244 - index));
+      cellDate.setDate(cellDate.getDate() - (CONTRIBUTION_DAYS - 1 - index));
       return { date: cellDate.toISOString().slice(0, 10), count, level };
     });
   }, []);
-  const [data, setData] = useState({ cells: fallbackCells, total: 561 });
+  // Derived from the placeholder itself rather than a hardcoded number, which
+  // went stale the moment the real total moved past it.
+  const [data, setData] = useState(() => ({
+    cells: fallbackCells,
+    total: sumCounts(fallbackCells),
+  }));
 
   useEffect(() => {
     let cancelled = false;
 
+    // Drop any day the source sent without a usable date: everything
+    // downstream (the tooltip formatter, the month labels) parses it, and one
+    // malformed entry would otherwise throw during render.
     const normalise = (days) =>
-      days.slice(-245).map((day) => ({
-        date: day.date,
-        count: Number(day.count) || 0,
-        level: Number(day.level) || 0,
-      }));
+      days
+        .filter((day) => typeof day?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day.date))
+        .slice(-CONTRIBUTION_DAYS)
+        .map((day) => ({
+          date: day.date,
+          count: Number(day.count) || 0,
+          level: Number(day.level) || 0,
+        }));
+
+    // `|| fallback` would rewrite a legitimately zero total, so only fall back
+    // when the source genuinely did not give us a finite number.
+    const pickTotal = (value, cells) =>
+      Number.isFinite(Number(value)) ? Number(value) : sumCounts(cells);
 
     const loadSnapshot = fetch('/assets/contributions.json', { cache: 'no-cache' })
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error('no snapshot'))))
       .then((payload) => {
         if (cancelled || !Array.isArray(payload.cells)) return;
-        setData({ cells: normalise(payload.cells), total: Number(payload.total) || 561 });
+        const cells = normalise(payload.cells);
+        if (!cells.length) return;
+        setData({ cells, total: pickTotal(payload.total, cells) });
       })
       .catch(() => {});
 
@@ -769,8 +852,9 @@ function useContributionData() {
         .then((payload) => {
           if (cancelled || !Array.isArray(payload.contributions)) return;
           const today = new Date().toISOString().slice(0, 10);
-          const days = payload.contributions.filter((day) => day.date <= today);
-          setData({ cells: normalise(days), total: Number(payload.total?.lastYear) || 561 });
+          const cells = normalise(payload.contributions.filter((day) => day.date <= today));
+          if (!cells.length) return;
+          setData({ cells, total: pickTotal(payload.total?.lastYear, cells) });
         })
         .catch(() => {})
     );
@@ -784,7 +868,11 @@ function useContributionData() {
 }
 
 function formatCellDate(dateStr, locale) {
+  // Belt and braces: `normalise` already drops undated entries, but this runs
+  // once per cell during render, so a bad value here would take the page down.
+  if (typeof dateStr !== 'string') return '';
   const [year, month, day] = dateStr.split('-').map(Number);
+  if (!Number.isFinite(year)) return dateStr;
   const date = new Date(year, (month || 1) - 1, day || 1);
   return new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'en-US', {
     month: 'short',
@@ -808,28 +896,47 @@ function ContributionGrid({ t, locale }) {
     ScrollTrigger.refresh();
   }, [cells, total]);
 
+  // The grid flows column-first with seven rows, so cell N lives in week
+  // `floor(N / 7)`. Anchoring each month label to the column its first day
+  // falls in — and spanning it to the next month — is what makes the header
+  // describe the days underneath it. Previously nine labels were spread evenly
+  // over a row-major grid, where a column meant nothing at all (ADR-042).
+  const weekCount = Math.max(1, Math.ceil(cells.length / 7));
   const monthLabels = useMemo(() => {
     const formatter = new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'en-US', {
       month: 'short',
     });
-    const labels = [];
+    const marks = [];
     let previousMonth = '';
-    cells.forEach((day) => {
+    cells.forEach((day, index) => {
       const [year, month] = day.date.split('-').map(Number);
       const key = `${year}-${month}`;
       if (key === previousMonth) return;
-      labels.push(formatter.format(new Date(year, (month || 1) - 1, 1)));
       previousMonth = key;
+      marks.push({
+        key,
+        column: Math.floor(index / 7) + 1,
+        label: formatter.format(new Date(year, (month || 1) - 1, 1)),
+      });
     });
-    return labels.slice(-9);
-  }, [cells, locale]);
+    return marks
+      .map((mark, index) => ({
+        ...mark,
+        span: (marks[index + 1]?.column ?? weekCount + 1) - mark.column,
+      }))
+      // A month showing only a column or two has no room for its name and
+      // would sit on top of the next one. GitHub drops those too.
+      .filter((mark) => mark.span >= 3);
+  }, [cells, locale, weekCount]);
 
   return (
-    <section className="dashed contribution" aria-label="Contribution grid">
-      <div className="calendar-scroll">
-        <div className="months">
-          {monthLabels.map((month, index) => (
-            <span key={`${month}-${index}`}>{month}</span>
+    <section className="dashed contribution" aria-label={t.a11y.contributionGrid}>
+      <div className="calendar-scroll" style={{ '--grid-columns': weekCount }}>
+        <div className="months" aria-hidden="true">
+          {monthLabels.map((mark) => (
+            <span key={mark.key} style={{ gridColumn: `${mark.column} / span ${mark.span}` }}>
+              {mark.label}
+            </span>
           ))}
         </div>
         <div className="grid" aria-hidden="true">
@@ -856,7 +963,7 @@ function ContributionGrid({ t, locale }) {
   );
 }
 
-function ExperienceItem({ item, locale }) {
+function ExperienceItem({ item, locale, t }) {
   const [open, setOpen] = useState(false);
   const Icon = item.icon;
   const role = locale === 'ja' ? item.roleJa : item.role;
@@ -907,7 +1014,7 @@ function ExperienceItem({ item, locale }) {
           className="chevron"
           type="button"
           aria-expanded={open}
-          aria-label={`Toggle ${company} details`}
+          aria-label={t.a11y.toggleDetails(company)}
           onClick={() => setOpen((current) => !current)}
         >
           <ChevronDown size={15} />
@@ -936,7 +1043,7 @@ function ProjectCard({ project, t, locale, onOpen }) {
         onClick={open}
         aria-label={`${project.title} — ${t.viewDetails}`}
       >
-        <img src={image} alt={`${project.title} interface preview`} />
+        <img src={image} alt={t.a11y.preview(project.title)} />
         <span>{project.badge}</span>
         <span className="project-shot-hint">
           {t.viewDetails}
@@ -1296,7 +1403,7 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup 
 
         <header className="pd-hero">
           <div className="pd-shot pd-animate">
-            <img src={image} alt={`${project.title} interface preview`} />
+            <img src={image} alt={t.a11y.preview(project.title)} />
             <span>{project.badge}</span>
           </div>
           <div className="pd-headline pd-animate">
@@ -1399,11 +1506,17 @@ function App() {
   const detailRef = useRef(null);
   const detailOriginCardRef = useRef(null);
   const detailOriginMarkupRef = useRef('');
+  // True only when this app pushed the #/project/... entry, so closing knows
+  // whether stepping back stays on the site.
+  const pushedDetailRef = useRef(false);
+  // The control that opened the overlay, so focus can go back to it on close.
+  const detailReturnFocusRef = useRef(null);
   const t = copy[locale];
   const activeProject = projects.find((p) => route === `#/project/${p.slug}`) || null;
   const openProject = (slug, trigger) => {
     const mobile = window.matchMedia('(max-width: 640px)').matches;
     const card = mobile ? trigger?.closest('.project') : null;
+    detailReturnFocusRef.current = trigger || null;
     if (card) {
       detailOriginMarkupRef.current = card.outerHTML;
       detailOriginCardRef.current = card;
@@ -1412,6 +1525,8 @@ function App() {
       detailOriginMarkupRef.current = '';
       detailOriginCardRef.current = null;
     }
+    // Assigning the hash pushes a history entry, so closing may step back.
+    pushedDetailRef.current = true;
     window.location.hash = `#/project/${slug}`;
   };
   // The hash change re-renders asynchronously, and GSAP ScrollSmoother's
@@ -1427,11 +1542,27 @@ function App() {
     const rect = card.getBoundingClientRect();
     return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
   };
+  // `history.length > 1` only says the tab has history — not that the previous
+  // entry belongs to this site. Someone opening a shared #/project/... link in
+  // a tab they arrived in from LinkedIn was sent *back to LinkedIn* by the
+  // "Back to projects" button. Only step back through an entry this app pushed
+  // itself; otherwise clear the hash, which lands on the project list either
+  // way (ADR-042).
   const closeProject = () => {
-    if (window.history.length > 1) window.history.back();
-    else window.location.hash = '';
+    if (pushedDetailRef.current) {
+      pushedDetailRef.current = false;
+      window.history.back();
+      return;
+    }
+    // Deep-linked visit: strip the hash in place rather than pushing another
+    // entry that Back would only re-open. replaceState fires no hashchange,
+    // so drive the route directly.
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    setRoute('');
   };
-  // Japanese visitors get the Japanese-language CV; everyone else the English one.
+  // Japanese visitors get the Japanese-language CV; everyone else the English
+  // one. This branch was disabled for a while because the JA file was a
+  // byte-for-byte copy of the English CV; it is now the real 履歴書・職務経歴書.
   const resumeHref =
     locale === 'ja' ? '/resume/Mohamed_Fuad_CV_JA.pdf' : '/resume/Mohamed_Fuad_CV.pdf';
 
@@ -1601,6 +1732,56 @@ function App() {
       document.body.style.overflow = '';
     };
   }, [shownProject]);
+
+  // The overlay declares role="dialog" aria-modal="true", so it has to behave
+  // like one: Escape closes it, focus moves inside on open and returns to the
+  // card that opened it on close, and the page behind it leaves the tab order.
+  // Previously none of that held — every background link stayed reachable by
+  // Tab underneath a supposedly modal surface (ADR-042).
+  useEffect(() => {
+    if (!shownProject) return;
+    const smoothWrapper = smoothWrapperRef.current;
+    smoothWrapper?.setAttribute('inert', '');
+
+    const onKey = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeProject();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+
+    // The entrance timeline starts the overlay at autoAlpha 0 — which is
+    // `visibility: hidden` — and focusing a hidden element is silently a no-op.
+    // Wait for the first frame it is actually painted rather than guessing a
+    // delay that the open animation might outlast.
+    let focusFrame = 0;
+    let attempts = 0;
+    const focusWhenVisible = () => {
+      const dialog = detailRef.current;
+      if (!dialog) return;
+      if (getComputedStyle(dialog).visibility === 'visible') {
+        dialog.querySelector('.pd-back')?.focus({ preventScroll: true });
+        return;
+      }
+      if ((attempts += 1) > 90) return; // ~1.5s; give up rather than spin
+      focusFrame = requestAnimationFrame(focusWhenVisible);
+    };
+    focusFrame = requestAnimationFrame(focusWhenVisible);
+
+    return () => {
+      cancelAnimationFrame(focusFrame);
+      window.removeEventListener('keydown', onKey);
+      smoothWrapper?.removeAttribute('inert');
+      // Only pull focus back if it is still parked on the (now unmounted)
+      // overlay — never yank it away from something the visitor chose.
+      const active = document.activeElement;
+      if (!active || active === document.body) {
+        detailReturnFocusRef.current?.focus?.({ preventScroll: true });
+      }
+      detailReturnFocusRef.current = null;
+    };
+  }, [shownProject]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Lightbox: rotate/scale the photo open; reverse to close.
   useGSAP(() => {
@@ -1929,13 +2110,13 @@ function App() {
         ref={lightboxRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Profile photo"
+        aria-label={t.a11y.profilePhoto}
         onClick={() => setPhotoOpen(false)}
       >
         <img
           ref={lightboxImgRef}
           src="/assets/profile.jpg"
-          alt="Mohamed Fuad, enlarged"
+          alt={t.a11y.enlargedPhoto}
           onClick={(event) => event.stopPropagation()}
         />
       </div>
@@ -1976,12 +2157,12 @@ function App() {
                 className="profile-photo"
                 src="/assets/profile.jpg"
                 alt="Mohamed Fuad"
-                title="View photo"
+                title={t.a11y.viewPhoto}
                 onClick={() => setPhotoOpen(true)}
               />
             </div>
             <div className="avatar-face avatar-back">
-              <img src="/assets/linkedin-qr.png" alt="LinkedIn QR code" />
+              <img src="/assets/linkedin-qr.png" alt={t.a11y.linkedinQr} />
             </div>
           </div>
         </div>
@@ -1989,7 +2170,7 @@ function App() {
         <button
           className="qr-toggle-btn"
           type="button"
-          aria-label={showQr ? 'Show profile photo' : 'Show LinkedIn QR code'}
+          aria-label={showQr ? t.a11y.showPhoto : t.a11y.showQr}
           onClick={(event) => {
             event.stopPropagation();
             setShowQr((current) => !current);
@@ -2027,7 +2208,7 @@ function App() {
           </a>
           <p className="handle">
             @MohamedFuad16
-            <span className="locale-switch" role="group" aria-label="Language">
+            <span className="locale-switch" role="group" aria-label={t.a11y.language}>
               <button
                 type="button"
                 className={locale === 'en' ? 'on' : ''}
@@ -2071,7 +2252,7 @@ function App() {
         ))}
       </div>
 
-      <nav className="actions" aria-label="Contact links">
+      <nav className="actions" aria-label={t.a11y.contactLinks}>
         <a href="https://www.linkedin.com/in/mohamed-fuad-6b8483278" target="_blank" rel="noopener noreferrer">
           <span className="btn-icon">
             <BrandIcon name="linkedin" />
@@ -2093,7 +2274,7 @@ function App() {
       </nav>
 
       <SectionTitle>{t.skills}</SectionTitle>
-      <div className="skills-marquees" aria-label="Technical skills carousel">
+      <div className="skills-marquees" aria-label={t.a11y.skillsCarousel}>
         {skillRows.map((row, rowIndex) => (
           <div className="skills-marquee" data-direction={rowIndex === 0 ? 'left' : 'right'} key={rowIndex}>
             <ul className="skills">
@@ -2109,7 +2290,7 @@ function App() {
       <section className="dashed timeline">
         <div className="line" />
         {experience.map((item) => (
-          <ExperienceItem key={item.company} item={item} locale={locale} />
+          <ExperienceItem key={item.company} item={item} locale={locale} t={t} />
         ))}
       </section>
 
@@ -2144,7 +2325,7 @@ function App() {
       <section className="dashed contact-card" id="contact">
         <h3>{t.connectTitle}</h3>
         <p>{t.connectText}</p>
-        <nav className="contact-links" aria-label="More contact links">
+        <nav className="contact-links" aria-label={t.a11y.moreContactLinks}>
           <a href="mailto:mohamed.fuad.jp@gmail.com">
             <Mail size={14} />
             Email
@@ -2190,4 +2371,56 @@ function App() {
   );
 }
 
-createRoot(document.getElementById('root')).render(<App />);
+/**
+ * The page renders third-party data (the GitHub contribution feed) straight
+ * into JSX. Without a boundary, a single malformed row anywhere in the tree
+ * unmounts the whole document and leaves a blank dark screen — the site's only
+ * failure mode was "everything, silently". Keep it dumb: no retry loop, just a
+ * readable fallback with the links that matter.
+ */
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { failed: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error, info) {
+    console.error('Portfolio failed to render:', error, info);
+  }
+
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div className="fatal-error" role="alert">
+        <h1>Something broke while rendering this page.</h1>
+        <p>
+          Sorry about that — reloading usually fixes it. You can also reach me on{' '}
+          <a href="https://github.com/MohamedFuad16" target="_blank" rel="noopener noreferrer">
+            GitHub
+          </a>{' '}
+          or by{' '}
+          <a href="mailto:mohamed.fuad.jp@gmail.com">email</a>.
+        </p>
+        <button type="button" onClick={() => window.location.reload()}>
+          Reload
+        </button>
+      </div>
+    );
+  }
+}
+
+// Now that the React plugin is wired up, a hot update re-executes this module —
+// and `createRoot` must only ever be called once per container, or React warns
+// and mounts a second tree over the first. Cache the root on the element so a
+// re-run re-renders instead. In production this runs exactly once anyway.
+const container = document.getElementById('root');
+container.__portfolioRoot ||= createRoot(container);
+container.__portfolioRoot.render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);

@@ -33,6 +33,45 @@ main {
   padding: 58px 18px 48px;
 }
 
+/* Last-resort fallback rendered by the top-level error boundary. */
+.fatal-error {
+  width: min(560px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 22vh 0 0;
+  color: #d9d9d9;
+  text-align: center;
+}
+
+.fatal-error h1 {
+  margin: 0 0 12px;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 650;
+}
+
+.fatal-error p {
+  margin: 0 0 22px;
+  color: #a7a7a7;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.fatal-error button {
+  border: 2px dashed #56595d;
+  border-radius: 7px;
+  padding: 9px 18px;
+  background: #17191b;
+  color: #e8e8e8;
+  font: 600 13px/1 'Figtree', sans-serif;
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.fatal-error button:hover {
+  border-color: #7a7d82;
+  background: #1e2123;
+}
+
 .page-click-effects {
   position: fixed;
   inset: 0;
@@ -1006,25 +1045,32 @@ small.red {
   min-width: 0;
 }
 
+/* Shares the grid's column track so every month label sits over the weeks it
+   actually covers; `--grid-columns` is the week count, set from the data. */
 .months {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  margin-bottom: 14px;
+  grid-template-columns: repeat(var(--grid-columns, 52), minmax(0, 1fr));
+  gap: 3px;
+  margin-bottom: 10px;
   color: #f2f2f2;
-  font-size: 15px;
+  font-size: 14px;
 }
 
+/* One column per week, seven rows for the days in it — so a column is a
+   meaningful unit and the labels above can line up with it (ADR-042). */
 .grid {
   display: grid;
-  grid-template-columns: repeat(35, minmax(10px, 1fr));
-  grid-auto-rows: 13px;
-  gap: 5px;
+  grid-template-columns: repeat(var(--grid-columns, 52), minmax(0, 1fr));
+  grid-template-rows: repeat(7, auto);
+  grid-auto-flow: column;
+  gap: 3px;
 }
 
 .cell {
   position: relative;
   display: block;
-  border-radius: 3px;
+  aspect-ratio: 1;
+  border-radius: 2px;
   background: #202224;
 }
 
@@ -1058,16 +1104,16 @@ small.red {
   transform: translate(-50%, 3px);
 }
 
-.cell:nth-child(35n + 1)[data-tooltip]::after,
-.cell:nth-child(35n + 2)[data-tooltip]::after,
-.cell:nth-child(35n + 3)[data-tooltip]::after {
+/* Cells flow column-first in sevens, so the first 14 are the two leftmost
+   week columns and the last 14 are the two rightmost — those are the ones
+   whose centred tooltip would hang off the edge of the card. Counting from
+   both ends keeps this correct however many weeks the data covers. */
+.cell:nth-child(-n + 14)[data-tooltip]::after {
   left: 0;
   transform: translateY(3px);
 }
 
-.cell:nth-child(35n)[data-tooltip]::after,
-.cell:nth-child(35n + 34)[data-tooltip]::after,
-.cell:nth-child(35n + 33)[data-tooltip]::after {
+.cell:nth-last-child(-n + 14)[data-tooltip]::after {
   left: auto;
   right: 0;
   transform: translateY(3px);
@@ -1088,12 +1134,8 @@ small.red {
   transform: translate(-50%, 0);
 }
 
-.cell:nth-child(35n + 1)[data-tooltip]:hover::after,
-.cell:nth-child(35n + 2)[data-tooltip]:hover::after,
-.cell:nth-child(35n + 3)[data-tooltip]:hover::after,
-.cell:nth-child(35n)[data-tooltip]:hover::after,
-.cell:nth-child(35n + 34)[data-tooltip]:hover::after,
-.cell:nth-child(35n + 33)[data-tooltip]:hover::after {
+.cell:nth-child(-n + 14)[data-tooltip]:hover::after,
+.cell:nth-last-child(-n + 14)[data-tooltip]:hover::after {
   transform: translateY(0);
 }
 
@@ -1997,8 +2039,13 @@ footer {
     left: 31px;
   }
 
+  /* Line centre moves to 35px here, and the summary still overhangs by 12px
+     (the 10px override does not start until <=560px), so the dot offset is
+     35 - 52.5 + 12 - 8 = -13.5. The previous -25.5px was computed as if the
+     summary had no negative margin, which pushed every dot 12px off the
+     dashed line for the whole 561-760px band (ADR-042). */
   .dot {
-    left: -25.5px;
+    left: -13.5px;
   }
 
   .experience-summary {
@@ -2034,10 +2081,19 @@ footer {
     margin-left: 50px;
   }
 
+  /* Fixed 11px cells here instead of fractional tracks: the section scrolls
+     horizontally on phones, so the grid sets its own width and the wrapper's
+     min-width is derived from the same numbers rather than hardcoded. */
   .grid {
-    gap: 4px;
-    grid-auto-rows: 14px;
-    grid-template-columns: repeat(35, 14px);
+    gap: 3px;
+    grid-template-rows: repeat(7, 11px);
+    grid-template-columns: repeat(var(--grid-columns, 52), 11px);
+  }
+
+  .months {
+    grid-template-columns: repeat(var(--grid-columns, 52), 11px);
+    gap: 3px;
+    font-size: 12px;
   }
 
   .contribution {
@@ -2045,7 +2101,7 @@ footer {
   }
 
   .calendar-scroll {
-    min-width: 626px;
+    min-width: calc(var(--grid-columns, 52) * 14px - 3px);
   }
 
   .contribution-foot {
@@ -2142,8 +2198,12 @@ footer {
     gap: 28px;
   }
 
+  /* Stacking inherits `align-items: center` from the row layout, which centred
+     the title and the Live/GitHub buttons over a card whose description, tech
+     label and tags are all left-aligned. Pin them back to the content edge. */
   .project-heading {
     flex-direction: column;
+    align-items: flex-start;
   }
 
   .project-shot {
@@ -2169,3 +2229,4 @@ footer {
     width: 100%;
   }
 }
+

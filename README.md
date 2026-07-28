@@ -42,13 +42,13 @@ backend, API, or persistence layer**; everything renders in the browser.
   expand to bilingual role details.
 - **Tactile feedback** — a water-ripple + soft chime on tap (real taps only —
   scrolling and dragging don't trigger it).
-- **Locale-aware résumé download** — serves the Japanese or English CV PDF based
-  on the active locale.
+- **Locale-aware résumé download** — serves the Japanese 履歴書・職務経歴書 or
+  the English CV based on the active locale.
 - **Project detail pages** — clicking a project opens a dedicated, hash-routed
   detail page (Overview · Key Features · How It Works · tech stack) that animates
   in and out with GSAP and is fully bilingual.
-- **Dev notes** — the "Thoughts in words" section links out to my latest
-  [Qiita](https://qiita.com/mfuad16) article.
+- **Dev notes** — the "Thoughts in words" section links out to my
+  [Qiita profile](https://qiita.com/mfuad16).
 - **Responsive & OLED-friendly** — verified with no horizontal overflow at
   320 / 375 / 768 / 1280 / 1920 px in both locales.
 
@@ -59,14 +59,14 @@ backend, API, or persistence layer**; everything renders in the browser.
 | **WebDrop** | AirDrop-style browser file sharing with bump pairing, ultrasonic handshake, and WebRTC streams | [Live](https://web-drop-lyart.vercel.app/) · [Repo](https://github.com/MohamedFuad16/WebDrop) |
 | **Tutor-System** | AI learning app with tutor tools, realtime voice tutoring, and source-aware PDF chat | [Live](https://tutor-system-architecture.vercel.app/) · [Repo](https://github.com/MohamedFuad16/Tutor-System) |
 | **TokaiHub** | Mobile-first bilingual student portal PWA with AWS Cognito auth | [Live](https://mohamedfuad16.github.io/TokaiHub/) · [Repo](https://github.com/MohamedFuad16/TokaiHub) |
-| **Codex Account Switcher** | Native macOS menu-bar utility for switching Codex accounts | [Repo](https://github.com/MohamedFuad16/Codex-Acc-Switcher) |
+| **ClaudeShot** | Native macOS utility that captures the frontmost window straight into Claude | [Repo](https://github.com/MohamedFuad16/ClaudeShot) |
 
 ## Tech Stack
 
-- **React 18** + **Vite** (static SPA, no backend)
+- **React 19** + **Vite** (static SPA, no backend)
 - **GSAP** (`ScrollTrigger`, `ScrollSmoother`, `DrawSVG`, `SplitText`, `ScrollToPlugin`) + `@gsap/react`
 - **lucide-react** and **react-icons** for iconography
-- **qrcode** for the LinkedIn QR flip card
+- **border-beam** and **thinking-orbs** for the avatar beam and the agent motif
 - Hand-written CSS visual system (dark, dashed-border, compact)
 
 ## Project Structure
@@ -83,17 +83,19 @@ public/resume/        # CV PDFs (EN / JA)
 ## Getting Started
 
 > This tree does **not** track `node_modules` / `dist` — install after cloning.
+> Vite 8 needs **Node ^20.19 or >=22.12** (see `.nvmrc` / `engines`); older
+> Node fails the build with a `styleText` import error from rolldown.
 
 ```bash
-npm install       # (this workspace is pnpm-managed; pnpm install also works)
-npm run dev       # Vite dev server on http://127.0.0.1:5173
-npm run build     # Production build into dist/
-npm run preview   # Preview the production build
+pnpm install      # this workspace is pnpm-managed
+pnpm dev          # Vite dev server on http://127.0.0.1:5173
+pnpm build        # Production build into dist/
+pnpm preview      # Preview the production build
 ```
 
 ## Deployment
 
-The site is a static build deployed to **Vercel**. Run `npm run build` and
+The site is a static build deployed to **Vercel**. Run `pnpm build` and
 serve `dist/` from any static host.
 
 ---

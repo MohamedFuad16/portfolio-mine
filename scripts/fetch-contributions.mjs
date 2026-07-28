@@ -20,8 +20,10 @@ const OUT = resolve(
   dirname(fileURLToPath(import.meta.url)),
   '../public/assets/contributions.json'
 );
-// The grid renders the most recent 245 days.
-const DAYS = 245;
+// The grid renders 52 whole weeks, one column per week — matching the
+// "last 12 months" its caption claims. Keep in sync with CONTRIBUTION_DAYS in
+// src/main.jsx.
+const DAYS = 52 * 7;
 
 /** GitHub buckets a day into 0-4; the mirror already returns that shape. */
 function levelFromCount(count, max) {
