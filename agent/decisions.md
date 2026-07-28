@@ -550,3 +550,26 @@ Consequences: The heading is a column at every width now, so anything added to `
 The "New" flag from point 3 was removed the same day — the user did not like it. The `.project-badge` class introduced in point 4 stays, since it is what keeps the status badge selectable without relying on `span:not(.project-shot-hint)`. Points 1 and 2 (project order, and the title getting its own full-width row) stand.
 
 Separately, the AI Brain Platform's dashboard is now published at `https://brain.mohamedfuad.com`, so a project can have a `live` URL while its repo stays private — the card renders a Live link next to the "Private repo" label. `project.github` and `project.live` are independent; neither implies the other.
+
+## ADR-046 - 2026-07-29 - The mobile card-expand clone was reflowing; pin it to the origin card
+
+Status: Accepted
+Completes ADR-036, which pinned the wrong half of the transition.
+
+Context: The user reported that opening a project on mobile still "realigns a bit". Every previous attempt at this (ADR-029, 036, 038, 040) was verified with synthetic clicks in the preview pane — where `document.hidden` is true, `requestAnimationFrame` never fires, and GSAP timelines never advance. In other words the animation had never actually been observed running. Recorded it properly instead: headless Chrome at 390x844 with touch emulation, a real `Input.dispatchTouchEvent` tap, `Page.startScreencast` for frames, and a per-`rAF` sampler logging the geometry of the overlay, the clone, and their contents.
+
+Root cause: `.pd-expand-face .project { width: 100% }`. The clone is a static `outerHTML` copy of the tapped card, but it is sized as a percentage of `.pd-expand-face`, which fills `.project-detail` — and `.project-detail`'s width is exactly what the open animation tweens. So the clone re-laid out on every frame of the morph. Measured across the 25 frames where the clone is visible, as the overlay grew 350 -> 390px:
+
+- the clone's grid column went 306 -> 338 -> 350px
+- its preview image grew 353.9 -> 387.5px wide (33.6px of drift) and 18.9px taller
+- **its title slid 171.9px down the screen**
+
+That last number is the visible glitch. It is the same failure ADR-036 diagnosed and fixed for `.project-detail-inner`; the clone was simply never given the same treatment.
+
+Decision: Added `pinnedFaceLayout(origin)`, applied to the cloned `.project` in both the open and close timelines, freezing it at the measured origin card's width and height so it cannot reflow while the frame around it animates.
+
+**Units must be explicit.** The first attempt passed bare numbers, as `pinnedInnerLayout` does. GSAP defaults `width` to px but `minHeight` to *percent*, so it wrote `min-height: 404.75%` — the clone became 3121px tall and its title, description and tags were pushed far below the frame. The fix returns `` `${n}px` `` strings for both.
+
+Consequences: After the fix, every clone child matches its original exactly (306x172 preview, 306x112 body, 306x52 heading, 59x18 and 51x18 tags) and drift across the animation is 0.0px in width, height and title position on all three cards tested, on both open and close, while the frame still grows 358 -> 390. The clone is anchored to the overlay's top-left, so it translates with the frame — that is the intended shared-element motion, and is why the close still shows a 25px title translation with 0px of size drift.
+
+Anything that later animates `.project-detail`'s box must keep both pins in step: `pinnedInnerLayout()` for the real content and `pinnedFaceLayout()` for the clone.

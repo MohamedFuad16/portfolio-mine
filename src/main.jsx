@@ -85,6 +85,24 @@ function pinnedInnerLayout() {
   };
 }
 
+/**
+ * Freeze the cloned card inside `.pd-expand-face` at the size of the card it
+ * was copied from. The clone is styled `width: 100%` of the overlay, and the
+ * overlay's width is what the open/close animates — so without this the clone
+ * re-lays out on every frame of the morph. Recorded at 390px: as the overlay
+ * grew 350 -> 390, the clone's grid column went 306 -> 338 -> 350, its preview
+ * image grew from 343 to 379 wide, and every line of text re-wrapped under it.
+ * That reflow is the "realigning" glitch — the same failure ADR-036 fixed for
+ * `.project-detail-inner`, which was never applied to the clone (ADR-046).
+ */
+function pinnedFaceLayout(origin) {
+  // Units are explicit on purpose. GSAP defaults `width` to px but `minHeight`
+  // to *percent* — passing the bare number wrote `min-height: 404.75%`, which
+  // made the clone 3121px tall and pushed its title, description and tags far
+  // below the frame (ADR-046).
+  return { width: `${origin.width}px`, minHeight: `${origin.height}px` };
+}
+
 const skills = [
   { label: 'JavaScript', Icon: SiJavascript, color: '#f7df1e' },
   { label: 'TypeScript', Icon: SiTypescript, color: '#3178c6' },
@@ -1843,6 +1861,9 @@ function App() {
     if (mobile && origin && face && inner) {
       el.scrollTop = 0;
       gsap.set(face, { visibility: 'visible' });
+      // The closing frame shrinks, so the clone would reflow on the way out
+      // too without being pinned to the card it is returning to (ADR-046).
+      gsap.set(face.querySelector('.project'), pinnedFaceLayout(origin));
       // Same pin as the open: the closing container shrinks, so without it the
       // content would re-wrap and jump on the way out too (ADR-036).
       gsap.set(inner, pinnedInnerLayout());
@@ -1912,6 +1933,7 @@ function App() {
           overflow: 'hidden',
         });
         gsap.set(face, { autoAlpha: 1, visibility: 'visible' });
+        gsap.set(face.querySelector('.project'), pinnedFaceLayout(origin));
         // Pin the content to the width it will END at. Otherwise its
         // `calc(100% - 32px)` width tracks the animating container, the tagline
         // re-wraps mid-flight and every heading below it jumps (ADR-036).
