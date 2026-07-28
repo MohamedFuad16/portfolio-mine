@@ -234,6 +234,7 @@ const copy = {
     tech: 'Technologies Used:',
     live: 'Live',
     privateRepo: 'Private repo',
+    newBadge: 'New',
     moreProjects: 'More Projects',
     thoughtsTitle: 'Thoughts in words.',
     thoughts: 'I write about the things I build and learn. Browse all of my posts on',
@@ -298,6 +299,7 @@ const copy = {
     tech: '使用技術:',
     live: '公開',
     privateRepo: '非公開リポジトリ',
+    newBadge: 'New',
     moreProjects: '他のプロジェクト',
     thoughtsTitle: '言葉のメモ。',
     thoughts: '開発や学びについて書いています。すべての記事は',
@@ -338,102 +340,6 @@ const copy = {
 };
 
 const projects = [
-  {
-    title: 'Internship Portal',
-    slug: 'internship-portal',
-    badge: 'in progress',
-    image: '/assets/internship-portal-site.jpg',
-    imageJa: '/assets/internship-portal-site-ja.jpg',
-    icon: Target,
-    live: 'https://editor-omega-two.vercel.app',
-    github: 'https://github.com/MohamedFuad16/resume-studio-dashboard',
-    description:
-      'A bilingual internship tracker, résumé editor, and LaTeX-to-PDF compiler, on the web and on iOS.',
-    descriptionJa:
-      'インターン管理、レジュメ編集、LaTeXからのPDF生成を日英で行うWeb・iOSアプリ。',
-    tech: ['React', 'SwiftUI', 'Firestore', 'Express', 'Azure'],
-    detail: {
-      tagline: {
-        en: 'One backend, two clients, and a rule that user data never touches the server.',
-        ja: 'ひとつのバックエンドに2つのクライアント。ユーザーデータはサーバーを通らない設計。',
-      },
-      status: {
-        en: 'In active development. The web app is live and the iOS client is built from the same shared contracts.',
-        ja: '現在も開発中です。Webアプリは公開済みで、iOSクライアントも同じ共有コントラクトから構築しています。',
-      },
-      overview: {
-        en: 'I am building the Internship Portal to handle everything around applying: finding postings, tracking each application from saved to interview, keeping deadlines in a calendar, and producing the résumé itself. It ships as a React web app and a SwiftUI iOS app out of one repository, sharing a contracts layer so neither client can quietly break the other. The architectural rule I care about most is that personal data never reaches my server — the clients read and write Firestore directly under owner-only rules, and the server owns only the shared internship catalog and a Gmail action queue.',
-        ja: 'インターン応募にまつわる作業をひとつにまとめるために開発中のプロダクトです。求人の発見、保存から面接までの応募状況の追跡、締切のカレンダー管理、そしてレジュメ作成までを扱います。ひとつのリポジトリからReactのWebアプリとSwiftUIのiOSアプリを提供し、共通のコントラクト層で双方のクライアントが互いを壊さないようにしています。最も重視した設計方針は、個人データがサーバーを経由しないことです。クライアントは所有者限定ルールのもとでFirestoreを直接読み書きし、サーバーは共有のインターン求人カタログとGmail処理キューだけを持ちます。',
-      },
-      features: [
-        {
-          en: 'An internship radar scores how well each posting matches the profile, and the tracker moves an application through saved, applying, applied, interview, and rejected.',
-          ja: 'インターンレーダーが各求人とプロフィールの適合度を採点し、トラッカーが「保存・応募準備・応募済み・面接・不採用」の状態を管理します。',
-        },
-        {
-          en: 'The résumé editor compiles LaTeX to a PDF preview as you type, with English and Japanese templates including a 履歴書 grid and a 職務経歴書 layout.',
-          ja: 'レジュメエディタは入力しながらLaTeXをPDFプレビューへコンパイルします。英語テンプレートに加え、履歴書のマス目形式と職務経歴書のレイアウトを用意しています。',
-        },
-        {
-          en: 'Gmail ingest classifies incoming mail and queues actions instead of writing them. Detection is evidence-based rather than a company list: the model has to quote the email, and the quote is verified against the message.',
-          ja: '受信メールを分類し、書き込みではなくアクションをキューに積みます。判定は企業リストではなく根拠ベースで、モデルはメール本文を引用する必要があり、その引用は元のメッセージと照合されます。',
-        },
-        {
-          en: 'The iOS app carries the tracker away from a desk, with background refresh that syncs Gmail and posts a notification carrying the company logo when a new application is detected.',
-          ja: 'iOSアプリは机を離れても使えます。バックグラウンド更新でGmailを同期し、新しい応募を検出すると企業ロゴ付きの通知を表示します。',
-        },
-        {
-          en: 'Both clients are fully bilingual, and a shared contracts directory pins the API routes, data shapes, and ranking rules that the web and iOS sides must implement identically.',
-          ja: '両クライアントとも日英に完全対応しています。共有のコントラクトディレクトリがAPIルート、データ構造、並び順のルールを固定し、WebとiOSが同一の実装を保つようにしています。',
-        },
-      ],
-      flow: {
-        en: 'A signed-in client reads and writes its own Firestore documents directly, so applications, trackers, and profiles never pass through my infrastructure. For anything shared, the client calls an Express server on Azure Container Apps: the internship catalog, the LaTeX compile endpoint that returns a PDF, and the Gmail ingest queue that the clients drain into their own tracker.',
-        ja: 'サインイン済みのクライアントは自分のFirestoreドキュメントを直接読み書きするため、応募情報、トラッカー、プロフィールが私のインフラを通ることはありません。共有データについては、Azure Container Apps上のExpressサーバーを呼び出します。インターン求人カタログ、PDFを返すLaTeXコンパイル、そしてクライアントが自分のトラッカーへ取り込むGmail処理キューです。',
-      },
-      architecture: [
-        { label: { en: 'Two clients', ja: '2つのクライアント' }, detail: { en: 'React web and SwiftUI iOS', ja: 'React WebとSwiftUI iOS' } },
-        { label: { en: 'User data', ja: 'ユーザーデータ' }, detail: { en: 'Firestore, owner-only', ja: 'Firestore・所有者限定' } },
-        { label: { en: 'Shared server', ja: '共有サーバー' }, detail: { en: 'Express on Azure', ja: 'Azure上のExpress' } },
-        { label: { en: 'Documents', ja: '書類生成' }, detail: { en: 'LaTeX compiled to PDF', ja: 'LaTeXからPDF' } },
-      ],
-      stack: [
-        {
-          kind: 'terminal',
-          title: { en: 'Web and iOS clients', ja: 'Web・iOSクライアント' },
-          sub: { en: 'React SPA + SwiftUI', ja: 'React SPA + SwiftUI' },
-          edge: { en: 'sign in', ja: 'サインイン' },
-        },
-        {
-          kind: 'decision',
-          title: { en: 'Whose data is it?', ja: 'どちらのデータか' },
-          edge: { en: 'shared', ja: '共有' },
-          branch: {
-            kind: 'store',
-            // Kept short on purpose: the compact (phone) branch box is 116 user
-            // units wide, and "Firestore（所有者限定）" measured 126 and spilled
-            // out of the viewBox. The owner-only rule is stated in the prose.
-            title: { en: 'Firestore', ja: 'Firestore' },
-            edge: { en: 'personal data', ja: '個人データ' },
-          },
-        },
-        {
-          title: { en: 'Express on Azure', ja: 'Azure上のExpress' },
-          sub: { en: 'Catalog, compile, Gmail queue', ja: 'カタログ・コンパイル・Gmail' },
-          edge: { en: 'compile', ja: 'コンパイル' },
-          branch: {
-            title: { en: 'Gmail ingest', ja: 'Gmail取り込み' },
-            edge: { en: 'queued', ja: 'キュー' },
-          },
-        },
-        {
-          kind: 'store',
-          title: { en: 'Tectonic to PDF', ja: 'TectonicでPDF化' },
-          sub: { en: 'EN and JA LaTeX templates', ja: '日英LaTeXテンプレート' },
-        },
-      ],
-    },
-  },
   {
     title: 'AI Brain Platform',
     slug: 'ai-brain-platform',
@@ -628,6 +534,103 @@ const projects = [
           kind: 'store',
           title: { en: 'Receiver storage', ja: '受信側ストレージ' },
           sub: { en: 'OPFS / IndexedDB / StreamSaver', ja: 'OPFS / IndexedDB / StreamSaver' },
+        },
+      ],
+    },
+  },
+  {
+    title: 'Internship Portal',
+    slug: 'internship-portal',
+    badge: 'in progress',
+    isNew: true,
+    image: '/assets/internship-portal-site.jpg',
+    imageJa: '/assets/internship-portal-site-ja.jpg',
+    icon: Target,
+    live: 'https://editor-omega-two.vercel.app',
+    github: 'https://github.com/MohamedFuad16/resume-studio-dashboard',
+    description:
+      'A bilingual internship tracker, résumé editor, and LaTeX-to-PDF compiler, on the web and on iOS.',
+    descriptionJa:
+      'インターン管理、レジュメ編集、LaTeXからのPDF生成を日英で行うWeb・iOSアプリ。',
+    tech: ['React', 'SwiftUI', 'Firestore', 'Express', 'Azure'],
+    detail: {
+      tagline: {
+        en: 'One backend, two clients, and a rule that user data never touches the server.',
+        ja: 'ひとつのバックエンドに2つのクライアント。ユーザーデータはサーバーを通らない設計。',
+      },
+      status: {
+        en: 'In active development. The web app is live and the iOS client is built from the same shared contracts.',
+        ja: '現在も開発中です。Webアプリは公開済みで、iOSクライアントも同じ共有コントラクトから構築しています。',
+      },
+      overview: {
+        en: 'I am building the Internship Portal to handle everything around applying: finding postings, tracking each application from saved to interview, keeping deadlines in a calendar, and producing the résumé itself. It ships as a React web app and a SwiftUI iOS app out of one repository, sharing a contracts layer so neither client can quietly break the other. The architectural rule I care about most is that personal data never reaches my server — the clients read and write Firestore directly under owner-only rules, and the server owns only the shared internship catalog and a Gmail action queue.',
+        ja: 'インターン応募にまつわる作業をひとつにまとめるために開発中のプロダクトです。求人の発見、保存から面接までの応募状況の追跡、締切のカレンダー管理、そしてレジュメ作成までを扱います。ひとつのリポジトリからReactのWebアプリとSwiftUIのiOSアプリを提供し、共通のコントラクト層で双方のクライアントが互いを壊さないようにしています。最も重視した設計方針は、個人データがサーバーを経由しないことです。クライアントは所有者限定ルールのもとでFirestoreを直接読み書きし、サーバーは共有のインターン求人カタログとGmail処理キューだけを持ちます。',
+      },
+      features: [
+        {
+          en: 'An internship radar scores how well each posting matches the profile, and the tracker moves an application through saved, applying, applied, interview, and rejected.',
+          ja: 'インターンレーダーが各求人とプロフィールの適合度を採点し、トラッカーが「保存・応募準備・応募済み・面接・不採用」の状態を管理します。',
+        },
+        {
+          en: 'The résumé editor compiles LaTeX to a PDF preview as you type, with English and Japanese templates including a 履歴書 grid and a 職務経歴書 layout.',
+          ja: 'レジュメエディタは入力しながらLaTeXをPDFプレビューへコンパイルします。英語テンプレートに加え、履歴書のマス目形式と職務経歴書のレイアウトを用意しています。',
+        },
+        {
+          en: 'Gmail ingest classifies incoming mail and queues actions instead of writing them. Detection is evidence-based rather than a company list: the model has to quote the email, and the quote is verified against the message.',
+          ja: '受信メールを分類し、書き込みではなくアクションをキューに積みます。判定は企業リストではなく根拠ベースで、モデルはメール本文を引用する必要があり、その引用は元のメッセージと照合されます。',
+        },
+        {
+          en: 'The iOS app carries the tracker away from a desk, with background refresh that syncs Gmail and posts a notification carrying the company logo when a new application is detected.',
+          ja: 'iOSアプリは机を離れても使えます。バックグラウンド更新でGmailを同期し、新しい応募を検出すると企業ロゴ付きの通知を表示します。',
+        },
+        {
+          en: 'Both clients are fully bilingual, and a shared contracts directory pins the API routes, data shapes, and ranking rules that the web and iOS sides must implement identically.',
+          ja: '両クライアントとも日英に完全対応しています。共有のコントラクトディレクトリがAPIルート、データ構造、並び順のルールを固定し、WebとiOSが同一の実装を保つようにしています。',
+        },
+      ],
+      flow: {
+        en: 'A signed-in client reads and writes its own Firestore documents directly, so applications, trackers, and profiles never pass through my infrastructure. For anything shared, the client calls an Express server on Azure Container Apps: the internship catalog, the LaTeX compile endpoint that returns a PDF, and the Gmail ingest queue that the clients drain into their own tracker.',
+        ja: 'サインイン済みのクライアントは自分のFirestoreドキュメントを直接読み書きするため、応募情報、トラッカー、プロフィールが私のインフラを通ることはありません。共有データについては、Azure Container Apps上のExpressサーバーを呼び出します。インターン求人カタログ、PDFを返すLaTeXコンパイル、そしてクライアントが自分のトラッカーへ取り込むGmail処理キューです。',
+      },
+      architecture: [
+        { label: { en: 'Two clients', ja: '2つのクライアント' }, detail: { en: 'React web and SwiftUI iOS', ja: 'React WebとSwiftUI iOS' } },
+        { label: { en: 'User data', ja: 'ユーザーデータ' }, detail: { en: 'Firestore, owner-only', ja: 'Firestore・所有者限定' } },
+        { label: { en: 'Shared server', ja: '共有サーバー' }, detail: { en: 'Express on Azure', ja: 'Azure上のExpress' } },
+        { label: { en: 'Documents', ja: '書類生成' }, detail: { en: 'LaTeX compiled to PDF', ja: 'LaTeXからPDF' } },
+      ],
+      stack: [
+        {
+          kind: 'terminal',
+          title: { en: 'Web and iOS clients', ja: 'Web・iOSクライアント' },
+          sub: { en: 'React SPA + SwiftUI', ja: 'React SPA + SwiftUI' },
+          edge: { en: 'sign in', ja: 'サインイン' },
+        },
+        {
+          kind: 'decision',
+          title: { en: 'Whose data is it?', ja: 'どちらのデータか' },
+          edge: { en: 'shared', ja: '共有' },
+          branch: {
+            kind: 'store',
+            // Kept short on purpose: the compact (phone) branch box is 116 user
+            // units wide, and "Firestore（所有者限定）" measured 126 and spilled
+            // out of the viewBox. The owner-only rule is stated in the prose.
+            title: { en: 'Firestore', ja: 'Firestore' },
+            edge: { en: 'personal data', ja: '個人データ' },
+          },
+        },
+        {
+          title: { en: 'Express on Azure', ja: 'Azure上のExpress' },
+          sub: { en: 'Catalog, compile, Gmail queue', ja: 'カタログ・コンパイル・Gmail' },
+          edge: { en: 'compile', ja: 'コンパイル' },
+          branch: {
+            title: { en: 'Gmail ingest', ja: 'Gmail取り込み' },
+            edge: { en: 'queued', ja: 'キュー' },
+          },
+        },
+        {
+          kind: 'store',
+          title: { en: 'Tectonic to PDF', ja: 'TectonicでPDF化' },
+          sub: { en: 'EN and JA LaTeX templates', ja: '日英LaTeXテンプレート' },
         },
       ],
     },
@@ -1252,7 +1255,8 @@ function ProjectCard({ project, t, locale, onOpen }) {
         aria-label={`${project.title} — ${t.viewDetails}`}
       >
         <img src={image} alt={t.a11y.preview(project.title)} />
-        <span>{project.badge}</span>
+        {project.isNew && <span className="project-new">{t.newBadge}</span>}
+        <span className="project-badge">{project.badge}</span>
         <span className="project-shot-hint">
           {t.viewDetails}
           <ArrowUpRight size={14} />

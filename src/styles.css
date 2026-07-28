@@ -1240,7 +1240,7 @@ small.red {
   filter: brightness(1.07);
 }
 
-.project-shot > span:not(.project-shot-hint) {
+.project-badge {
   position: absolute;
   right: 10px;
   bottom: 9px;
@@ -1250,6 +1250,26 @@ small.red {
   color: #f6f6f6;
   font-size: 11px;
   box-shadow: #000 0 0 0 1px, rgba(255, 255, 255, 0.1) 0 1px 0 inset;
+}
+
+/* "New" flag, top-left of the preview — the one corner the badge and the
+   View-details hint (both bottom) leave free. */
+.project-new {
+  position: absolute;
+  left: 10px;
+  top: 9px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 3px 8px;
+  background: linear-gradient(#2ee27e, #10c464);
+  color: #06240f;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: rgba(0, 0, 0, 0.45) 0 2px 8px, rgba(255, 255, 255, 0.35) 0 1px 0 inset;
 }
 
 .project-shot-hint {
@@ -1278,22 +1298,26 @@ small.red {
   transform: translateY(0);
 }
 
-/* Title and the Live/GitHub actions always share one line so every card reads
-   identically — longer titles (Tutor-System) shrink instead of wrapping the
-   buttons onto a second row (ADR-032). */
+/* The title gets its own full-width line and the Live/GitHub actions sit
+   underneath. They used to share one row (ADR-032), which meant a long title
+   was squeezed by the buttons and clipped by its own ellipsis — measured on
+   the live site, "Internship Portal" needed 137px and got 96, "AI Brain
+   Platform" needed 141 and got 100, and even "Tutor-System" needed 114 and
+   got 96. Stacking costs one row of height and shows every title in full
+   (ADR-045). */
 .project-heading {
   display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  gap: 8px 14px;
-  align-items: center;
-  margin-bottom: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  margin-bottom: 10px;
 }
 
 .project h3 {
   display: inline-flex;
   align-items: center;
-  flex: 0 1 auto;
+  flex: 0 0 auto;
+  max-width: 100%;
   min-width: 0;
   gap: 7px;
   margin: 0;
@@ -2288,14 +2312,6 @@ footer {
 
   .skills {
     gap: 28px;
-  }
-
-  /* Stacking inherits `align-items: center` from the row layout, which centred
-     the title and the Live/GitHub buttons over a card whose description, tech
-     label and tags are all left-aligned. Pin them back to the content edge. */
-  .project-heading {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .project-shot {

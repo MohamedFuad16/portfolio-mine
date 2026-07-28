@@ -525,3 +525,22 @@ Decision: Removed `#fc-sketch` entirely and committed to a precise diagram, keep
 - Connectors lightened to `1.5` against the shapes' `2`, so the boxes lead and the connectors read as grammar between them; arrowheads recoloured to match their line instead of sitting a shade apart.
 
 Consequences: The ADR-041 hazard is retired along with the filter — there is no longer an `objectBoundingBox`-vs-`userSpaceOnUse` trap here, because no filter is applied to zero-area shapes. If a hand-drawn look is ever wanted again, do it as **geometry** (perturb the path data, roughjs-style) rather than as a post-process filter; a displacement filter subtle enough not to look noisy is also subtle enough to be invisible. Re-verified all six charts in EN and JA at 375px and 1280px: no text outside a viewBox, no text overflowing its shape, and every connector still painted.
+
+## ADR-045 - 2026-07-29 - Project order, a "New" flag, and the title gets its own line
+
+Status: Accepted
+Supersedes the single-row heading decision in ADR-032.
+
+Context: The user asked for a specific project order, a "New" badge on the Internship Portal, and for the titles to be fully visible — suggesting the Live/GitHub buttons move to the next line.
+
+Decision:
+
+1. **Order is now AI Brain Platform, WebDrop, Internship Portal, Tutor-System, TokaiHub, ClaudeShot**, set by the order of the `projects` array. (The user first said WebDrop at the top, then gave this fuller ordering; the later, more specific instruction won.)
+
+2. **Titles get their own full-width row, actions underneath.** ADR-032 pinned the title and the Live/GitHub buttons to one line so every card read identically, with `.project-title` truncating by ellipsis if it did not fit. Measured on the deployed site at 1280px, that was clipping three of six titles: "Internship Portal" needed 137px and got 96, "AI Brain Platform" needed 141 and got 100, and "Tutor-System" — which predates the new projects — needed 114 and got 96. The two new, longer titles made a latent problem obvious. `.project-heading` is now `flex-direction: column; align-items: flex-start`, costing one row of height per card. All six titles now measure `scrollWidth === clientWidth` at 1280px and 375px in both locales. This also made the `<=470px` column override redundant, so it was removed.
+
+3. **A "New" flag sits top-left of the preview**, driven by `project.isNew` rather than by hardcoding a slug, so moving it later is a one-line change. Top-left is the only free corner: the status badge is bottom-right and the View-details hint is bottom-left (and on mobile the hint is permanently visible, so a bottom-left flag would have collided). Verified no overlap with either at 375px or 1280px.
+
+4. The badge span gained an explicit `.project-badge` class. It was previously selected as `.project-shot > span:not(.project-shot-hint)`, which the new flag would also have matched.
+
+Consequences: The heading is a column at every width now, so anything added to `.project-heading` stacks rather than competing for one row. `.project-title` keeps `white-space: nowrap` — that is what stops "Tutor-System" breaking at its hyphen (ADR-013) — and keeps `text-overflow: ellipsis` as a safety net, but with a full-width row nothing currently reaches it.
