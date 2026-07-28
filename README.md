@@ -57,7 +57,7 @@ backend, API, or persistence layer**; everything renders in the browser.
 | Project | What it is | Links |
 | ------- | ---------- | ----- |
 | **Internship Portal** | Bilingual internship tracker, résumé editor, and LaTeX→PDF compiler on web + iOS | [Live](https://editor-omega-two.vercel.app) · [Repo](https://github.com/MohamedFuad16/resume-studio-dashboard) |
-| **AI Brain Platform** | Local-first engineering memory: versioned Markdown indexed for RAG, with an exam loop that measures it | private repo |
+| **AI Brain Platform** | Local-first engineering memory: versioned Markdown indexed for RAG, with an exam loop that measures it | [Live](https://brain.mohamedfuad.com) · private repo |
 | **WebDrop** | AirDrop-style browser file sharing with bump pairing, ultrasonic handshake, and WebRTC streams | [Live](https://web-drop-lyart.vercel.app/) · [Repo](https://github.com/MohamedFuad16/WebDrop) |
 | **Tutor-System** | AI learning app with tutor tools, realtime voice tutoring, and source-aware PDF chat | [Live](https://tutor-system-architecture.vercel.app/) · [Repo](https://github.com/MohamedFuad16/Tutor-System) |
 | **TokaiHub** | Mobile-first bilingual student portal PWA with AWS Cognito auth | [Live](https://tokaihub.mohamedfuad.com/) · [Repo](https://github.com/MohamedFuad16/TokaiHub) |

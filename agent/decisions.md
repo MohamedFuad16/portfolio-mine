@@ -544,3 +544,9 @@ Decision:
 4. The badge span gained an explicit `.project-badge` class. It was previously selected as `.project-shot > span:not(.project-shot-hint)`, which the new flag would also have matched.
 
 Consequences: The heading is a column at every width now, so anything added to `.project-heading` stacks rather than competing for one row. `.project-title` keeps `white-space: nowrap` — that is what stops "Tutor-System" breaking at its hyphen (ADR-013) — and keeps `text-overflow: ellipsis` as a safety net, but with a full-width row nothing currently reaches it.
+
+### ADR-045 addendum - 2026-07-29
+
+The "New" flag from point 3 was removed the same day — the user did not like it. The `.project-badge` class introduced in point 4 stays, since it is what keeps the status badge selectable without relying on `span:not(.project-shot-hint)`. Points 1 and 2 (project order, and the title getting its own full-width row) stand.
+
+Separately, the AI Brain Platform's dashboard is now published at `https://brain.mohamedfuad.com`, so a project can have a `live` URL while its repo stays private — the card renders a Live link next to the "Private repo" label. `project.github` and `project.live` are independent; neither implies the other.

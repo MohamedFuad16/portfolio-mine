@@ -234,7 +234,6 @@ const copy = {
     tech: 'Technologies Used:',
     live: 'Live',
     privateRepo: 'Private repo',
-    newBadge: 'New',
     moreProjects: 'More Projects',
     thoughtsTitle: 'Thoughts in words.',
     thoughts: 'I write about the things I build and learn. Browse all of my posts on',
@@ -299,7 +298,6 @@ const copy = {
     tech: '使用技術:',
     live: '公開',
     privateRepo: '非公開リポジトリ',
-    newBadge: 'New',
     moreProjects: '他のプロジェクト',
     thoughtsTitle: '言葉のメモ。',
     thoughts: '開発や学びについて書いています。すべての記事は',
@@ -346,6 +344,9 @@ const projects = [
     badge: 'research project',
     image: '/assets/ai-brain-site.png',
     icon: BrainCircuit,
+    // The repo stays private, but the generated gym dashboard is published,
+    // so the card carries a Live link alongside the "Private repo" label.
+    live: 'https://brain.mohamedfuad.com',
     private: true,
     description:
       'A local-first engineering memory: versioned Markdown indexed for retrieval, and an exam loop that measures whether it actually helps.',
@@ -542,7 +543,6 @@ const projects = [
     title: 'Internship Portal',
     slug: 'internship-portal',
     badge: 'in progress',
-    isNew: true,
     image: '/assets/internship-portal-site.jpg',
     imageJa: '/assets/internship-portal-site-ja.jpg',
     icon: Target,
@@ -1255,7 +1255,6 @@ function ProjectCard({ project, t, locale, onOpen }) {
         aria-label={`${project.title} — ${t.viewDetails}`}
       >
         <img src={image} alt={t.a11y.preview(project.title)} />
-        {project.isNew && <span className="project-new">{t.newBadge}</span>}
         <span className="project-badge">{project.badge}</span>
         <span className="project-shot-hint">
           {t.viewDetails}

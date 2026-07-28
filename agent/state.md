@@ -1,12 +1,14 @@
 # State
 
-> Last updated: 2026-07-29 · HEAD: 71a4880 (+ uncommitted bug-sweep changes)
+> Last updated: 2026-07-29 · HEAD: 3206752 (main, pushed and deployed)
 
 ## Current state summary
 
 The workspace contains a Vite React portfolio inspired by `manixh.dev`, populated with Mohamed Fuad's CV content. It uses a professional headshot with a two-sided LinkedIn QR card, bilingual EN/JA copy, expandable work rows, a live rolling-12-month GitHub contribution grid, GSAP motion, and hash-routed project detail views. The homepage positions Mohamed as a third-year Information and Communication Technology student working toward Forward Deployed Engineering, with the symbol-only Tokai University mark in the profile metadata. Project cards use consistent 16:9 previews and a full-width, single-line technology rail. ClaudeShot has replaced Codex Account Switcher. On mobile, the entire tapped project card expands into the full-screen detail overlay and reverses back to its original rectangle on close. Latest checks (2026-07-22) verified the transition in flight and at both endpoints, reverse navigation, desktop/mobile layout, the symbol-only university mark, no horizontal overflow, and a clean production build. Install and build with pnpm.
 
 ## Recent changes
+
+- 2026-07-29 (AI Brain public dashboard; New flag removed): The AI Brain Platform's generated gym dashboard is now published at `https://brain.mohamedfuad.com` — verified it serves the same "AI Brain · Gym" page the card's preview image was captured from — so the card and detail page carry a Live link alongside the existing "Private repo" label (the repo itself is still private). Removed the "New" flag added earlier the same day at the user's request: the `isNew` field, the `newBadge` copy in both locales, the `.project-new` rule, and the render branch are all gone; `.project-badge` stays as the explicit class it was given. Order and the full-width title row are unchanged. Production build clean.
 
 - 2026-07-29 (project order, New flag, title row — ADR-045): Reordered the cards to AI Brain Platform, WebDrop, Internship Portal, Tutor-System, TokaiHub, ClaudeShot. Gave the Internship Portal a green "New" flag at the top-left of its preview, driven by a `project.isNew` flag rather than a hardcoded slug; top-left is the only free corner since the status badge is bottom-right and the View-details hint is bottom-left and permanently visible on mobile. Moved the Live/GitHub actions onto their own line beneath the title: ADR-032 had pinned them to one row, which was clipping three of six titles by ellipsis on the live site ("Internship Portal" needed 137px and got 96, "AI Brain Platform" 141/100, and "Tutor-System" 114/96 — a latent bug the two longer new titles exposed). All six titles now measure `scrollWidth === clientWidth` at 375px and 1280px in both locales, with no overlap between the new flag and the existing overlays. Production build clean.
 

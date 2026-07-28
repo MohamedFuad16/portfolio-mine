@@ -1252,26 +1252,6 @@ small.red {
   box-shadow: #000 0 0 0 1px, rgba(255, 255, 255, 0.1) 0 1px 0 inset;
 }
 
-/* "New" flag, top-left of the preview — the one corner the badge and the
-   View-details hint (both bottom) leave free. */
-.project-new {
-  position: absolute;
-  left: 10px;
-  top: 9px;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  border-radius: 4px;
-  padding: 3px 8px;
-  background: linear-gradient(#2ee27e, #10c464);
-  color: #06240f;
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  box-shadow: rgba(0, 0, 0, 0.45) 0 2px 8px, rgba(255, 255, 255, 0.35) 0 1px 0 inset;
-}
-
 .project-shot-hint {
   position: absolute;
   left: 10px;
