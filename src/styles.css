@@ -1326,6 +1326,34 @@ small.red {
   line-height: normal;
 }
 
+/* Stands in for the GitHub link on a project whose repo is private. Styled as
+   a quiet label, not a button, so it never reads as something to click. */
+.repo-private {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 20.5px;
+  border: 1px dashed #3a3d40;
+  border-radius: 3px;
+  padding: 2px 6px;
+  color: #8f9499;
+  font-size: 13.6px;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.repo-private svg {
+  flex: 0 0 auto;
+}
+
+.pd-actions .repo-private {
+  min-height: 0;
+  border-radius: 5px;
+  padding: 7px 13px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .project p {
   margin: 0 0 8px;
   color: #a9a9a9;
@@ -1643,6 +1671,52 @@ small.red {
   background: #6ea8ff;
 }
 
+/* Figures strip on the detail page — a few real numbers straight from the
+   project, sized to read at a glance above the prose. */
+.pd-figures {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pd-figures li {
+  min-width: 0;
+  border: 1px solid #30343a;
+  border-radius: 8px;
+  padding: 14px 13px 12px;
+  background: linear-gradient(145deg, #181b1f, #111315);
+}
+
+.pd-figures strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #f1f1f1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.pd-figures span {
+  display: block;
+  color: #858b92;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+/* Where the project honestly stands right now, set apart from the overview. */
+.pd-status {
+  margin: 16px 0 0;
+  border-left: 2px dashed #3a3d40;
+  padding-left: 13px;
+  color: #9aa0a6;
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+
 .pd-map {
   display: grid;
   grid-template-columns: repeat(var(--map-columns), minmax(0, 1fr));
@@ -1806,6 +1880,14 @@ small.red {
   .pd-map {
     grid-template-columns: 1fr;
     gap: 25px;
+  }
+
+  .pd-figures {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pd-figures strong {
+    font-size: 22px;
   }
 
   .pd-flow {
