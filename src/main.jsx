@@ -281,7 +281,7 @@ const copy = {
     introParagraphs: [
       <>
         東海大学情報通信学部3年の<b>フルスタック開発者</b>です。将来は、ユーザーの現場で課題を
-        理解し、必要なプロダクトを一緒に形にする<b>Forward Deployed Engineer</b>を目指しています。
+        理解し、必要なプロダクトを一緒に形にする<b>フォワードデプロイドエンジニア</b>を目指しています。
       </>,
       <>
         LLM、エージェントワークフロー、ツール呼び出し、安全な<Highlight name="MCP" />連携に加え、
@@ -338,112 +338,6 @@ const copy = {
 };
 
 const projects = [
-  {
-    title: 'AI Brain Platform',
-    slug: 'ai-brain-platform',
-    badge: 'research project',
-    image: '/assets/ai-brain-site.png',
-    icon: BrainCircuit,
-    // The repo stays private, but the generated gym dashboard is published,
-    // so the card carries a Live link alongside the "Private repo" label.
-    live: 'https://brain.mohamedfuad.com',
-    private: true,
-    description:
-      'A local-first engineering memory: versioned Markdown indexed for retrieval, and an exam loop that measures whether it actually helps.',
-    descriptionJa:
-      'ローカル完結のエンジニアリング記憶システム。バージョン管理されたMarkdownを検索用に索引化し、その効果を試験ループで測定します。',
-    tech: ['PostgreSQL', 'pgvector', 'RAG', 'MCP', 'Node.js'],
-    detail: {
-      tagline: {
-        en: 'Not a fine-tuned model — a knowledge base with a measured quality bar, and a loop that improves it.',
-        ja: 'モデルを再学習させるのではなく、品質を数値で測れる知識ベースと、それを育てるループを作る研究です。',
-      },
-      highlights: [
-        { value: '370', label: { en: 'knowledge units indexed', ja: '索引化した知識ユニット' } },
-        { value: '522', label: { en: 'embedded chunks, 356 links', ja: '埋め込み済みチャンク（356の関連）' } },
-        { value: '9', label: { en: 'exams held out from the Brain', ja: 'Brainに教えない持ち出し不可試験' } },
-        { value: '139', label: { en: 'lessons curated over 21 cycles', ja: '21サイクルで蓄積した学び' } },
-      ],
-      status: {
-        en: 'Ongoing research, built in gated phases and currently at phase 8. The honest reading today is that the held-out exams are not passing yet — which is the point of measuring rather than guessing.',
-        ja: '段階を区切って進めている研究で、現在は第8フェーズです。現時点の正直な結果として、持ち出し不可の試験はまだ合格していません。感覚ではなく数値で測るのは、まさにそのためです。',
-      },
-      overview: {
-        en: 'This is my own research project. The question behind it: how do you make a cheap model behave like a long-time member of your team, without training a model at all? My answer is to keep the knowledge outside the model. Architecture, decisions, conventions and past mistakes live as versioned Markdown; PostgreSQL with pgvector is a fully rebuildable index over that Markdown rather than a second source of truth; retrieval injects the right pieces at request time; and an MCP server gives any harness the same access. A frontier model plans and reviews, a cheaper model implements, and an exam loop replays my own git history to score whether the arrangement is good enough to trust.',
-        ja: '個人で進めている研究プロジェクトです。出発点となった問いは、「モデルを一切学習させずに、安価なモデルをチームの古参メンバーのように振る舞わせられるか」というものです。私の答えは、知識をモデルの外に置くことでした。アーキテクチャ、意思決定、規約、過去の失敗はバージョン管理されたMarkdownとして保存します。pgvectorを使うPostgreSQLは第二の真実ではなく、そのMarkdownから完全に再構築できる索引です。検索が必要な部分をリクエスト時に注入し、MCPサーバーがどのハーネスにも同じアクセスを提供します。上位モデルが計画とレビューを担当し、安価なモデルが実装を行い、試験ループが自分のGit履歴を再生して信頼に足るかを採点します。',
-      },
-      features: [
-        {
-          en: 'Markdown stays the source of truth. If the database and the Markdown disagree, the Markdown wins — the whole index can be dropped and rebuilt from the files.',
-          ja: 'Markdownが常に唯一の正とされます。データベースと食い違った場合はMarkdownが優先され、索引はいつでも破棄してファイルから再構築できます。',
-        },
-        {
-          en: 'Retrieval combines semantic search over pgvector embeddings with a relationship graph in SQL, because some questions ("what breaks if I change this?") are structural rather than semantic.',
-          ja: '検索はpgvectorの埋め込みによる意味検索と、SQL上の関係グラフを組み合わせます。「これを変えると何が壊れるか」のような問いは意味ではなく構造の問題だからです。',
-        },
-        {
-          en: 'A brain-mcp server exposes the same retrieval to any harness and any model, so the memory outlives whichever model is best value this year.',
-          ja: 'brain-mcpサーバーが同じ検索機能をあらゆるハーネスとモデルへ公開するため、その年に最も費用対効果の高いモデルが変わっても記憶は残り続けます。',
-        },
-        {
-          en: 'The exam loop replays real commits as held-out tasks the cheap model can never study for, and a teacher model grades them against evidence instead of a feeling.',
-          ja: '試験ループは実際のコミットを、安価なモデルが事前学習できない持ち出し不可の課題として再生します。教師モデルが感覚ではなく根拠に基づいて採点します。',
-        },
-        {
-          en: 'A curation gate decides what a graded run is allowed to teach the Brain, so the knowledge base cannot be polluted by its own bad runs.',
-          ja: '採点済みの実行結果のうち、何をBrainに学習させてよいかをキュレーションゲートが判断します。自らの失敗によって知識ベースが汚染されないようにするためです。',
-        },
-      ],
-      flow: {
-        en: 'Every commit exports into the Brain, which is ingested and embedded so the index is current to the last commit. When an agent picks up a task it retrieves the conventions, the binding decisions, the known mistakes and the blast radius before writing a line. Nightly, the gym replays held-out exams, the teacher grades them, the curation gate distills what may be kept, and the index is rebuilt — so the next run starts from a slightly better memory.',
-        ja: 'コミットのたびにBrainへエクスポートされ、取り込みと埋め込みが行われるため、索引は常に最新コミットの状態を保ちます。エージェントは作業を始める前に、規約、拘束力のある決定、既知の失敗、影響範囲を取得します。夜間には持ち出し不可の試験を再生し、教師モデルが採点し、キュレーションゲートが残してよい学びを蒸留し、索引を再構築します。次の実行は少しだけ良くなった記憶から始まります。',
-      },
-      architecture: [
-        { label: { en: 'Markdown Brain', ja: 'Markdownの Brain' }, detail: { en: 'Versioned source of truth', ja: 'バージョン管理された真実' } },
-        { label: { en: 'Index', ja: '索引' }, detail: { en: 'Postgres and pgvector', ja: 'Postgresとpgvector' } },
-        { label: { en: 'Retrieval', ja: '検索' }, detail: { en: 'RAG through an MCP server', ja: 'MCPサーバー経由のRAG' } },
-        { label: { en: 'Exam loop', ja: '試験ループ' }, detail: { en: 'Graded, then curated back', ja: '採点しBrainへ還元' } },
-      ],
-      stack: [
-        {
-          kind: 'terminal',
-          title: { en: 'Repository commit', ja: 'リポジトリのコミット' },
-          sub: { en: 'Docs, ADRs, lessons, examples', ja: '資料・ADR・学び・実例' },
-          edge: { en: 'export', ja: 'エクスポート' },
-        },
-        {
-          kind: 'store',
-          title: { en: 'Postgres + pgvector', ja: 'Postgres + pgvector' },
-          sub: { en: 'Rebuildable index, not a store', ja: '再構築可能な索引' },
-          edge: { en: 'retrieve', ja: '検索' },
-        },
-        {
-          title: { en: 'brain-mcp server', ja: 'brain-mcpサーバー' },
-          sub: { en: 'Same context for any harness', ja: 'どのハーネスにも同じ文脈' },
-          edge: { en: 'context', ja: 'コンテキスト' },
-          branch: {
-            title: { en: 'Engineer model', ja: '実装モデル' },
-            edge: { en: 'implements', ja: '実装' },
-          },
-        },
-        {
-          kind: 'decision',
-          title: { en: 'Did it pass?', ja: '合格したか' },
-          sub: { en: 'Teacher grades held-out exams', ja: '教師モデルが持ち出し不可試験を採点' },
-          edge: { en: 'curate', ja: 'キュレーション' },
-          branch: {
-            title: { en: 'Discard the run', ja: '結果を破棄' },
-            edge: { en: 'no', ja: 'いいえ' },
-          },
-        },
-        {
-          kind: 'terminal',
-          title: { en: 'Lesson back into the Brain', ja: '学びをBrainへ還元' },
-          sub: { en: 'Re-index, next run starts better', ja: '再索引し次回へ' },
-        },
-      ],
-    },
-  },
   {
     title: 'WebDrop',
     slug: 'webdrop',
@@ -631,6 +525,112 @@ const projects = [
           kind: 'store',
           title: { en: 'Tectonic to PDF', ja: 'TectonicでPDF化' },
           sub: { en: 'EN and JA LaTeX templates', ja: '日英LaTeXテンプレート' },
+        },
+      ],
+    },
+  },
+  {
+    title: 'AI Brain Platform',
+    slug: 'ai-brain-platform',
+    badge: 'research project',
+    image: '/assets/ai-brain-site.png',
+    icon: BrainCircuit,
+    // The repo stays private, but the generated gym dashboard is published,
+    // so the card carries a Live link alongside the "Private repo" label.
+    live: 'https://brain.mohamedfuad.com',
+    private: true,
+    description:
+      'A local-first engineering memory: versioned Markdown indexed for retrieval, and an exam loop that measures whether it actually helps.',
+    descriptionJa:
+      'ローカル完結のエンジニアリング記憶システム。バージョン管理されたMarkdownを検索用に索引化し、その効果を試験ループで測定します。',
+    tech: ['PostgreSQL', 'pgvector', 'RAG', 'MCP', 'Node.js'],
+    detail: {
+      tagline: {
+        en: 'Not a fine-tuned model — a knowledge base with a measured quality bar, and a loop that improves it.',
+        ja: 'モデルを再学習させるのではなく、品質を数値で測れる知識ベースと、それを育てるループを作る研究です。',
+      },
+      highlights: [
+        { value: '370', label: { en: 'knowledge units indexed', ja: '索引化した知識ユニット' } },
+        { value: '522', label: { en: 'embedded chunks, 356 links', ja: '埋め込み済みチャンク（356の関連）' } },
+        { value: '9', label: { en: 'exams held out from the Brain', ja: 'Brainに教えない持ち出し不可試験' } },
+        { value: '139', label: { en: 'lessons curated over 21 cycles', ja: '21サイクルで蓄積した学び' } },
+      ],
+      status: {
+        en: 'Ongoing research, built in gated phases and currently at phase 8. The honest reading today is that the held-out exams are not passing yet — which is the point of measuring rather than guessing.',
+        ja: '段階を区切って進めている研究で、現在は第8フェーズです。現時点の正直な結果として、持ち出し不可の試験はまだ合格していません。感覚ではなく数値で測るのは、まさにそのためです。',
+      },
+      overview: {
+        en: 'This is my own research project. The question behind it: how do you make a cheap model behave like a long-time member of your team, without training a model at all? My answer is to keep the knowledge outside the model. Architecture, decisions, conventions and past mistakes live as versioned Markdown; PostgreSQL with pgvector is a fully rebuildable index over that Markdown rather than a second source of truth; retrieval injects the right pieces at request time; and an MCP server gives any harness the same access. A frontier model plans and reviews, a cheaper model implements, and an exam loop replays my own git history to score whether the arrangement is good enough to trust.',
+        ja: '個人で進めている研究プロジェクトです。出発点となった問いは、「モデルを一切学習させずに、安価なモデルをチームの古参メンバーのように振る舞わせられるか」というものです。私の答えは、知識をモデルの外に置くことでした。アーキテクチャ、意思決定、規約、過去の失敗はバージョン管理されたMarkdownとして保存します。pgvectorを使うPostgreSQLは第二の真実ではなく、そのMarkdownから完全に再構築できる索引です。検索が必要な部分をリクエスト時に注入し、MCPサーバーがどのハーネスにも同じアクセスを提供します。上位モデルが計画とレビューを担当し、安価なモデルが実装を行い、試験ループが自分のGit履歴を再生して信頼に足るかを採点します。',
+      },
+      features: [
+        {
+          en: 'Markdown stays the source of truth. If the database and the Markdown disagree, the Markdown wins — the whole index can be dropped and rebuilt from the files.',
+          ja: 'Markdownが常に唯一の正とされます。データベースと食い違った場合はMarkdownが優先され、索引はいつでも破棄してファイルから再構築できます。',
+        },
+        {
+          en: 'Retrieval combines semantic search over pgvector embeddings with a relationship graph in SQL, because some questions ("what breaks if I change this?") are structural rather than semantic.',
+          ja: '検索はpgvectorの埋め込みによる意味検索と、SQL上の関係グラフを組み合わせます。「これを変えると何が壊れるか」のような問いは意味ではなく構造の問題だからです。',
+        },
+        {
+          en: 'A brain-mcp server exposes the same retrieval to any harness and any model, so the memory outlives whichever model is best value this year.',
+          ja: 'brain-mcpサーバーが同じ検索機能をあらゆるハーネスとモデルへ公開するため、その年に最も費用対効果の高いモデルが変わっても記憶は残り続けます。',
+        },
+        {
+          en: 'The exam loop replays real commits as held-out tasks the cheap model can never study for, and a teacher model grades them against evidence instead of a feeling.',
+          ja: '試験ループは実際のコミットを、安価なモデルが事前学習できない持ち出し不可の課題として再生します。教師モデルが感覚ではなく根拠に基づいて採点します。',
+        },
+        {
+          en: 'A curation gate decides what a graded run is allowed to teach the Brain, so the knowledge base cannot be polluted by its own bad runs.',
+          ja: '採点済みの実行結果のうち、何をBrainに学習させてよいかをキュレーションゲートが判断します。自らの失敗によって知識ベースが汚染されないようにするためです。',
+        },
+      ],
+      flow: {
+        en: 'Every commit exports into the Brain, which is ingested and embedded so the index is current to the last commit. When an agent picks up a task it retrieves the conventions, the binding decisions, the known mistakes and the blast radius before writing a line. Nightly, the gym replays held-out exams, the teacher grades them, the curation gate distills what may be kept, and the index is rebuilt — so the next run starts from a slightly better memory.',
+        ja: 'コミットのたびにBrainへエクスポートされ、取り込みと埋め込みが行われるため、索引は常に最新コミットの状態を保ちます。エージェントは作業を始める前に、規約、拘束力のある決定、既知の失敗、影響範囲を取得します。夜間には持ち出し不可の試験を再生し、教師モデルが採点し、キュレーションゲートが残してよい学びを蒸留し、索引を再構築します。次の実行は少しだけ良くなった記憶から始まります。',
+      },
+      architecture: [
+        { label: { en: 'Markdown Brain', ja: 'Markdownの Brain' }, detail: { en: 'Versioned source of truth', ja: 'バージョン管理された真実' } },
+        { label: { en: 'Index', ja: '索引' }, detail: { en: 'Postgres and pgvector', ja: 'Postgresとpgvector' } },
+        { label: { en: 'Retrieval', ja: '検索' }, detail: { en: 'RAG through an MCP server', ja: 'MCPサーバー経由のRAG' } },
+        { label: { en: 'Exam loop', ja: '試験ループ' }, detail: { en: 'Graded, then curated back', ja: '採点しBrainへ還元' } },
+      ],
+      stack: [
+        {
+          kind: 'terminal',
+          title: { en: 'Repository commit', ja: 'リポジトリのコミット' },
+          sub: { en: 'Docs, ADRs, lessons, examples', ja: '資料・ADR・学び・実例' },
+          edge: { en: 'export', ja: 'エクスポート' },
+        },
+        {
+          kind: 'store',
+          title: { en: 'Postgres + pgvector', ja: 'Postgres + pgvector' },
+          sub: { en: 'Rebuildable index, not a store', ja: '再構築可能な索引' },
+          edge: { en: 'retrieve', ja: '検索' },
+        },
+        {
+          title: { en: 'brain-mcp server', ja: 'brain-mcpサーバー' },
+          sub: { en: 'Same context for any harness', ja: 'どのハーネスにも同じ文脈' },
+          edge: { en: 'context', ja: 'コンテキスト' },
+          branch: {
+            title: { en: 'Engineer model', ja: '実装モデル' },
+            edge: { en: 'implements', ja: '実装' },
+          },
+        },
+        {
+          kind: 'decision',
+          title: { en: 'Did it pass?', ja: '合格したか' },
+          sub: { en: 'Teacher grades held-out exams', ja: '教師モデルが持ち出し不可試験を採点' },
+          edge: { en: 'curate', ja: 'キュレーション' },
+          branch: {
+            title: { en: 'Discard the run', ja: '結果を破棄' },
+            edge: { en: 'no', ja: 'いいえ' },
+          },
+        },
+        {
+          kind: 'terminal',
+          title: { en: 'Lesson back into the Brain', ja: '学びをBrainへ還元' },
+          sub: { en: 'Re-index, next run starts better', ja: '再索引し次回へ' },
         },
       ],
     },
