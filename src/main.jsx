@@ -357,12 +357,6 @@ const projects = [
         en: 'One backend, two clients, and a rule that user data never touches the server.',
         ja: 'ひとつのバックエンドに2つのクライアント。ユーザーデータはサーバーを通らない設計。',
       },
-      highlights: [
-        { value: '2', label: { en: 'clients from one repository', ja: '1リポジトリから2クライアント' } },
-        { value: '7', label: { en: 'LaTeX documents — 5 EN, 2 JA', ja: 'LaTeX書類（英5・日2）' } },
-        { value: '5', label: { en: 'tracked application states', ja: '応募ステータス5段階' } },
-        { value: '0', label: { en: 'user records on my server', ja: 'サーバー上の個人データ' } },
-      ],
       status: {
         en: 'In active development. The web app is live and the iOS client is built from the same shared contracts.',
         ja: '現在も開発中です。Webアプリは公開済みで、iOSクライアントも同じ共有コントラクトから構築しています。',
@@ -624,7 +618,9 @@ const projects = [
           sub: { en: 'SDP + ICE, TURN relay', ja: 'SDP + ICE / TURN' },
           edge: { en: '256 KB chunks', ja: '256KBチャンク' },
           branch: {
-            title: { en: 'SHA-256 manifest', ja: 'SHA-256マニフェスト' },
+            // Trimmed for the 116-unit phone branch box: the full
+            // "SHA-256マニフェスト" measured 112.6 and left no margin at all.
+            title: { en: 'SHA-256 manifest', ja: 'SHA-256照合' },
             edge: { en: 'verify', ja: '検証' },
           },
         },
@@ -1511,23 +1507,18 @@ function ProjectFlowChart({ stages, locale, label }) {
           >
             <path d="M 0 0 L 10 5 L 0 10 z" className="fc-arrowhead" />
           </marker>
-          {/* A gentle wobble on every stroke — the hand-drawn Excalidraw look
-              the user asked for. Only ever one flow chart is mounted at a
-              time (routed detail view), so a single static id is safe.
-              userSpaceOnUse (not the default objectBoundingBox) because the
-              connector lines are perfectly axis-aligned: their bounding box
-              has zero width or height, which collapses a percentage-based
-              filter region to nothing and makes the line disappear. */}
-          <filter id="fc-sketch" filterUnits="userSpaceOnUse" x={-40} y={-40} width={width + 80} height={height + 80}>
-            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="7" result="fc-noise" />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="fc-noise"
-              scale="2.4"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
+          {/* There used to be an `#fc-sketch` turbulence/displacement filter
+              here, meant to give every stroke a hand-drawn wobble (ADR-039,
+              ADR-041). Measured at 3.2x magnification it was invisible: with
+              `baseFrequency 0.02` the noise varies over ~50-unit periods and
+              `scale 2.4` displaces by at most ~1 unit, so filtered and
+              unfiltered renders came out pixel-identical (max channel delta 0).
+              Raising the scale to 18 proved the chain worked — it was simply
+              too subtle to see. So the chart was machine-perfect geometry
+              wearing a handwriting font, which is what read as "not clean":
+              the two halves disagreed. It now commits to a precise diagram,
+              and stops allocating 13 chart-sized filter buffers per render for
+              no visible effect (ADR-044). */}
         </defs>
 
         {stages.map((stage, index) => {

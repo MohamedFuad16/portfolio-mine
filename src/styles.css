@@ -1803,18 +1803,22 @@ small.red {
   overflow: visible;
 }
 
+/* Crisp, deliberate geometry. Rounded joins and caps so every corner and line
+   end looks intentional rather than clipped (ADR-044). */
 .fc-shape {
   fill: color-mix(in srgb, var(--fc-tone, #6ea8ff) 9%, #14171b);
   stroke: var(--fc-tone, #6ea8ff);
   stroke-width: 2;
-  filter: url(#fc-sketch);
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
 
 .fc-store-lip {
   fill: none;
   stroke: var(--fc-tone, #6ea8ff);
   stroke-width: 2;
-  filter: url(#fc-sketch);
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 
 /* Font sizes come from the flow-chart geometry (wide vs compact tuning). */
@@ -1826,24 +1830,30 @@ small.red {
   dominant-baseline: middle;
 }
 
+/* The raw tone at full saturation is far too dark to read on a near-black
+   panel — "React SPA + SwiftUI" in Excalidraw green measured as barely legible.
+   Mixing it toward the page's text colour keeps the per-stage tint while
+   restoring contrast (ADR-044). */
 .fc-sub {
-  fill: var(--fc-tone, #8d949b);
+  fill: color-mix(in srgb, var(--fc-tone, #8d949b) 45%, #e6ebf0);
   font-family: 'Excalifont', 'Comic Sans MS', cursive, sans-serif;
   font-weight: 400;
-  opacity: 0.85;
   text-anchor: middle;
   dominant-baseline: middle;
 }
 
+/* Lighter than the shape outlines on purpose: the boxes are the subject and
+   the connectors are the grammar between them. */
 .fc-edge {
   fill: none;
-  stroke: #757b82;
-  stroke-width: 1.8;
-  filter: url(#fc-sketch);
+  stroke: #8a9199;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 
 .fc-arrowhead {
-  fill: #9099a1;
+  fill: #8a9199;
 }
 
 .fc-edge-label {

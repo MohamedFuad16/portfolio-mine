@@ -506,3 +506,22 @@ Decision:
 5. **Honest status over flattery.** The AI Brain page states that the held-out exams are not passing yet. The dashboard hero the user chose shows a red "PAID WORK RESTRICTED" banner; that is the project's real operational state and the user picked it deliberately.
 
 Consequences: `project.github` being optional means any future card must not assume it exists. The compact (phone) flow-chart branch box is 116 user units wide — "Firestore（所有者限定）" measured 126 and spilled out of the viewBox, so branch titles must stay short and push qualifiers into the edge label or the prose. Verified both new detail pages in EN and JA at 375px and 1280px with zero flow-chart overflow and no page overflow. Also corrected TokaiHub's live URL, which still pointed at GitHub Pages after the project moved to tokaihub.mohamedfuad.com.
+
+## ADR-044 - 2026-07-29 - The flow chart's hand-drawn filter was invisible; commit to a precise diagram
+
+Status: Accepted
+Supersedes the sketch-filter portion of ADR-039 and ADR-041.
+
+Context: The user said the system-architecture diagram did not look clean — "not the straight lines alone, but the drawing itself." Investigated by capturing the chart at 3.2x magnification over the DevTools protocol, with the `#fc-sketch` filter on and with `filter: none` forced on every `.fc-shape` / `.fc-edge` / `.fc-store-lip`.
+
+The two renders were **pixel-identical — max channel delta 0, no differing bounding box.** The filter chain itself was fine (replacing its primitives with `feGaussianBlur stdDeviation=6` blurred the whole chart, and raising the displacement to `scale=18` produced obvious crinkling), so the reference resolved and the filter applied. It was simply too weak to see: `feTurbulence baseFrequency="0.02"` varies over roughly 50-unit periods and `feDisplacementMap scale="2.4"` displaces by at most about one user unit, which rounds away at the rendered scale of 1.18.
+
+So the diagram was machine-perfect geometry wearing a handwriting font. That mismatch — a sketchy typeface promising a hand-drawn diagram that the geometry never delivers — is what read as "not clean". It also cost 13 chart-sized filter buffers (700x508 user units each, since ADR-041 made the region cover the whole chart for every element) on every paint, for no visible effect.
+
+Decision: Removed `#fc-sketch` entirely and committed to a precise diagram, keeping Excalifont for warmth:
+- `stroke-linejoin: round` on shapes and `stroke-linecap: round` on lines, so corners and line ends look intentional.
+- `vector-effect: non-scaling-stroke`, so stroke weight stays consistent regardless of how the viewBox is scaled to the container.
+- Subtitles were `fill: var(--fc-tone)` at full saturation — Excalidraw green on a near-black panel is barely legible. Now `color-mix(in srgb, var(--fc-tone) 45%, #e6ebf0)`, which keeps the per-stage tint and restores contrast.
+- Connectors lightened to `1.5` against the shapes' `2`, so the boxes lead and the connectors read as grammar between them; arrowheads recoloured to match their line instead of sitting a shade apart.
+
+Consequences: The ADR-041 hazard is retired along with the filter — there is no longer an `objectBoundingBox`-vs-`userSpaceOnUse` trap here, because no filter is applied to zero-area shapes. If a hand-drawn look is ever wanted again, do it as **geometry** (perturb the path data, roughjs-style) rather than as a post-process filter; a displacement filter subtle enough not to look noisy is also subtle enough to be invisible. Re-verified all six charts in EN and JA at 375px and 1280px: no text outside a viewBox, no text overflowing its shape, and every connector still painted.
