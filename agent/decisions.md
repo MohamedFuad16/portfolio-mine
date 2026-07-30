@@ -573,3 +573,42 @@ Decision: Added `pinnedFaceLayout(origin)`, applied to the cloned `.project` in 
 Consequences: After the fix, every clone child matches its original exactly (306x172 preview, 306x112 body, 306x52 heading, 59x18 and 51x18 tags) and drift across the animation is 0.0px in width, height and title position on all three cards tested, on both open and close, while the frame still grows 358 -> 390. The clone is anchored to the overlay's top-left, so it translates with the frame — that is the intended shared-element motion, and is why the close still shows a 25px title translation with 0px of size drift.
 
 Anything that later animates `.project-detail`'s box must keep both pins in step: `pinnedInnerLayout()` for the real content and `pinnedFaceLayout()` for the clone.
+
+## ADR-047 - 2026-07-29 - The mobile close measured its target through a scaled ancestor
+
+Status: Accepted
+
+Context: With the reflow fixed (ADR-046), recording the mobile *close* showed a second, separate bug. The overlay animated back to `[30, 130, 333, 385]` while the card it was returning to actually sits at `[20, 183, 350, 405]` — 10px right, 53px too high, 17px too narrow and 20px too short. The clone reaches full opacity right at the end of that tween, so the snapshot visibly settled beside the real card before blinking away.
+
+Cause: while the overlay is open, `main` is left at `scale(0.95)` (the open tween dims and shrinks the page behind the overlay). `measureOrigin()` calls `getBoundingClientRect()` on the origin card, which reports the **transformed** box — so the close target was the card's scaled-down rect. The arithmetic confirms it exactly: 350 x 0.95 = 332.5 (measured 333) and 405 x 0.95 = 384.8 (measured 385). Meanwhile the close tweens `main` back to `scale(1)`, so the card grows away from the target as the overlay travels toward it.
+
+Decision: `measureOrigin()` now neutralises `main`'s inline transform for the duration of the measurement and restores it immediately. Reading a rect forces layout but never a paint, so nothing flashes. Verified: the close now lands at `[20, 183, 350, 405]` — within 0.2px of the card on every axis, versus errors of up to 53px before.
+
+Consequences: `measureOrigin()` is the single place that converts "where is the origin card" into animation coordinates, and it is now transform-independent. Any future effect that transforms an ancestor of the project cards is therefore safe. The general trap is worth remembering: `getBoundingClientRect()` is post-transform, so it is the wrong tool for "where will this element be once the transforms finish".
+
+## ADR-048 - 2026-07-29 - Shimmer heading and a visitor counter with number pop-in
+
+Status: Accepted
+
+Context: The user asked for two things from transitions.dev: the "Shimmer text" treatment on the "Building AI agent tools" line (replacing its underline), and the "Number pop-in" animation on a new visitor counter in the footer beside the year.
+
+Both techniques were measured from the reference rather than guessed at, by reading the live demos' computed styles and keyframes:
+
+- **Shimmer** — `@keyframes { 0% { background-position: 100% 0 } 100% { background-position: 0 0 } }` over a gradient clipped to the glyphs. Their base/highlight are `#7c7c7c` / `#0d0d0d`; this page is near-black, so the tones are inverted (`#cfd3d8` base, `#ffffff` highlight).
+- **Number pop-in** — 500ms, `cubic-bezier(0.34, 1.45, 0.64, 1)`, 70ms stagger per character, each rising from `translateY(8px)` with `opacity: 0` and `blur(2px)`, wrapper `tabular-nums`. Reimplemented with GSAP (the project's existing motion system) rather than importing their CSS, and verified against the reference numbers: measured stagger 66-67ms, travel 8.0px with a -0.5px spring overshoot, blur peak 2.00px.
+
+Decision:
+
+1. `.building-text` carries the shimmer as its own element — `background-clip: text` only clips to the glyphs of the element it is set on, and the sibling thinking-orb must not inherit a transparent text fill. A `background-color` in the base tone is set alongside the gradient because it is clipped to the glyphs too, so if the gradient ever fails to paint the text stays legible instead of invisible, which is the failure mode of `-webkit-text-fill-color: transparent`. Under reduced motion the gradient is dropped entirely and the text renders solid.
+
+2. `PopInNumber` splits the value into per-character spans and replays on **both** triggers the user asked for: a ScrollTrigger with `onEnter`/`onEnterBack` so it animates every time the footer comes into view, and a `useEffect` on the value so an incoming visit visibly ticks the number over. Characters are `aria-hidden` with a single `.sr-only` copy of the value, so assistive tech reads "1,337" once instead of five separate digits.
+
+3. **The count needed a backend.** The site had none (no `api/`, no env, no `vercel.json`), and the alternatives were a third-party counter service — which would hand every visit to someone else and can rate-limit or vanish — or nothing. On the user's decision, added `api/visits.mjs`, a Vercel function backed by Upstash Redis over its REST API (no client library, just `fetch`).
+
+   Uniqueness is enforced **server-side**, not by trusting the browser: a key derived from the request IP and user-agent is written with `SET ... NX EX 2592000`, and the counter increments only when that write actually created the key. Clearing localStorage cannot inflate the number and neither can replaying the request. Only a truncated salted SHA-256 is stored — never the address — and it expires after 30 days. The client's localStorage flag is now just an optimisation to avoid a pointless write per reload.
+
+Consequences: The counter is **optional by design**. `useVisitorCount` returns `null` until a real number arrives and stays `null` on any failure, and the footer omits the whole element in that case — verified with the endpoint hard-blocked at the network layer: no counter, no console errors, footer ends cleanly at "2026". So the site is correct before the Upstash env vars exist, and degrades to exactly that state if the store is ever unreachable.
+
+`vite.config.js` gained a dev-only (`apply: 'serve'`) middleware that mocks `/api/visits` from memory, because `vite dev` does not run Vercel functions and the animation would otherwise be untestable locally.
+
+Required environment in the Vercel project: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, and optionally `VISITS_SALT`.

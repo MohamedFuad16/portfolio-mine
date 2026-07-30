@@ -36,6 +36,7 @@ import {
   Sparkles,
   Target,
   Terminal,
+  Users,
 } from 'lucide-react';
 import { FaCss3Alt, FaHtml5, FaLinkedin } from 'react-icons/fa';
 import {
@@ -252,6 +253,7 @@ const copy = {
     tech: 'Technologies Used:',
     live: 'Live',
     privateRepo: 'Private repo',
+    visitors: (n) => `${n === 1 ? 'visitor' : 'visitors'}`,
     moreProjects: 'More Projects',
     thoughtsTitle: 'Thoughts in words.',
     thoughts: 'I write about the things I build and learn. Browse all of my posts on',
@@ -316,6 +318,7 @@ const copy = {
     tech: '使用技術:',
     live: '公開',
     privateRepo: '非公開リポジトリ',
+    visitors: () => '人の訪問者',
     moreProjects: '他のプロジェクト',
     thoughtsTitle: '言葉のメモ。',
     thoughts: '開発や学びについて書いています。すべての記事は',
@@ -909,6 +912,141 @@ const projects = [
     },
   },
 ];
+
+// Number pop-in, after transitions.dev's transition of the same name. Their
+// measured parameters: 500ms, cubic-bezier(0.34, 1.45, 0.64, 1), 70ms stagger
+// per character, each rising from translateY(8px) with opacity 0 and a 2px
+// blur. Digits are laid out with tabular-nums so a changing value never shifts
+// the characters beside it (ADR-048).
+const POP_DURATION = 0.5;
+const POP_STAGGER = 0.07;
+const POP_DISTANCE = 8;
+const POP_BLUR = 2;
+const popEase = CustomEase.create('number-pop', '0.34, 1.45, 0.64, 1');
+
+/**
+ * A number whose digits pop in one after another — replayed whenever the
+ * element scrolls into view, and again whenever the value itself changes, so a
+ * new visit visibly ticks the counter over.
+ */
+function PopInNumber({ value, className = '' }) {
+  const wrapRef = useRef(null);
+  const chars = String(value).split('');
+
+  const play = () => {
+    const el = wrapRef.current;
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const targets = el.querySelectorAll('.pop-char');
+    gsap.fromTo(
+      targets,
+      { yPercent: 0, y: POP_DISTANCE, opacity: 0, filter: `blur(${POP_BLUR}px)` },
+      {
+        y: 0,
+        opacity: 1,
+        filter: 'blur(0px)',
+        duration: POP_DURATION,
+        stagger: POP_STAGGER,
+        ease: popEase,
+        overwrite: true,
+      }
+    );
+  };
+
+  // Replay on every entry into view, in both scroll directions.
+  useGSAP(
+    () => {
+      const el = wrapRef.current;
+      if (!el) return;
+      const trigger = ScrollTrigger.create({
+        trigger: el,
+        start: 'top bottom-=20',
+        onEnter: play,
+        onEnterBack: play,
+      });
+      return () => trigger.kill();
+    },
+    { dependencies: [] }
+  );
+
+  // Replay when the number changes — a fresh visit arriving.
+  useEffect(() => {
+    play();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return (
+    <span className={`pop-number ${className}`.trim()} ref={wrapRef}>
+      {chars.map((c, i) => (
+        <span className="pop-char" key={`${i}-${c}`} aria-hidden="true">
+          {c}
+        </span>
+      ))}
+      {/* The split characters are decorative; expose the plain value once. */}
+      <span className="sr-only">{value}</span>
+    </span>
+  );
+}
+
+// How often to re-read the counter so someone else's visit ticks the number
+// over while the page is open. Only polls while the tab is actually visible.
+const VISITS_POLL_MS = 45000;
+const VISITED_FLAG = 'portfolio-counted';
+
+/**
+ * Reads the visitor count from /api/visits, incrementing once per browser. The
+ * server also dedupes by hashed IP, so this flag is just about not making a
+ * pointless write on every reload.
+ *
+ * Returns `null` until a real number arrives, and stays `null` if the endpoint
+ * is unavailable — the footer then renders without the counter rather than
+ * showing a zero or a broken placeholder.
+ */
+function useVisitorCount() {
+  const [count, setCount] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const read = async (increment) => {
+      try {
+        const response = await fetch('/api/visits', {
+          method: increment ? 'POST' : 'GET',
+          cache: 'no-store',
+        });
+        if (!response.ok) return;
+        const payload = await response.json();
+        if (cancelled || !Number.isFinite(Number(payload.count))) return;
+        setCount(Number(payload.count));
+      } catch {
+        /* offline, blocked, or not deployed yet — leave the counter hidden */
+      }
+    };
+
+    let firstVisit = false;
+    try {
+      firstVisit = !window.localStorage.getItem(VISITED_FLAG);
+      if (firstVisit) window.localStorage.setItem(VISITED_FLAG, '1');
+    } catch {
+      /* private mode: fall back to a plain read */
+    }
+    read(firstVisit);
+
+    const tick = () => {
+      if (document.visibilityState === 'visible') read(false);
+    };
+    const timer = window.setInterval(tick, VISITS_POLL_MS);
+    document.addEventListener('visibilitychange', tick);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', tick);
+    };
+  }, []);
+
+  return count;
+}
 
 /** Live prefers-reduced-motion flag, so decorative loops can stand down. */
 function useReducedMotion() {
@@ -1752,6 +1890,7 @@ function App() {
   const [route, setRoute] = useState(() => window.location.hash);
   const [shownProject, setShownProject] = useState(null);
   const reducedMotion = useReducedMotion();
+  const visitorCount = useVisitorCount();
   const mainRef = useRef(null);
   const smoothWrapperRef = useRef(null);
   const smoothContentRef = useRef(null);
@@ -1794,7 +1933,19 @@ function App() {
   const measureOrigin = () => {
     const card = detailOriginCardRef.current;
     if (!card) return null;
+    // While the overlay is open, `main` is left scaled to 0.95 — so on the way
+    // OUT, getBoundingClientRect reported the card's *scaled* box and the close
+    // animated to the wrong target. Recorded on mobile: it landed at
+    // [30, 130, 333, 385] instead of the card's real [20, 183, 350, 405] — 53px
+    // too high and 17px too narrow, visible as the card settling beside itself
+    // before it blinked away. Neutralise the transform for the measurement;
+    // reading a rect forces layout but never a paint, so nothing flashes
+    // (ADR-047).
+    const main = mainRef.current;
+    const saved = main ? main.style.transform : null;
+    if (main) main.style.transform = 'none';
     const rect = card.getBoundingClientRect();
+    if (main) main.style.transform = saved || '';
     return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
   };
   // `history.length > 1` only says the tab has history — not that the previous
@@ -2451,7 +2602,10 @@ function App() {
           {/* The thinking orb stands in for the sparkle: an agent-UI motif for
               the line that says he builds AI agent tools (ADR-034). */}
           <a className="building" href="#projects">
-            {t.building}
+            {/* The shimmer needs its own element: background-clip: text only
+                clips to the glyphs of the element it is set on, and the orb
+                sibling must not inherit a transparent text fill. */}
+            <span className="building-text">{t.building}</span>
             {/* Rendered at the 64px preset (its own dot count and tuning, not a
                 scaled-up 20px orb) and displayed at 30px, so it reads clearly
                 on the line without dominating it. */}
@@ -2622,6 +2776,18 @@ function App() {
         <span>•</span>
         <Database size={14} />
         2026
+        {/* Only rendered once a real count arrives, so the footer never shows a
+            placeholder zero if the endpoint is unconfigured or unreachable. */}
+        {visitorCount !== null && (
+          <>
+            <span>•</span>
+            <span className="visitor-count">
+              <Users size={14} />
+              <PopInNumber value={visitorCount.toLocaleString(locale === 'ja' ? 'ja-JP' : 'en-US')} />
+              {t.visitors(visitorCount)}
+            </span>
+          </>
+        )}
       </footer>
           </main>
         </div>

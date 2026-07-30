@@ -95,6 +95,21 @@ pnpm build        # Production build into dist/
 pnpm preview      # Preview the production build
 ```
 
+## Environment
+
+The site is static except for one serverless function, `api/visits.mjs`, which
+backs the footer's visitor counter. Set these in the Vercel project:
+
+| Variable | Purpose |
+| -------- | ------- |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST endpoint |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token |
+| `VISITS_SALT` | Optional. Salt for the visitor de-duplication hash |
+
+Without them the endpoint returns 503 and the footer omits the counter, so the
+site works unchanged. Visitors are de-duplicated server-side by a truncated
+salted hash of IP + user-agent with a 30-day expiry; no address is stored.
+
 ## Deployment
 
 The site is a static build deployed to **Vercel**. Run `pnpm build` and

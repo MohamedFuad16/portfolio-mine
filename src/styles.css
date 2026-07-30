@@ -442,8 +442,64 @@ main {
   color: #f5f5f5;
   font-size: 14px;
   font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  /* No underline — the shimmer sweep is the affordance now (ADR-048). */
+  text-decoration: none;
+}
+
+/* Masked gradient sweep across the text, after transitions.dev's "Shimmer
+   text": a gradient wider than the text is clipped to the glyphs, and its
+   background-position slides from 100% to 0%. The base tone is the normal
+   text colour so the line stays readable at every point in the sweep, and
+   the highlight is brighter rather than darker (their reference is a light
+   theme; this page is near-black). */
+.building-text {
+  /* background-color is clipped to the glyphs too, so it is a solid fallback:
+     if the gradient ever fails to paint, the text is still legible instead of
+     invisible — the failure mode of `-webkit-text-fill-color: transparent`. */
+  background-color: var(--shimmer-base);
+  background-image: linear-gradient(
+    100deg,
+    var(--shimmer-base) 34%,
+    var(--shimmer-hi) 50%,
+    var(--shimmer-base) 66%
+  );
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  --shimmer-base: #cfd3d8;
+  --shimmer-hi: #ffffff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .building-text {
+    animation: building-shimmer 3.4s linear infinite;
+  }
+}
+
+/* Reduced motion keeps the text solid — no sweep, full contrast. */
+@media (prefers-reduced-motion: reduce) {
+  .building-text {
+    background-image: none;
+    color: #f5f5f5;
+    -webkit-text-fill-color: #f5f5f5;
+  }
+}
+
+@keyframes building-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+.building:hover .building-text {
+  --shimmer-base: #e8ebee;
 }
 
 .building svg {
@@ -2053,6 +2109,42 @@ footer {
   justify-content: center;
   color: #9b9b9b;
   font-size: 13px;
+}
+
+/* Digits sit in their own boxes so each can be animated independently.
+   tabular-nums keeps the width stable as the value ticks over, so nothing
+   beside the counter shifts when a digit changes (ADR-048). */
+.pop-number {
+  display: inline-flex;
+  font-variant-numeric: tabular-nums;
+}
+
+.pop-char {
+  display: block;
+  will-change: transform, opacity, filter;
+}
+
+.visitor-count {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.visitor-count svg {
+  flex: 0 0 auto;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 @media (max-width: 760px) {

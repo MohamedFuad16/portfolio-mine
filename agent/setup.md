@@ -18,3 +18,20 @@ In the Codex desktop runtime, prefix commands with the bundled Node path if the 
 `PATH=/Users/mfuad16/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH pnpm build`
 
 The app is a Vite React single page site. Static files live in `public/`; source code lives in `src/`.
+
+## Visitor counter (optional)
+
+`api/visits.mjs` is a Vercel serverless function backing the footer counter. It
+needs two environment variables in the Vercel project:
+
+- `UPSTASH_REDIS_REST_URL`
+- `UPSTASH_REDIS_REST_TOKEN`
+- `VISITS_SALT` (optional; changes the hash used for visitor de-duplication)
+
+Create a free Upstash Redis database, copy its REST URL and token into the
+Vercel project's environment variables, and redeploy. Until then the endpoint
+returns 503 and the footer simply omits the counter — the site is correct
+either way.
+
+`vite dev` does not run Vercel functions, so `vite.config.js` mocks
+`/api/visits` from memory in dev only.
