@@ -464,54 +464,50 @@ const projects = [
     live: 'https://editor-omega-two.vercel.app',
     github: 'https://github.com/MohamedFuad16/resume-studio-dashboard',
     description:
-      'A bilingual internship tracker, résumé editor, and LaTeX-to-PDF compiler, on the web and on iOS.',
+      'A bilingual app for finding internships and keeping every application in one list, on the web and on iOS.',
     descriptionJa:
-      'インターン管理、レジュメ編集、LaTeXからのPDF生成を日英で行うWeb・iOSアプリ。',
+      'インターンを探し、応募をひとつのリストで管理できる日英対応のWeb・iOSアプリ。',
     tech: ['React', 'SwiftUI', 'Firestore', 'Express', 'Azure'],
     detail: {
       tagline: {
-        en: 'One backend, two clients, and a rule that user data never touches the server.',
-        ja: 'ひとつのバックエンドに2つのクライアント。ユーザーデータはサーバーを通らない設計。',
-      },
-      status: {
-        en: 'In active development. The web app is live and the iOS client is built from the same shared contracts.',
-        ja: '現在も開発中です。Webアプリは公開済みで、iOSクライアントも同じ共有コントラクトから構築しています。',
+        en: 'A place to search for internships and keep every application in one list, on the web and on iOS.',
+        ja: 'インターンを探して、応募をひとつのリストで管理できる場所。WebとiOSの両方で使えます。',
       },
       overview: {
-        en: 'I am building the Internship Portal to handle everything around applying: finding postings, tracking each application from saved to interview, keeping deadlines in a calendar, and producing the résumé itself. It ships as a React web app and a SwiftUI iOS app out of one repository, sharing a contracts layer so neither client can quietly break the other. The architectural rule I care about most is that personal data never reaches my server — the clients read and write Firestore directly under owner-only rules, and the server owns only the shared internship catalog and a Gmail action queue.',
-        ja: 'インターン応募にまつわる作業をひとつにまとめるために開発中のプロダクトです。求人の発見、保存から面接までの応募状況の追跡、締切のカレンダー管理、そしてレジュメ作成までを扱います。ひとつのリポジトリからReactのWebアプリとSwiftUIのiOSアプリを提供し、共通のコントラクト層で双方のクライアントが互いを壊さないようにしています。最も重視した設計方針は、個人データがサーバーを経由しないことです。クライアントは所有者限定ルールのもとでFirestoreを直接読み書きし、サーバーは共有のインターン求人カタログとGmail処理キューだけを持ちます。',
+        en: 'The Internship Portal does two things. You search the postings and it scores how well each one matches your profile, and you keep every application in one list that moves from saved to applying to applied to interview. Deadlines go on a calendar, and the résumé you send is written in the same app. It runs as a React web app and a SwiftUI iOS app out of one repository, both fully bilingual, with a shared contracts layer that pins the routes, data shapes and ranking rules so the two clients stay in step. Your own data never reaches my server: the clients read and write Firestore directly under owner-only rules, and the server holds only the shared catalog of postings and a Gmail queue.',
+        ja: 'インターンポータルの中心は2つです。求人を検索するとプロフィールとの適合度が採点され、応募は「保存・応募準備・応募済み・面接」と状態を進めながらひとつのリストで管理できます。締切はカレンダーに並び、提出するレジュメも同じアプリで作れます。ひとつのリポジトリからReactのWebアプリとSwiftUIのiOSアプリを提供し、どちらも日英に完全対応しています。共通のコントラクト層がAPIルート、データ構造、並び順のルールを固定し、2つのクライアントの実装を揃えています。自分のデータがサーバーに届くことはありません。クライアントは所有者限定ルールのもとでFirestoreを直接読み書きし、サーバーは共有の求人カタログとGmailのキューだけを持ちます。',
       },
       features: [
         {
-          en: 'An internship radar scores how well each posting matches the profile, and the tracker moves an application through saved, applying, applied, interview, and rejected.',
-          ja: 'インターンレーダーが各求人とプロフィールの適合度を採点し、トラッカーが「保存・応募準備・応募済み・面接・不採用」の状態を管理します。',
+          en: 'Search the internship postings and see a match score for each one, worked out from your profile.',
+          ja: 'インターン求人を検索でき、それぞれにプロフィールから算出した適合スコアが表示されます。',
         },
         {
-          en: 'The résumé editor compiles LaTeX to a PDF preview as you type, with English and Japanese templates including a 履歴書 grid and a 職務経歴書 layout.',
-          ja: 'レジュメエディタは入力しながらLaTeXをPDFプレビューへコンパイルします。英語テンプレートに加え、履歴書のマス目形式と職務経歴書のレイアウトを用意しています。',
+          en: 'Every application sits in one tracker and moves through saved, applying, applied, interview, and rejected, so nothing gets lost between browser tabs.',
+          ja: '応募はすべてひとつのトラッカーに集まり、「保存・応募準備・応募済み・面接・不採用」と状態が進むので、タブの間で取りこぼすことがありません。',
         },
         {
-          en: 'Gmail ingest classifies incoming mail and queues actions instead of writing them. Detection is evidence-based rather than a company list: the model has to quote the email, and the quote is verified against the message.',
-          ja: '受信メールを分類し、書き込みではなくアクションをキューに積みます。判定は企業リストではなく根拠ベースで、モデルはメール本文を引用する必要があり、その引用は元のメッセージと照合されます。',
+          en: 'Gmail ingest reads incoming mail and queues what it finds instead of writing it straight in. To flag something it has to quote the email, and the quote is checked against the message, so it is not guessing from a company name.',
+          ja: 'Gmail取り込みは受信メールを読み、そのまま書き込まずにキューへ積みます。検出するにはメール本文を引用する必要があり、その引用は元のメッセージと照合されるため、企業名からの推測にはなりません。',
         },
         {
-          en: 'The iOS app carries the tracker away from a desk, with background refresh that syncs Gmail and posts a notification carrying the company logo when a new application is detected.',
-          ja: 'iOSアプリは机を離れても使えます。バックグラウンド更新でGmailを同期し、新しい応募を検出すると企業ロゴ付きの通知を表示します。',
+          en: 'The iOS app keeps the tracker on hand away from a desk. It refreshes in the background, syncs Gmail, and sends a notification with the company logo when it spots a new application.',
+          ja: 'iOSアプリは机を離れてもトラッカーを手元に置けます。バックグラウンドで更新してGmailを同期し、新しい応募を見つけると企業ロゴ付きの通知を送ります。',
         },
         {
-          en: 'Both clients are fully bilingual, and a shared contracts directory pins the API routes, data shapes, and ranking rules that the web and iOS sides must implement identically.',
-          ja: '両クライアントとも日英に完全対応しています。共有のコントラクトディレクトリがAPIルート、データ構造、並び順のルールを固定し、WebとiOSが同一の実装を保つようにしています。',
+          en: 'The résumé you send is written and previewed in the app, with English and Japanese templates including a 履歴書 grid and a 職務経歴書 layout.',
+          ja: '提出するレジュメはアプリ内で作成してプレビューできます。英語のテンプレートに加え、履歴書のマス目形式と職務経歴書のレイアウトを用意しています。',
         },
       ],
       flow: {
-        en: 'A signed-in client reads and writes its own Firestore documents directly, so applications, trackers, and profiles never pass through my infrastructure. For anything shared, the client calls an Express server on Azure Container Apps: the internship catalog, the LaTeX compile endpoint that returns a PDF, and the Gmail ingest queue that the clients drain into their own tracker.',
-        ja: 'サインイン済みのクライアントは自分のFirestoreドキュメントを直接読み書きするため、応募情報、トラッカー、プロフィールが私のインフラを通ることはありません。共有データについては、Azure Container Apps上のExpressサーバーを呼び出します。インターン求人カタログ、PDFを返すLaTeXコンパイル、そしてクライアントが自分のトラッカーへ取り込むGmail処理キューです。',
+        en: 'A signed-in client reads and writes its own Firestore documents directly, so applications, trackers and profiles never pass through my infrastructure. Anything shared comes from an Express server on Azure Container Apps: the catalog the search runs against, the compile endpoint that returns a finished PDF, and the Gmail queue that each client drains into its own tracker.',
+        ja: 'サインイン済みのクライアントは自分のFirestoreドキュメントを直接読み書きするため、応募情報、トラッカー、プロフィールが私のインフラを通ることはありません。共有されるものはAzure Container Apps上のExpressサーバーから届きます。検索の対象となる求人カタログ、完成したPDFを返すコンパイル用エンドポイント、そして各クライアントが自分のトラッカーへ取り込むGmailのキューです。',
       },
       architecture: [
-        { label: { en: 'Two clients', ja: '2つのクライアント' }, detail: { en: 'React web and SwiftUI iOS', ja: 'React WebとSwiftUI iOS' } },
-        { label: { en: 'User data', ja: 'ユーザーデータ' }, detail: { en: 'Firestore, owner-only', ja: 'Firestore・所有者限定' } },
+        { label: { en: 'Find', ja: '探す' }, detail: { en: 'Search the shared catalog', ja: '共有カタログを検索' } },
+        { label: { en: 'Track', ja: '管理' }, detail: { en: 'Saved through to interview', ja: '保存から面接まで' } },
+        { label: { en: 'Your data', ja: '自分のデータ' }, detail: { en: 'Firestore, owner-only', ja: 'Firestore・所有者限定' } },
         { label: { en: 'Shared server', ja: '共有サーバー' }, detail: { en: 'Express on Azure', ja: 'Azure上のExpress' } },
-        { label: { en: 'Documents', ja: '書類生成' }, detail: { en: 'LaTeX compiled to PDF', ja: 'LaTeXからPDF' } },
       ],
       stack: [
         {
@@ -561,14 +557,14 @@ const projects = [
     live: 'https://brain.mohamedfuad.com',
     private: true,
     description:
-      'A local-first engineering memory: versioned Markdown indexed for retrieval, and an exam loop that measures whether it actually helps.',
+      'Project memory kept as versioned Markdown, indexed for search, with exams that check whether it actually helps.',
     descriptionJa:
-      'ローカル完結のエンジニアリング記憶システム。バージョン管理されたMarkdownを検索用に索引化し、その効果を試験ループで測定します。',
+      'バージョン管理されたMarkdownとして残すプロジェクトの記憶。検索用に索引化し、試験で実際の効果を確かめます。',
     tech: ['PostgreSQL', 'pgvector', 'RAG', 'MCP', 'Node.js'],
     detail: {
       tagline: {
-        en: 'Not a fine-tuned model — a knowledge base with a measured quality bar, and a loop that improves it.',
-        ja: 'モデルを再学習させるのではなく、品質を数値で測れる知識ベースと、それを育てるループを作る研究です。',
+        en: 'A knowledge base an agent reads before it writes code, with exams that check whether it actually helps.',
+        ja: 'エージェントがコードを書く前に読む知識ベースと、それが本当に役立っているかを確かめる試験。',
       },
       highlights: [
         { value: '370', label: { en: 'knowledge units indexed', ja: '索引化した知識ユニット' } },
@@ -576,39 +572,35 @@ const projects = [
         { value: '9', label: { en: 'exams held out from the Brain', ja: 'Brainに教えない持ち出し不可試験' } },
         { value: '139', label: { en: 'lessons curated over 21 cycles', ja: '21サイクルで蓄積した学び' } },
       ],
-      status: {
-        en: 'Ongoing research, built in gated phases and currently at phase 8. The honest reading today is that the held-out exams are not passing yet — which is the point of measuring rather than guessing.',
-        ja: '段階を区切って進めている研究で、現在は第8フェーズです。現時点の正直な結果として、持ち出し不可の試験はまだ合格していません。感覚ではなく数値で測るのは、まさにそのためです。',
-      },
       overview: {
-        en: 'This is my own research project. The question behind it: how do you make a cheap model behave like a long-time member of your team, without training a model at all? My answer is to keep the knowledge outside the model. Architecture, decisions, conventions and past mistakes live as versioned Markdown; PostgreSQL with pgvector is a fully rebuildable index over that Markdown rather than a second source of truth; retrieval injects the right pieces at request time; and an MCP server gives any harness the same access. A frontier model plans and reviews, a cheaper model implements, and an exam loop replays my own git history to score whether the arrangement is good enough to trust.',
-        ja: '個人で進めている研究プロジェクトです。出発点となった問いは、「モデルを一切学習させずに、安価なモデルをチームの古参メンバーのように振る舞わせられるか」というものです。私の答えは、知識をモデルの外に置くことでした。アーキテクチャ、意思決定、規約、過去の失敗はバージョン管理されたMarkdownとして保存します。pgvectorを使うPostgreSQLは第二の真実ではなく、そのMarkdownから完全に再構築できる索引です。検索が必要な部分をリクエスト時に注入し、MCPサーバーがどのハーネスにも同じアクセスを提供します。上位モデルが計画とレビューを担当し、安価なモデルが実装を行い、試験ループが自分のGit履歴を再生して信頼に足るかを採点します。',
+        en: 'I wanted to see how far a cheap model can get if you give it good memory instead of training it. So the knowledge lives outside the model. Architecture notes, decisions, conventions and past mistakes are kept as versioned Markdown, and Postgres with pgvector is an index over those files rather than a second copy of the truth. When an agent starts a task, retrieval pulls the relevant pieces in, and an MCP server hands the same context to any harness. A stronger model plans and reviews, a cheaper one writes the code, and a nightly loop replays my own git history as exams to see whether any of it is working.',
+        ja: '安価なモデルに学習をさせるのではなく、しっかりした記憶を与えたらどこまでやれるのかを確かめたくて始めました。そのため知識はモデルの外に置いています。アーキテクチャの記録、意思決定、規約、過去の失敗はバージョン管理されたMarkdownとして保存し、pgvectorを使うPostgresは真実の写しではなくそれらのファイルへの索引です。エージェントが作業を始めると検索が必要な部分を取り込み、MCPサーバーがどのハーネスにも同じ文脈を渡します。上位のモデルが計画とレビューを行い、安価なモデルがコードを書き、夜間のループが自分のGit履歴を試験として再生して、実際に機能しているかを確かめます。',
       },
       features: [
         {
-          en: 'Markdown stays the source of truth. If the database and the Markdown disagree, the Markdown wins — the whole index can be dropped and rebuilt from the files.',
-          ja: 'Markdownが常に唯一の正とされます。データベースと食い違った場合はMarkdownが優先され、索引はいつでも破棄してファイルから再構築できます。',
+          en: 'Markdown is the source of truth. If the database and the files disagree, the files win, and the whole index can be dropped and rebuilt from them.',
+          ja: 'Markdownが唯一の正です。データベースとファイルが食い違った場合はファイルが優先され、索引はいつでも破棄してファイルから再構築できます。',
         },
         {
-          en: 'Retrieval combines semantic search over pgvector embeddings with a relationship graph in SQL, because some questions ("what breaks if I change this?") are structural rather than semantic.',
-          ja: '検索はpgvectorの埋め込みによる意味検索と、SQL上の関係グラフを組み合わせます。「これを変えると何が壊れるか」のような問いは意味ではなく構造の問題だからです。',
+          en: 'Retrieval mixes semantic search over pgvector embeddings with a relationship graph in SQL, because a question like "what breaks if I change this" is structural, not semantic.',
+          ja: '検索はpgvectorの埋め込みによる意味検索と、SQL上の関係グラフを組み合わせます。「これを変えると何が壊れるか」という問いは意味ではなく構造の問題だからです。',
         },
         {
-          en: 'A brain-mcp server exposes the same retrieval to any harness and any model, so the memory outlives whichever model is best value this year.',
-          ja: 'brain-mcpサーバーが同じ検索機能をあらゆるハーネスとモデルへ公開するため、その年に最も費用対効果の高いモデルが変わっても記憶は残り続けます。',
+          en: 'A brain-mcp server gives the same retrieval to any harness and any model, so the memory outlives whichever model is best value this year.',
+          ja: 'brain-mcpサーバーが同じ検索機能をあらゆるハーネスとモデルに提供するため、その年に最も費用対効果の高いモデルが変わっても記憶は残ります。',
         },
         {
-          en: 'The exam loop replays real commits as held-out tasks the cheap model can never study for, and a teacher model grades them against evidence instead of a feeling.',
-          ja: '試験ループは実際のコミットを、安価なモデルが事前学習できない持ち出し不可の課題として再生します。教師モデルが感覚ではなく根拠に基づいて採点します。',
+          en: 'The exams are real commits replayed as tasks the cheap model has never seen, and a teacher model grades the result against evidence rather than a feeling.',
+          ja: '試験は実際のコミットを、安価なモデルが見たことのない課題として再生したものです。教師モデルが感覚ではなく根拠に基づいて採点します。',
         },
         {
-          en: 'A curation gate decides what a graded run is allowed to teach the Brain, so the knowledge base cannot be polluted by its own bad runs.',
-          ja: '採点済みの実行結果のうち、何をBrainに学習させてよいかをキュレーションゲートが判断します。自らの失敗によって知識ベースが汚染されないようにするためです。',
+          en: 'A curation gate decides what a graded run is allowed to teach the Brain, so a bad run cannot pollute the knowledge base.',
+          ja: '採点済みの実行結果から何をBrainに学習させてよいかをキュレーションゲートが判断するため、失敗した実行が知識ベースを汚すことはありません。',
         },
       ],
       flow: {
-        en: 'Every commit exports into the Brain, which is ingested and embedded so the index is current to the last commit. When an agent picks up a task it retrieves the conventions, the binding decisions, the known mistakes and the blast radius before writing a line. Nightly, the gym replays held-out exams, the teacher grades them, the curation gate distills what may be kept, and the index is rebuilt — so the next run starts from a slightly better memory.',
-        ja: 'コミットのたびにBrainへエクスポートされ、取り込みと埋め込みが行われるため、索引は常に最新コミットの状態を保ちます。エージェントは作業を始める前に、規約、拘束力のある決定、既知の失敗、影響範囲を取得します。夜間には持ち出し不可の試験を再生し、教師モデルが採点し、キュレーションゲートが残してよい学びを蒸留し、索引を再構築します。次の実行は少しだけ良くなった記憶から始まります。',
+        en: 'Every commit exports into the Brain, which is ingested and embedded, so the index is current as of the last commit. When an agent picks up a task it retrieves the conventions, the binding decisions, the known mistakes and the blast radius before writing a line. Overnight the gym replays the held-out exams, the teacher grades them, the curation gate distills what is worth keeping, and the index is rebuilt, so the next run starts from a slightly better memory.',
+        ja: 'コミットごとにBrainへエクスポートされ、取り込みと埋め込みが行われるため、索引は直近のコミットの状態を保ちます。エージェントは作業を始める前に、規約、拘束力のある決定、既知の失敗、影響範囲を取得します。夜間には持ち出し不可の試験を再生し、教師モデルが採点し、キュレーションゲートが残す価値のある学びを蒸留して索引を再構築するので、次の実行は少しだけ良くなった記憶から始まります。',
       },
       architecture: [
         { label: { en: 'Markdown Brain', ja: 'Markdownの Brain' }, detail: { en: 'Versioned source of truth', ja: 'バージョン管理された真実' } },
@@ -641,7 +633,14 @@ const projects = [
         {
           kind: 'decision',
           title: { en: 'Did it pass?', ja: '合格したか' },
-          sub: { en: 'Teacher grades held-out exams', ja: '教師モデルが持ち出し不可試験を採点' },
+          // Kept short because a diamond has almost no width left at the
+          // subtitle's own bottom edge: the usable span there is ~150 units
+          // against the box's 250. The full "Teacher grades held-out exams" /
+          // "教師モデルが持ち出し不可試験を採点" measured 159.97 and 177.88 and
+          // pushed its lower corners outside the outline even after ADR-050
+          // centred the pair. What it dropped ("held-out exams") is already in
+          // the prose above the chart (ADR-050).
+          sub: { en: 'Graded by the teacher', ja: '教師モデルが採点' },
           edge: { en: 'curate', ja: 'キュレーション' },
           branch: {
             title: { en: 'Discard the run', ja: '結果を破棄' },
@@ -1533,23 +1532,25 @@ function FlowBox({ x, y, w, h, kind, title, sub, geo }) {
   const cx = x + w / 2;
   const gap = geo.subSize + 3;
   const tone = FLOW_TONE[kind] || FLOW_TONE.process;
+  const mid = y + h / 2;
+  // A rectangle is the same width at every height, so a two-line label can sit
+  // slightly low inside it. A diamond cannot: it is only full width at its
+  // vertical midline and tapers to a point above and below, so a subtitle
+  // placed a whole `gap` below the midline lands where the shape has already
+  // narrowed. AI Brain's "Did it pass?" subtitle overhung the outline by 9.6
+  // units per side in Japanese at the wide geometry for exactly this reason.
+  // Straddling the midline puts both lines in the widest band (ADR-050).
+  const straddle = kind === 'decision' && Boolean(sub);
+  const lineOffset = gap / 2 + 1.5;
+  const titleY = straddle ? mid - lineOffset : sub ? mid - gap / 2 + 1 : mid + 1;
+  const subY = straddle ? mid + lineOffset : mid + gap;
   const label = (
     <>
-      <text
-        x={cx}
-        y={sub ? y + h / 2 - gap / 2 + 1 : y + h / 2 + 1}
-        className="fc-title"
-        style={{ fontSize: geo.titleSize }}
-      >
+      <text x={cx} y={titleY} className="fc-title" style={{ fontSize: geo.titleSize }}>
         {title}
       </text>
       {sub && (
-        <text
-          x={cx}
-          y={y + h / 2 + gap}
-          className="fc-sub"
-          style={{ fontSize: geo.subSize }}
-        >
+        <text x={cx} y={subY} className="fc-sub" style={{ fontSize: geo.subSize }}>
           {sub}
         </text>
       )}
@@ -2075,7 +2076,19 @@ function App() {
 
         gsap.set(el, {
           autoAlpha: 1,
-          inset: 'auto',
+          // `right`/`bottom` explicitly, never the `inset` shorthand. GSAP's
+          // CSSPlugin builds its PropTween list by prepending, so the vars are
+          // applied in REVERSE of the order written here — `inset: 'auto'` was
+          // therefore landing after `left`/`top` and resetting both to auto.
+          // The open then tweened left/top from a computed 0,0, so the overlay
+          // grew out of the viewport's top-left corner instead of the tapped
+          // card: measured start error of 241.86px vertically on a card sitting
+          // mid-page, scaling with scroll position. The close was never affected
+          // because it does not touch `inset`, which is why this survived the
+          // ADR-046 sampling (that compared clone children against their
+          // originals — all relative — not the overlay's absolute origin).
+          right: 'auto',
+          bottom: 'auto',
           left: origin.left,
           top: origin.top,
           width: origin.width,

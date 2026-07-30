@@ -612,3 +612,151 @@ Consequences: The counter is **optional by design**. `useVisitorCount` returns `
 `vite.config.js` gained a dev-only (`apply: 'serve'`) middleware that mocks `/api/visits` from memory, because `vite dev` does not run Vercel functions and the animation would otherwise be untestable locally.
 
 Required environment in the Vercel project: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, and optionally `VISITS_SALT`.
+
+## ADR-049 — Human-voiced copy for Internship Portal and AI Brain Platform (2026-07-30)
+
+Context: The user read both project pages as AI-generated and asked for them to be
+fixed "naturally to match all the other projects." The specific complaints were the
+em dashes and a set of status-ish fragments: "In active development", "The web app is
+live", "The iOS client", "Ongoing research". They also named "Paid work" and "etc.",
+neither of which existed anywhere in the source — the badges are `in progress` and
+`research project` — so there was nothing to remove for those two.
+
+Separately: the Internship Portal was being sold as a "LaTeX-to-PDF compiler". The
+user's correction is that the compiler is not the point. It is an internship tracker
+**and** a way to find internships by searching, and those two things are the product.
+
+Decision:
+
+1. **Deleted the `status` block from both projects** rather than rewriting it. Every
+   phrase the user objected to lived there and nothing else did, so a rewrite would
+   have been inventing new copy to fill a slot they did not want. `ProjectDetailView`
+   already renders it as `{d.status && ...}`, so removing the key drops the paragraph
+   with no code change. `highlights` (the AI Brain figures strip) was left alone — it
+   is numbers, not prose, and was not part of the complaint.
+
+2. **Reframed the Internship Portal around find + track.** The card description, the
+   tagline, the first two feature bullets and the four-step system map now lead with
+   searching the postings and moving an application from saved through to interview.
+   The résumé editor survives as the last bullet, described as where the résumé you
+   send gets written, and the phrase "LaTeX-to-PDF compiler" is gone from the copy.
+   The map's old fourth step ("Documents / LaTeX compiled to PDF") became
+   "Find / Track / Your data / Shared server".
+
+3. **Left the system-architecture flow charts alone.** The Internship Portal chart
+   still terminates in "Tectonic to PDF", because that is accurately what the compile
+   endpoint does and the chart documents server responsibilities, not billing. It is
+   also width-tuned per ADR-043/044 (the 116-unit phone branch box), so relabelling
+   invites the overflow bugs those ADRs fixed. Flagged to the user as their call.
+
+4. **Em dashes removed from both projects' copy, in both locales.** Prose was rewritten
+   toward the plain declarative voice WebDrop already uses — short sentences, first
+   person, no rhetorical questions, no semicolon chains, no "the architectural rule I
+   care about most". The Japanese was rewritten in parallel, not machine-mapped from
+   the new English.
+
+Consequences: Verified by real render, not by reading the diff. Because the in-app
+preview pane freezes `requestAnimationFrame` (measured this session: **0 ticks in
+12.2s**, so every scroll-revealed block reads `opacity: 0` there), the check ran in
+headless Chrome over CDP with `Page.startScreencast` to keep frames coming. Across
+mobile 390x844 and desktop 1280x900, both slugs, both locales: no `.pd-status` in the
+DOM, 0 em dashes in the rendered text, none of the named phrases present, no
+horizontal overflow, all `.pd-block` sections reaching `opacity: 1` after scroll, no
+console errors and no failed requests. Production build clean.
+
+One harness lesson worth keeping: the locale preference persists in `localStorage`, so
+a run that clicks 日本語 poisons every later "English" load in the same profile. The
+first sweep silently reported Japanese copy under four `en` keys. Clear `localStorage`
+between locale cases.
+
+## ADR-050 — A two-line label must straddle a diamond's midline (2026-07-30)
+
+Context: On the AI Brain page the only decision diamond that carries a subtitle,
+"Did it pass?" / "Teacher grades held-out exams", had its subtitle crossing the
+orange outline on both sides. Measured before the fix, at the wide geometry in
+Japanese: subtitle 177.88 user units against 158.78 available, so **9.55 units of
+overhang per side**. Compact/Japanese overhung by 1.05.
+
+Cause: `FlowBox` placed the subtitle at `mid + gap` for every shape. That is correct
+for a rectangle or a cylinder, which are the same width at every height, but a
+diamond is only full width at its vertical midline and tapers to a point above and
+below. At `dy = 13.5` of a 37-unit half-height the shape has already given up 36% of
+its width, so the label was being drawn where the box no longer existed. The title
+was fine only because it is short.
+
+Decision: when a decision has a subtitle, straddle the midline — title at
+`mid - (gap/2 + 1.5)`, sub at `mid + (gap/2 + 1.5)` — so both lines sit in the widest
+band instead of one hanging into the taper. Non-diamond shapes keep the original
+slightly-low placement, which reads better inside a constant-width box. The diamond's
+own geometry is untouched, deliberately: extending the tips to gentle the taper would
+have been the other fix, but the arrow into a diamond already terminates 5 units
+inside its top tip (`to: y + rowH - 3` vs a tip at `y + rowH - 8`), so growing the
+tips would have widened a pre-existing overlap into a visible one and required
+threading the next stage's kind into `FlowArrow`. Not worth it for a text-placement
+bug.
+
+**Straddling alone was not enough, and the first verification of it was wrong.** It was
+checked by computing the diamond's width at the text's *centre line* and comparing that
+to `getComputedTextLength()`, which reported 8.19 units of margin and looked clean in a
+3x capture. But a line of text has height, and the binding constraint is its **lower
+corners**, which sit ~6.6 units below the centre where the diamond has narrowed
+further. Re-tested with `SVGGeometryElement.isPointInFill` against the real path, using
+all four corners of `getBBox()`: the bottom two corners were still outside in both
+locales (EN sub 159.97 units, JA 177.88, against ~150 usable at that height). A
+validation subagent caught this independently.
+
+So the subtitle was **shortened** as well, the remedy ADR-043/044 already used for the
+116-unit phone branch box: "Teacher grades held-out exams" → "Graded by the teacher"
+(159.97 → 91.07 units) and "教師モデルが持ち出し不可試験を採点" → "教師モデルが採点"
+(177.88 → 65.11). "Held-out exams" is not lost; the prose above the chart already says
+the exams are commits the cheap model has never seen.
+
+Consequences: All four `getBBox()` corners of both the title and the subtitle now test
+inside the diamond path, in EN and JA, at both the wide and compact geometries — the
+strict test, not the centre-line one. The other four charts contain no decision with a
+subtitle, so nothing else moved. Production build clean.
+
+Lesson: to check text against a non-rectangular shape, test the text's bounding-box
+corners with `isPointInFill` against the actual path. Comparing text length to the
+shape's width at the text's centre line silently passes labels that visibly cross the
+outline, and comparing against the shape's *bounding box* is looser still.
+
+## ADR-051 — GSAP applies vars in reverse, so never mix `inset` with `left`/`top` (2026-07-30)
+
+Context: A validation subagent found that the mobile card-expand opened from the
+viewport's top-left corner rather than from the tapped card. Confirmed independently
+by sampling the overlay per animation frame and by a MutationObserver on its `style`
+attribute. Before the fix the overlay's first painted frame was `[0, 0, 357, 478]`
+while the tapped card sat at `[20, 451.23, 350, 404.75]`; `el.style.left` was `auto`
+and `left` stayed 0 for all ~80 frames of every open. The error equals the card's
+distance from the viewport origin, so it grew with scroll position — up to ~451px.
+
+Cause: the open did
+
+```js
+gsap.set(el, { autoAlpha: 1, inset: 'auto', left: origin.left, top: origin.top, ... })
+```
+
+GSAP's CSSPlugin builds its PropTween list by **prepending**, so vars are applied in
+the reverse of the order written. `inset: 'auto'` therefore landed *after* `left` and
+`top` and reset both — `inset` is a shorthand for all four offsets. The subsequent
+`.to(el, { left: 0, top: 0, ... })` then read its start values from computed style,
+which for `position: fixed` with `inset: auto` resolves to the static position `0,0`,
+so left/top tweened 0 → 0 and never moved.
+
+Decision: set `right: 'auto'` and `bottom: 'auto'` explicitly instead of the `inset`
+shorthand. Those are distinct properties from `left`/`top`, so no application order can
+clobber the origin rect. The reduced-motion branch keeps `inset: 0` — it pairs it with
+`width/height: 'auto'` and sets no left/top, so there is nothing to overwrite.
+
+Consequences: The overlay's first style write now reads exactly the card's rect —
+`left=20px top=388px width=350px height=426px right=auto bottom=auto` against a
+measured origin of `[20, 387.98, 350, 425.81]` — and the open still ends at
+`[0, 0, 390, 844]`, the full viewport. Verified on two cards at two scroll positions.
+
+Why four previous ADRs missed it: the close was never affected, because it does not
+touch `inset`, and it lands within 0.42px. ADR-046's per-frame sampling compared each
+clone child against its original — all *relative* measurements, which stay correct even
+when the whole overlay starts in the wrong place. Absolute origin was never asserted.
+Any future check of this animation must compare the overlay's own first frame against
+the origin card's rect.
