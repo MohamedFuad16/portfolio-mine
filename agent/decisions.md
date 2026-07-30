@@ -760,3 +760,56 @@ clone child against its original — all *relative* measurements, which stay cor
 when the whole overlay starts in the wrong place. Absolute origin was never asserted.
 Any future check of this animation must compare the overlay's own first frame against
 the origin card's rect.
+
+## ADR-052 — Japanese is a real locale, not a translation layer (2026-07-30)
+
+Context: The ADR-049 rewrite fixed two projects' copy but a validation sweep showed the
+Japanese side of the site was only partly localized, and that three projects' Japanese
+described a different product from their English.
+
+Decision, in the order the problems bite:
+
+1. **`document.documentElement.lang` now follows the locale.** `index.html` ships
+   `lang="en"` and nothing ever changed it, so a Japanese visitor got a fully translated
+   page still declaring itself English, and screen readers read Japanese with an English
+   voice. Set in the same effect that persists the preference.
+
+2. **Badges are localized.** `badge` had no Japanese counterpart, so all six cards *and*
+   all six detail heroes showed `live app` / `in progress` / `research project` /
+   `long-term project` / `student PWA` / `macOS utility` on an otherwise Japanese page.
+   Added `badgeJa` to every project and a `badgeLabel(project, locale)` helper used by
+   both render sites, falling back to `badge` if a translation is ever missing.
+
+3. **Strings that were hardcoded English are now keys.** The footer's role and city and
+   the contact card's "Email" (which said "Email" while the hero said "メール" for the
+   same action, on the same page) became `footerRole`, `footerCity` and the existing
+   `t.email`. `building` was "AIツールを開発中" against an English "Building AI agent
+   tools" — the Japanese had quietly dropped "agent", which is the whole point of the
+   line.
+
+4. **Three projects' locales were reconciled.** WebDrop, Tutor-System and TokaiHub had
+   Japanese card copy and taglines that were stale marketing register (feature dumps,
+   モダンな, ネイティブアプリのような) against plain English. Worse, **WebDrop's Japanese
+   advertised バンプペアリング — bump pairing — a mechanism the English never claims.**
+   Both sides now say the same thing.
+
+5. **The remaining AI-tells were removed from the four projects ADR-049 did not touch**,
+   plus two residues in the pair it did: ClaudeShot's "keep the utility practical for
+   daily use", Tutor's "Fast teaching stays in the foreground.", TokaiHub's "email
+   aliases keep login familiar" and its `with…plus` weld of onboarding to theming,
+   WebDrop's "when those sensors are not" (an ellipsis that never completes), AI Brain's
+   tricolon and four-clause chain, and the Internship Portal's "does two things"
+   followed by four. The home intro's opening tricolon went too — it was the first
+   sentence a visitor read.
+
+6. **The last two em dashes in user-facing strings** were the card `aria-label`
+   ("WebDrop — View details", on all six cards in both locales, so screen-reader-only
+   and easy to miss) and the ErrorBoundary copy.
+
+Consequences: Swept 28 route × locale × breakpoint combinations at 390x844 and
+1280x900 over CDP: **zero problems** — `lang` correct in all four locale/breakpoint
+pairs, all six badges Japanese under `ja`, no em dash in any rendered string, no
+horizontal overflow, no clipped titles, no broken images, no `.pd-block` stuck hidden,
+flow-chart connectors present on all 24 detail combos, all diamond labels inside their
+path, 0 console errors and 0 responses >= 400. The mobile expand still writes the
+tapped card's exact rect on open (ADR-051 holds). Production build clean.

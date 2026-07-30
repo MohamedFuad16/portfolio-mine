@@ -233,9 +233,9 @@ const copy = {
     introParagraphs: [
       <>
         I&apos;m a <b>full-stack developer</b> and a third-year Information and Communication
-        Technology student at Tokai University. My goal is to become a{' '}
-        <b>Forward Deployed Engineer</b>: someone who works close to real users, understands the
-        problem, and builds the product that solves it.
+        Technology student at Tokai University. I want to be a{' '}
+        <b>Forward Deployed Engineer</b>, sitting with the people who will use the thing and
+        building it there rather than guessing at it from a backlog.
       </>,
       <>
         I&apos;m comfortable working with LLMs, agent workflows, tool calling, and secure{' '}
@@ -247,6 +247,8 @@ const copy = {
     ],
     contactOr: 'OR',
     email: 'Email Me',
+    footerRole: 'Full Stack + AI Agents',
+    footerCity: 'Tokyo',
     skills: 'My Skills',
     work: 'Work Experience',
     projects: 'My Projects',
@@ -295,13 +297,14 @@ const copy = {
   },
   ja: {
     lang: 'English',
-    building: 'AIツールを開発中',
+    building: 'AIエージェントツールを開発中',
     location: '東京都、日本',
     student: '東海大学 情報通信学部',
     introParagraphs: [
       <>
-        東海大学情報通信学部3年の<b>フルスタック開発者</b>です。将来は、ユーザーの現場で課題を
-        理解し、必要なプロダクトを一緒に形にする<b>フォワードデプロイドエンジニア</b>を目指しています。
+        東海大学情報通信学部3年の<b>フルスタック開発者</b>です。使う人のそばで、机上の要件から
+        推測するのではなく、その場で作りながら形にしていく<b>フォワードデプロイドエンジニア</b>に
+        なりたいと考えています。
       </>,
       <>
         LLM、エージェントワークフロー、ツール呼び出し、安全な<Highlight name="MCP" />連携に加え、
@@ -312,6 +315,8 @@ const copy = {
     ],
     contactOr: 'または',
     email: 'メール',
+    footerRole: 'フルスタック開発 / AIエージェント',
+    footerCity: '東京',
     skills: 'スキル',
     work: '職務経験',
     projects: 'プロジェクト',
@@ -363,6 +368,7 @@ const projects = [
     title: 'WebDrop',
     slug: 'webdrop',
     badge: 'live app',
+    badgeJa: '公開中のアプリ',
     image: '/assets/webdrop-site.png',
     imageJa: '/assets/webdrop-site-ja-new.png',
     icon: Radio,
@@ -371,12 +377,12 @@ const projects = [
     description:
       'Nearby file sharing in the browser, with proximity checks and direct WebRTC transfers.',
     descriptionJa:
-      'ブラウザだけで使えるAirDrop風ファイル共有アプリ。バンプペアリング、超音波Web Audioハンドシェイク、WebRTCストリーム、OPFS保存に対応。',
+      '近くの端末へ、ブラウザだけでファイルを送れるアプリ。近接を確認したうえでWebRTCで直接転送します。',
     tech: ['JavaScript', 'WebRTC', 'OPFS', 'Web Audio', 'PWA'],
     detail: {
       tagline: {
         en: 'A browser-based way to send files to someone nearby without uploading them first.',
-        ja: 'オープンウェブのためのAirDrop。近接検証つきのブラウザ完結型P2Pファイル転送。',
+        ja: 'ブラウザだけで、近くの相手へファイルを送れます。どこかへアップロードする必要はありません。',
       },
       overview: {
         en: 'I built WebDrop to make nearby file sharing work from a browser. Devices find each other through a small WebSocket signaling service, confirm that they are in the same place with ultrasound, motion, or a QR code, then open a direct WebRTC connection. The server helps with discovery and connection setup, but the file data moves between the devices.',
@@ -388,7 +394,7 @@ const projects = [
           ja: '近くの端末を軌道型のレーダーに表示し、コードを入力せず相手を選べます。',
         },
         {
-          en: 'Pairing checks ultrasound and device motion together. A short-lived QR code is available when those sensors are not.',
+          en: 'Pairing checks ultrasound and device motion together. A short-lived QR code takes over when those sensors are not available.',
           ja: 'ペアリングでは超音波と端末の動きを組み合わせて確認します。センサーを使えない場合は短時間だけ有効なQRコードに切り替えられます。',
         },
         {
@@ -458,6 +464,7 @@ const projects = [
     title: 'Internship Portal',
     slug: 'internship-portal',
     badge: 'in progress',
+    badgeJa: '開発中',
     image: '/assets/internship-portal-site.jpg',
     imageJa: '/assets/internship-portal-site-ja.jpg',
     icon: Target,
@@ -474,7 +481,7 @@ const projects = [
         ja: 'インターンを探して、応募をひとつのリストで管理できる場所。WebとiOSの両方で使えます。',
       },
       overview: {
-        en: 'The Internship Portal does two things. You search the postings and it scores how well each one matches your profile, and you keep every application in one list that moves from saved to applying to applied to interview. Deadlines go on a calendar, and the résumé you send is written in the same app. It runs as a React web app and a SwiftUI iOS app out of one repository, both fully bilingual, with a shared contracts layer that pins the routes, data shapes and ranking rules so the two clients stay in step. Your own data never reaches my server: the clients read and write Firestore directly under owner-only rules, and the server holds only the shared catalog of postings and a Gmail queue.',
+        en: 'Two things sit at the centre of the Internship Portal. You search the postings and it scores how well each one matches your profile, and you keep every application in one list that moves from saved to applying to applied to interview. Deadlines go on a calendar, and the résumé you send is written in the same app. It runs as a React web app and a SwiftUI iOS app out of one repository, both fully bilingual, with a shared contracts layer that pins the routes, data shapes and ranking rules so the two clients stay in step. Your own data never reaches my server: the clients read and write Firestore directly under owner-only rules, and the server holds only the shared catalog of postings and a Gmail queue.',
         ja: 'インターンポータルの中心は2つです。求人を検索するとプロフィールとの適合度が採点され、応募は「保存・応募準備・応募済み・面接」と状態を進めながらひとつのリストで管理できます。締切はカレンダーに並び、提出するレジュメも同じアプリで作れます。ひとつのリポジトリからReactのWebアプリとSwiftUIのiOSアプリを提供し、どちらも日英に完全対応しています。共通のコントラクト層がAPIルート、データ構造、並び順のルールを固定し、2つのクライアントの実装を揃えています。自分のデータがサーバーに届くことはありません。クライアントは所有者限定ルールのもとでFirestoreを直接読み書きし、サーバーは共有の求人カタログとGmailのキューだけを持ちます。',
       },
       features: [
@@ -550,6 +557,7 @@ const projects = [
     title: 'AI Brain Platform',
     slug: 'ai-brain-platform',
     badge: 'research project',
+    badgeJa: '研究プロジェクト',
     image: '/assets/ai-brain-site.png',
     icon: BrainCircuit,
     // The repo stays private, but the generated gym dashboard is published,
@@ -573,8 +581,8 @@ const projects = [
         { value: '139', label: { en: 'lessons curated over 21 cycles', ja: '21サイクルで蓄積した学び' } },
       ],
       overview: {
-        en: 'I wanted to see how far a cheap model can get if you give it good memory instead of training it. So the knowledge lives outside the model. Architecture notes, decisions, conventions and past mistakes are kept as versioned Markdown, and Postgres with pgvector is an index over those files rather than a second copy of the truth. When an agent starts a task, retrieval pulls the relevant pieces in, and an MCP server hands the same context to any harness. A stronger model plans and reviews, a cheaper one writes the code, and a nightly loop replays my own git history as exams to see whether any of it is working.',
-        ja: '安価なモデルに学習をさせるのではなく、しっかりした記憶を与えたらどこまでやれるのかを確かめたくて始めました。そのため知識はモデルの外に置いています。アーキテクチャの記録、意思決定、規約、過去の失敗はバージョン管理されたMarkdownとして保存し、pgvectorを使うPostgresは真実の写しではなくそれらのファイルへの索引です。エージェントが作業を始めると検索が必要な部分を取り込み、MCPサーバーがどのハーネスにも同じ文脈を渡します。上位のモデルが計画とレビューを行い、安価なモデルがコードを書き、夜間のループが自分のGit履歴を試験として再生して、実際に機能しているかを確かめます。',
+        en: 'I wanted to see how far a cheap model can get if you give it good memory instead of training it. So the knowledge lives outside the model. Architecture notes, decisions, conventions and past mistakes are kept as versioned Markdown, and Postgres with pgvector is an index over those files rather than a second copy of the truth. When an agent starts a task, retrieval pulls the relevant pieces in, and an MCP server hands the same context to any harness. A stronger model plans and reviews while a cheaper one writes the code. Every night a loop replays my own git history as exams, to see whether any of this actually works.',
+        ja: '安価なモデルに学習をさせるのではなく、しっかりした記憶を与えたらどこまでやれるのかを確かめたくて始めました。そのため知識はモデルの外に置いています。アーキテクチャの記録、意思決定、規約、過去の失敗はバージョン管理されたMarkdownとして保存し、pgvectorを使うPostgresは真実の写しではなくそれらのファイルへの索引です。エージェントが作業を始めると検索が必要な部分を取り込み、MCPサーバーがどのハーネスにも同じ文脈を渡します。上位のモデルが計画とレビューを行い、安価なモデルがコードを書きます。夜ごとにループが自分のGit履歴を試験として再生し、これが実際に機能しているのかを確かめます。',
       },
       features: [
         {
@@ -599,8 +607,8 @@ const projects = [
         },
       ],
       flow: {
-        en: 'Every commit exports into the Brain, which is ingested and embedded, so the index is current as of the last commit. When an agent picks up a task it retrieves the conventions, the binding decisions, the known mistakes and the blast radius before writing a line. Overnight the gym replays the held-out exams, the teacher grades them, the curation gate distills what is worth keeping, and the index is rebuilt, so the next run starts from a slightly better memory.',
-        ja: 'コミットごとにBrainへエクスポートされ、取り込みと埋め込みが行われるため、索引は直近のコミットの状態を保ちます。エージェントは作業を始める前に、規約、拘束力のある決定、既知の失敗、影響範囲を取得します。夜間には持ち出し不可の試験を再生し、教師モデルが採点し、キュレーションゲートが残す価値のある学びを蒸留して索引を再構築するので、次の実行は少しだけ良くなった記憶から始まります。',
+        en: 'Every commit exports into the Brain, which is ingested and embedded, so the index is current as of the last commit. When an agent picks up a task it pulls in the conventions and the decisions that bind it, along with what has broken here before and how far the change can reach. Overnight the gym replays the held-out exams and the teacher grades them. Whatever gets past the curation gate goes back into the files and the index is rebuilt, so the next run starts from a slightly better memory.',
+        ja: 'コミットごとにBrainへエクスポートされ、取り込みと埋め込みが行われるため、索引は直近のコミットの状態を保ちます。エージェントは作業を始めるとき、従うべき規約と決定に加えて、そこで過去に何が壊れたか、その変更がどこまで影響するかを取り込みます。夜間には持ち出し不可の試験を再生し、教師モデルが採点します。キュレーションゲートを通ったものだけがファイルへ戻り、索引が再構築されるので、次の実行は少しだけ良くなった記憶から始まります。',
       },
       architecture: [
         { label: { en: 'Markdown Brain', ja: 'Markdownの Brain' }, detail: { en: 'Versioned source of truth', ja: 'バージョン管理された真実' } },
@@ -659,20 +667,21 @@ const projects = [
     title: 'Tutor-System',
     slug: 'tutor-system',
     badge: 'long-term project',
+    badgeJa: '長期プロジェクト',
     image: '/assets/tutor-site-new.png',
     imageJa: '/assets/tutor-site-ja-new.png',
     icon: Sparkles,
     live: 'https://tutor-system-architecture.vercel.app/',
     github: 'https://github.com/MohamedFuad16/Tutor-System',
     description:
-      'A PDF study workspace with source-aware chat, voice tutoring, learner memory, and revision tools.',
+      'A study workspace for papers and textbooks that keeps track of where every answer came from.',
     descriptionJa:
-      '関数呼び出し型のチューターツール、リアルタイム音声指導、出典つきPDFチャット、学習者メモリを備えたAI学習アプリ。',
+      '論文や教科書を読むためのワークスペース。回答の根拠がどこにあるのかを見失わずに学べます。',
     tech: ['React 19', 'TypeScript', 'OpenRouter', 'Deepgram', 'Dexie'],
     detail: {
       tagline: {
-        en: 'A study workspace that keeps answers tied to the learner, the conversation, and the source material.',
-        ja: 'PDF学習・出典つきチュータリング・音声モード・可視化されたAIワークフローを備えたローカルファーストの学習システム。',
+        en: 'Ask a question about a PDF and the answer comes back with the page it came from.',
+        ja: 'PDFについて質問すると、根拠になったページと一緒に答えが返ってきます。',
       },
       overview: {
         en: 'I built Tutor for studying papers and textbooks without losing track of where an answer came from. A learner can upload PDFs, ask questions by text or voice, and turn useful sessions into revision material. The app stores books, evidence, concepts, corrections, and model runs as local records, so its memory can be inspected instead of being hidden inside a chat model.',
@@ -692,8 +701,8 @@ const projects = [
           ja: '音声モードはローカルブローカー経由でDeepgramを使い、テキストと音声の対話で同じ学習コンテキストを共有します。',
         },
         {
-          en: 'Fast teaching stays in the foreground. Slower retrieval and tool work runs as request-linked background jobs that can be inspected later.',
-          ja: 'すぐに必要な説明は前景で返し、検索やツール処理はリクエストに紐づくバックグラウンドジョブとして実行します。',
+          en: 'Quick explanations come back straight away, while slower retrieval and tool work runs as background jobs tied to the request, so you can see afterwards what they did.',
+          ja: 'すぐに返せる説明はその場で返し、検索やツール処理はリクエストに紐づくバックグラウンドジョブとして動くので、後から何をしたのかを確認できます。',
         },
         {
           en: 'Durable learner data stays in user-scoped SQLite and files. Dexie keeps smaller browser-side cache and interface state.',
@@ -747,6 +756,7 @@ const projects = [
     title: 'TokaiHub',
     slug: 'tokaihub',
     badge: 'student PWA',
+    badgeJa: '学生向けPWA',
     image: '/assets/tokaihub-site-new.png',
     imageJa: '/assets/tokaihub-site-ja-new.png',
     icon: Smartphone,
@@ -755,12 +765,12 @@ const projects = [
     description:
       'A bilingual Tokai University student portal backed by Cognito, Lambda, and DynamoDB.',
     descriptionJa:
-      '東海大学向けのモバイルファーストな日英バイリンガル学生ポータルPWA。AWS Cognito認証とOTPフローを実装。',
+      'Cognito、Lambda、DynamoDBで動く東海大学の学生ポータル。日本語と英語に対応しています。',
     tech: ['React', 'Tailwind', 'Amplify', 'Cognito', 'Vite'],
     detail: {
       tagline: {
-        en: 'A bilingual student portal that brings Tokai University services into one mobile-friendly PWA.',
-        ja: '東海大学のためのモダンな中央学生ポータル。AWS上で動く、ネイティブアプリのようなバイリンガルPWA。',
+        en: 'One place on a phone for the university things a student checks every week.',
+        ja: 'スマートフォンから、毎週確認する大学の手続きをまとめて開ける場所です。',
       },
       overview: {
         en: 'I built TokaiHub around the routines students repeat every week: checking a schedule, finding course information, managing enrollment, and updating a profile. It runs as an installable React PWA in English and Japanese. Authentication and the student data live on AWS, while the interface stays focused on quick mobile use.',
@@ -768,7 +778,7 @@ const projects = [
       },
       features: [
         {
-          en: 'The custom Cognito sign-in keeps students inside the app. Student IDs are the underlying usernames, while email aliases keep login familiar.',
+          en: 'Signing in happens on a form inside the app rather than on a Cognito-hosted page. Student IDs are the real usernames, and an email address works as an alias for them.',
           ja: 'Cognitoのホスト画面へ移動せず、アプリ内のフォームでログインできます。内部では学籍番号をユーザー名に使い、メールアドレスでもログインできます。',
         },
         {
@@ -784,8 +794,8 @@ const projects = [
           ja: '学生プロフィール、授業一覧、履修記録、時間割をDynamoDBのシングルテーブル設計で保存します。',
         },
         {
-          en: 'The onboarding flow collects campus, course, and GPA details, with English and Japanese copy plus light and dark themes throughout the app.',
-          ja: 'オンボーディングでキャンパス、コース、GPAを登録できます。アプリ全体で日英表示とライト・ダークテーマに対応しています。',
+          en: 'Onboarding collects campus, course and GPA. The rest of the app is available in English and Japanese, in a light or a dark theme.',
+          ja: 'オンボーディングでキャンパス、コース、GPAを登録します。アプリ全体が日英表示に対応し、ライトとダークのテーマを選べます。',
         },
       ],
       flow: {
@@ -831,6 +841,7 @@ const projects = [
     title: 'ClaudeShot',
     slug: 'claudeshot',
     badge: 'macOS utility',
+    badgeJa: 'macOSユーティリティ',
     image: '/assets/claudeshot-preview.svg',
     icon: Camera,
     github: 'https://github.com/MohamedFuad16/ClaudeShot',
@@ -866,8 +877,8 @@ const projects = [
           ja: '短いフラッシュと収束アニメーションで、別ウィンドウを開かずに撮影完了を伝えます。',
         },
         {
-          en: 'English and Japanese menus, launch-at-login, and selectable sounds keep the utility practical for daily use.',
-          ja: '日英メニュー、自動起動、選べる効果音を備え、毎日使いやすい形にしています。',
+          en: 'The menus are in English and Japanese, it can start at login, and the capture sound can be changed or switched off.',
+          ja: 'メニューは日英に対応し、ログイン時の自動起動に対応し、撮影音は変更もオフもできます。',
         },
       ],
       flow: {
@@ -1397,6 +1408,13 @@ function ExperienceItem({ item, locale, t }) {
   );
 }
 
+/** Badge text for the active locale. Every project defines both, so a Japanese
+ *  visitor no longer sees "live app" / "in progress" on an otherwise translated
+ *  page; `badge` is the fallback if one is ever added without a translation. */
+function badgeLabel(project, locale) {
+  return locale === 'ja' && project.badgeJa ? project.badgeJa : project.badge;
+}
+
 function ProjectCard({ project, t, locale, onOpen }) {
   const Icon = project.icon;
   const image = locale === 'ja' && project.imageJa ? project.imageJa : project.image;
@@ -1407,10 +1425,10 @@ function ProjectCard({ project, t, locale, onOpen }) {
         type="button"
         className="project-shot"
         onClick={open}
-        aria-label={`${project.title} — ${t.viewDetails}`}
+        aria-label={`${project.title}: ${t.viewDetails}`}
       >
         <img src={image} alt={t.a11y.preview(project.title)} />
-        <span className="project-badge">{project.badge}</span>
+        <span className="project-badge">{badgeLabel(project, locale)}</span>
         <span className="project-shot-hint">
           {t.viewDetails}
           <ArrowUpRight size={14} />
@@ -1776,7 +1794,7 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup 
         <header className="pd-hero">
           <div className="pd-shot pd-animate">
             <img src={image} alt={t.a11y.preview(project.title)} />
-            <span>{project.badge}</span>
+            <span>{badgeLabel(project, locale)}</span>
           </div>
           <div className="pd-headline pd-animate">
             <h1>
@@ -1975,6 +1993,10 @@ function App() {
 
   useEffect(() => {
     window.localStorage.setItem('portfolio-locale', locale);
+    // `index.html` ships `lang="en"`, so without this a Japanese visitor gets a
+    // fully translated page that still declares itself English — screen readers
+    // then read Japanese with an English voice.
+    document.documentElement.lang = locale === 'ja' ? 'ja' : 'en';
   }, [locale]);
 
   // Project detail routing: keep `route` in sync with the URL hash.
@@ -2754,7 +2776,7 @@ function App() {
         <nav className="contact-links" aria-label={t.a11y.moreContactLinks}>
           <a href="mailto:mohamed.fuad.jp@gmail.com">
             <Mail size={14} />
-            Email
+            {t.email}
           </a>
           <a href="https://github.com/MohamedFuad16" target="_blank" rel="noopener noreferrer">
             <BrandIcon name="github" />
@@ -2782,10 +2804,10 @@ function App() {
         Mohamed Fuad
         <span>•</span>
         <Code2 size={14} />
-        Full Stack + AI Agents
+        {t.footerRole}
         <span>•</span>
         <Server size={14} />
-        Tokyo
+        {t.footerCity}
         <span>•</span>
         <Database size={14} />
         2026
@@ -2836,7 +2858,7 @@ class ErrorBoundary extends React.Component {
       <div className="fatal-error" role="alert">
         <h1>Something broke while rendering this page.</h1>
         <p>
-          Sorry about that — reloading usually fixes it. You can also reach me on{' '}
+          Sorry about that. Reloading usually fixes it. You can also reach me on{' '}
           <a href="https://github.com/MohamedFuad16" target="_blank" rel="noopener noreferrer">
             GitHub
           </a>{' '}
