@@ -253,9 +253,10 @@ const copy = {
     work: 'Work Experience',
     projects: 'My Projects',
     tech: 'Technologies Used:',
+    techHeading: 'Technologies used',
     live: 'Live',
     privateRepo: 'Private repo',
-    visitors: (n) => `${n === 1 ? 'visitor' : 'visitors'}`,
+    visitors: (n) => ` ${n === 1 ? 'visitor' : 'visitors'}`,
     moreProjects: 'More Projects',
     thoughtsTitle: 'Thoughts in words.',
     thoughts: 'I write about the things I build and learn. Browse all of my posts on',
@@ -301,16 +302,17 @@ const copy = {
     location: '東京都、日本',
     student: '東海大学 情報通信学部',
     introParagraphs: [
+      // Japanese takes no inter-word spaces, but JSX condenses a newline that
+      // falls mid-text into one — so these lines must break only where they sit
+      // next to a tag (those newlines are dropped) or not at all. Breaking after
+      // 「机上の要件から」 rendered 「机上の要件から 推測するのではなく」.
       <>
-        東海大学情報通信学部3年の<b>フルスタック開発者</b>です。使う人のそばで、机上の要件から
-        推測するのではなく、その場で作りながら形にしていく<b>フォワードデプロイドエンジニア</b>に
-        なりたいと考えています。
+        東海大学情報通信学部3年の<b>フルスタック開発者</b>です。使う人のそばで、机上の要件から推測するのではなく、その場で作りながら形にしていく<b>フォワードデプロイドエンジニア</b>になりたいと考えています。
       </>,
       <>
         LLM、エージェントワークフロー、ツール呼び出し、安全な<Highlight name="MCP" />連携に加え、
         <Highlight name="TypeScript" />、<Highlight name="Python" />、<Highlight name="Swift" />、
-        <Highlight name="Node" />、<Highlight name="AWS" />、<Highlight name="React" />を使った
-        本番向けアプリ開発に取り組んでいます。英語と日本語で業務対応ができ、日本語力はJLPT N2相当です。
+        <Highlight name="Node" />、<Highlight name="AWS" />、<Highlight name="React" />を使った本番向けアプリ開発に取り組んでいます。英語と日本語で業務対応ができ、日本語力はJLPT N2相当です。
       </>,
     ],
     contactOr: 'または',
@@ -321,6 +323,7 @@ const copy = {
     work: '職務経験',
     projects: 'プロジェクト',
     tech: '使用技術:',
+    techHeading: '使用技術',
     live: '公開',
     privateRepo: '非公開リポジトリ',
     visitors: () => '人の訪問者',
@@ -434,7 +437,7 @@ const projects = [
         },
         {
           kind: 'decision',
-          title: { en: 'Close enough?', ja: '近接を確認' },
+          title: { en: 'Close enough?', ja: '十分に近いか' },
           edge: { en: 'yes', ja: 'はい' },
           branch: {
             title: { en: 'QR pairing', ja: 'QRペアリング' },
@@ -481,8 +484,8 @@ const projects = [
         ja: 'インターンを探して、応募をひとつのリストで管理できる場所。WebとiOSの両方で使えます。',
       },
       overview: {
-        en: 'Two things sit at the centre of the Internship Portal. You search the postings and it scores how well each one matches your profile, and you keep every application in one list that moves from saved to applying to applied to interview. Deadlines go on a calendar, and the résumé you send is written in the same app. It runs as a React web app and a SwiftUI iOS app out of one repository, both fully bilingual, with a shared contracts layer that pins the routes, data shapes and ranking rules so the two clients stay in step. Your own data never reaches my server: the clients read and write Firestore directly under owner-only rules, and the server holds only the shared catalog of postings and a Gmail queue.',
-        ja: 'インターンポータルの中心は2つです。求人を検索するとプロフィールとの適合度が採点され、応募は「保存・応募準備・応募済み・面接」と状態を進めながらひとつのリストで管理できます。締切はカレンダーに並び、提出するレジュメも同じアプリで作れます。ひとつのリポジトリからReactのWebアプリとSwiftUIのiOSアプリを提供し、どちらも日英に完全対応しています。共通のコントラクト層がAPIルート、データ構造、並び順のルールを固定し、2つのクライアントの実装を揃えています。自分のデータがサーバーに届くことはありません。クライアントは所有者限定ルールのもとでFirestoreを直接読み書きし、サーバーは共有の求人カタログとGmailのキューだけを持ちます。',
+        en: 'Two things sit at the center of the Internship Portal. You search the postings and it scores how well each one matches your profile, and you keep every application in one list that follows it through to a decision. Deadlines go on a calendar, and the résumé you send is written in the same app. It runs as a React web app and a SwiftUI iOS app out of one repository, both fully bilingual, with a shared contracts layer that pins the routes, data shapes and ranking rules so the two clients stay in step. Your own data never reaches my server: the clients read and write Firestore directly under owner-only rules, and the server holds only the shared catalog of postings and a Gmail queue.',
+        ja: 'インターンポータルの中心は2つです。求人を検索するとプロフィールとの適合度が採点され、応募は結果が出るまでひとつのリストで管理できます。締切はカレンダーに並び、提出するレジュメも同じアプリで作れます。ひとつのリポジトリからReactのWebアプリとSwiftUIのiOSアプリを提供し、どちらも日英に完全対応しています。共通のコントラクト層がAPIルート、データ構造、並び順のルールを固定し、2つのクライアントの実装を揃えています。自分のデータがサーバーに届くことはありません。クライアントは所有者限定ルールのもとでFirestoreを直接読み書きし、サーバーは共有の求人カタログとGmailのキューだけを持ちます。',
       },
       features: [
         {
@@ -502,7 +505,7 @@ const projects = [
           ja: 'iOSアプリは机を離れてもトラッカーを手元に置けます。バックグラウンドで更新してGmailを同期し、新しい応募を見つけると企業ロゴ付きの通知を送ります。',
         },
         {
-          en: 'The résumé you send is written and previewed in the app, with English and Japanese templates including a 履歴書 grid and a 職務経歴書 layout.',
+          en: 'The résumé you send is written and previewed in the app, with English templates alongside the two standard Japanese formats.',
           ja: '提出するレジュメはアプリ内で作成してプレビューできます。英語のテンプレートに加え、履歴書のマス目形式と職務経歴書のレイアウトを用意しています。',
         },
       ],
@@ -607,11 +610,11 @@ const projects = [
         },
       ],
       flow: {
-        en: 'Every commit exports into the Brain, which is ingested and embedded, so the index is current as of the last commit. When an agent picks up a task it pulls in the conventions and the decisions that bind it, along with what has broken here before and how far the change can reach. Overnight the gym replays the held-out exams and the teacher grades them. Whatever gets past the curation gate goes back into the files and the index is rebuilt, so the next run starts from a slightly better memory.',
+        en: 'Every commit exports into the Brain, which is ingested and embedded, so the index is current as of the last commit. When an agent picks up a task it pulls in the conventions and the decisions that bind it, along with what has broken here before and how far the change can reach. Overnight the loop replays the held-out exams and the teacher model grades them. Whatever gets past the curation gate goes back into the files and the index is rebuilt, so the next run starts from a slightly better memory.',
         ja: 'コミットごとにBrainへエクスポートされ、取り込みと埋め込みが行われるため、索引は直近のコミットの状態を保ちます。エージェントは作業を始めるとき、従うべき規約と決定に加えて、そこで過去に何が壊れたか、その変更がどこまで影響するかを取り込みます。夜間には持ち出し不可の試験を再生し、教師モデルが採点します。キュレーションゲートを通ったものだけがファイルへ戻り、索引が再構築されるので、次の実行は少しだけ良くなった記憶から始まります。',
       },
       architecture: [
-        { label: { en: 'Markdown Brain', ja: 'Markdownの Brain' }, detail: { en: 'Versioned source of truth', ja: 'バージョン管理された真実' } },
+        { label: { en: 'Markdown Brain', ja: 'MarkdownのBrain' }, detail: { en: 'Versioned source of truth', ja: 'バージョン管理された真実' } },
         { label: { en: 'Index', ja: '索引' }, detail: { en: 'Postgres and pgvector', ja: 'Postgresとpgvector' } },
         { label: { en: 'Retrieval', ja: '検索' }, detail: { en: 'RAG through an MCP server', ja: 'MCPサーバー経由のRAG' } },
         { label: { en: 'Exam loop', ja: '試験ループ' }, detail: { en: 'Graded, then curated back', ja: '採点しBrainへ還元' } },
@@ -648,7 +651,7 @@ const projects = [
           // pushed its lower corners outside the outline even after ADR-050
           // centred the pair. What it dropped ("held-out exams") is already in
           // the prose above the chart (ADR-050).
-          sub: { en: 'Graded by the teacher', ja: '教師モデルが採点' },
+          sub: { en: 'Graded by the teacher model', ja: '教師モデルが採点' },
           edge: { en: 'curate', ja: 'キュレーション' },
           branch: {
             title: { en: 'Discard the run', ja: '結果を破棄' },
@@ -701,17 +704,17 @@ const projects = [
           ja: '音声モードはローカルブローカー経由でDeepgramを使い、テキストと音声の対話で同じ学習コンテキストを共有します。',
         },
         {
-          en: 'Quick explanations come back straight away, while slower retrieval and tool work runs as background jobs tied to the request, so you can see afterwards what they did.',
+          en: 'Quick explanations come back straight away, while slower retrieval and tool work run as background jobs tied to the request, so you can see afterwards what they did.',
           ja: 'すぐに返せる説明はその場で返し、検索やツール処理はリクエストに紐づくバックグラウンドジョブとして動くので、後から何をしたのかを確認できます。',
         },
         {
-          en: 'Durable learner data stays in user-scoped SQLite and files. Dexie keeps smaller browser-side cache and interface state.',
+          en: 'Durable learner data stays in user-scoped SQLite and files. Dexie keeps the lighter browser-side cache and the interface state.',
           ja: '学習データはユーザー単位のSQLiteとファイルに保存し、Dexieはブラウザ側の軽いキャッシュと画面状態を管理します。',
         },
       ],
       flow: {
-        en: 'The learner opens a local profile, adds PDFs to a book, and asks a question by chat or voice. Tutor gathers the relevant page, earlier discussion, evidence, and learner state before sending the request to the foreground tutor. Slow jobs continue in the background, and the useful results are saved as evidence, artifacts, or revision material for that learner.',
-        ja: '学習者がローカルプロフィールを開き、PDFを書籍に追加して、チャットまたは音声で質問します。Tutorは関連ページ、過去の対話、根拠、学習状態を集めて前景チューターへ渡します。時間のかかる処理は背景で続き、結果はその学習者の根拠、成果物、復習教材として保存されます。',
+        en: 'The learner opens a local profile, adds PDFs to a book, and asks a question by chat or voice. Tutor gathers the relevant page, earlier discussion, evidence, and learner state before sending the request to the tutor that answers straight away. Slow jobs continue in the background, and the useful results are saved as evidence, artifacts, or revision material for that learner.',
+        ja: '学習者がローカルプロフィールを開き、PDFを書籍に追加して、チャットまたは音声で質問します。Tutorは関連ページ、過去の対話、根拠、学習状態を集めて、すぐに応答するチューターへ渡します。時間のかかる処理はバックグラウンドで続き、結果はその学習者の根拠、成果物、復習教材として保存されます。',
       },
       architecture: [
         { label: { en: 'Study input', ja: '学習入力' }, detail: { en: 'PDF, text, or voice', ja: 'PDF・文章・音声' } },
@@ -820,7 +823,7 @@ const projects = [
           title: { en: 'Signed in?', ja: '認証済み？' },
           edge: { en: 'yes', ja: 'はい' },
           branch: {
-            title: { en: 'Cognito email OTP', ja: 'Cognitoメール OTP' },
+            title: { en: 'Cognito email OTP', ja: 'Cognitoメール認証' },
             edge: { en: 'no', ja: 'いいえ' },
           },
         },
@@ -873,7 +876,7 @@ const projects = [
           ja: '撮影した画像をPNGとしてコピーし、AppKitでClaudeを前面に出して自動的に貼り付けます。',
         },
         {
-          en: 'A short flash and settling animation confirms the capture without opening a separate window.',
+          en: 'A short flash and a settling animation confirm the capture without opening a separate window.',
           ja: '短いフラッシュと収束アニメーションで、別ウィンドウを開かずに撮影完了を伝えます。',
         },
         {
@@ -1875,7 +1878,7 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup 
         )}
 
         <section className="pd-block pd-animate pd-reveal">
-          <h2 className="pd-h">{t.tech}</h2>
+          <h2 className="pd-h">{t.techHeading}</h2>
           <div className="tags">
             {project.tech.map((tech) => (
               <span key={tech}>{tech}</span>

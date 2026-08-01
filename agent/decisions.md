@@ -813,3 +813,71 @@ horizontal overflow, no clipped titles, no broken images, no `.pd-block` stuck h
 flow-chart connectors present on all 24 detail combos, all diamond labels inside their
 path, 0 console errors and 0 responses >= 400. The mobile expand still writes the
 tapped card's exact rect on open (ADR-051 holds). Production build clean.
+
+## ADR-053 — Copy consistency pass, and the Japanese spacing trap (2026-08-02)
+
+Context: `git pull` brought one automated commit (`c403cf6..3403921`) touching only
+`public/assets/contributions.json` — the rolling window slid forward, dropping
+2025-08-01/02 and appending 2026-07-31 and 2026-08-01, total 583 → 586. A bug sweep of
+the whole site was run on top of it. Most of the sweep's agents died on a session
+limit; the copy dimension completed and its nine findings were verified by hand
+afterwards, since every automated verifier had also died.
+
+The pulled data itself is correct and needed no change: 364 cells, exactly 52 weeks,
+contiguous, no duplicates, first cell 2025-08-03 is a Sunday and last 2026-08-01 a
+Saturday, `total` equals the sum of counts. The 12 month labels were re-derived
+independently against the component's own bucketing and every one sits over a column
+that really contains that month; the trailing single-day Aug 2026 is correctly dropped
+by the `span >= 3` filter, so there is no duplicate "Aug".
+
+Decisions — nine copy defects fixed, all confirmed against source before touching:
+
+1. The Internship Portal overview enumerated four tracker states and the feature bullet
+   five, two paragraphs apart. The overview no longer enumerates at all; the bullet owns
+   the list.
+2. AI Brain's flow introduced "the gym", a term used in no other rendered string (the
+   overview calls the same thing a loop), and alternated "a teacher model" / "the
+   teacher" / "Graded by the teacher". Settled on "the loop" and "the teacher model"
+   throughout, diagram included.
+3. Tutor-System's Japanese used three words for one concept — バックグラウンドジョブ,
+   背景, バックグラウンド処理 — where 背景 is the picture-background sense, not a running
+   process. Also 前景チューター, a calque of an English term the English never defines.
+   Both sides now say it plainly.
+4. Stray ASCII spaces inside 「Markdownの Brain」 and 「Cognitoメール OTP」, inconsistent
+   with the same words written unspaced on those very pages.
+5. WebDrop's decision diamond was the only one of four not phrased as a question in
+   Japanese (「近接を確認」, which also duplicated the system-map label directly above the
+   chart). Now 「十分に近いか」.
+6. English copy carried two tokens an English-only reader cannot read (履歴書, 職務経歴書)
+   with no gloss; it now names the formats in English while the Japanese keeps the real
+   names. "centre" was the single en-GB spelling among catalog / signaling / enrollment /
+   localize.
+7. `t.tech` served both an inline card label (where the trailing colon is right) and an
+   `<h2>` section heading (where it is not). Split into `tech` and `techHeading`.
+8. The footer read "1,338visitors" in the text stream. Added the space to the English
+   unit only — Japanese takes none.
+9. Three English grammar slips: two compound subjects with singular verbs, one missing
+   article with a comparative that had no comparand.
+
+Then, verifying the fix, the render exposed a tenth defect the sweep had only alluded
+to: **`introParagraphs.ja` rendered 「机上の要件から 推測するのではなく」**. JSX drops a
+newline adjacent to a tag but condenses one between two runs of text into a space, and
+the paragraph had been wrapped for readability. See `agent/errors.md`; the rule is that
+a Japanese JSX fragment may break lines only where they abut a tag.
+
+The visitor counter's `.sr-only` duplicate was reported and deliberately **not**
+changed: it is the canonical accessible pattern (the per-character spans are
+`aria-hidden`, so assistive tech reads the value once), and duplication in `textContent`
+is inherent to every use of visually-hidden text. Only the missing space was a defect.
+
+Consequences: 28 route × locale × breakpoint combos re-swept — zero problems, zero
+console errors, zero responses >= 400, `lang` correct per locale, badges Japanese under
+`ja`, no em dash in any rendered string, no overflow or clipped titles, all flow-chart
+connectors present, and every diamond label still passing the strict `isPointInFill`
+corner test after "Graded by the teacher model" widened it. The mobile expand still
+writes the tapped card's exact rect and closes clean (ADR-051 holds). A dedicated scan
+for ASCII spaces adjacent to CJK now comes back with only the legitimate cases.
+Production build clean.
+
+Not covered by this pass, and worth a look sometime: the resume PDFs, the strings inside
+the raster project screenshots, and colour contrast of the small grey type.
