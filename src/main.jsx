@@ -1201,28 +1201,15 @@ function useContributionData() {
     // downstream (the tooltip formatter, the month labels) parses it, and one
     // malformed entry would otherwise throw during render.
     //
-    // The grid is seven rows deep and flows column-first, so a column only
-    // means "one week" if the first cell is a Sunday. Taking a flat
-    // `slice(-364)` of data that ends *today* only satisfies that when today is
-    // a Saturday — one day in seven. So keep a little over 52 weeks and trim
-    // from the front to the first Sunday instead; the last column is then the
-    // current, possibly partial, week, which is what GitHub shows too.
-    const startsWeek = (date) => new Date(`${date}T00:00:00Z`).getUTCDay() === 0;
-    const normalise = (days) => {
-      const clean = days
+    const normalise = (days) =>
+      days
         .filter((day) => typeof day?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day.date))
+        .slice(-CONTRIBUTION_DAYS)
         .map((day) => ({
           date: day.date,
           count: Number(day.count) || 0,
           level: Number(day.level) || 0,
         }));
-      // Six spare days is always enough slack to reach a Sunday.
-      const window = clean.slice(-(CONTRIBUTION_DAYS + 6));
-      const first = window.findIndex((day) => startsWeek(day.date));
-      // If the source is too short to contain a Sunday at all, keep what there
-      // is rather than rendering nothing.
-      return first === -1 ? window : window.slice(first);
-    };
 
     const loadSnapshot = fetch('/assets/contributions.json', { cache: 'no-cache' })
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error('no snapshot'))))
@@ -1296,7 +1283,15 @@ function ContributionGrid({ t, locale }) {
   // falls in — and spanning it to the next month — is what makes the header
   // describe the days underneath it. Previously nine labels were spread evenly
   // over a row-major grid, where a column meant nothing at all (ADR-042).
-  const weekCount = Math.max(1, Math.ceil(cells.length / 7));
+  // A column is only a real week if the first cell sits in the row for its own
+  // weekday. The window ends on whatever day it is today, so its first day is a
+  // Sunday one time in seven — the snapshot pulled on 2026-08-02 starts on a
+  // Monday. Rather than trimming to the next Sunday (which would throw away up
+  // to six days of history and quietly shrink the total), offset the first cell
+  // into its weekday row and let column one be partial, which is what GitHub
+  // does. Everything downstream counts from `leadIn` instead of from zero.
+  const leadIn = cells.length ? new Date(`${cells[0].date}T00:00:00Z`).getUTCDay() : 0;
+  const weekCount = Math.max(1, Math.ceil((leadIn + cells.length) / 7));
   const monthLabels = useMemo(() => {
     const formatter = new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'en-US', {
       month: 'short',
@@ -1310,7 +1305,7 @@ function ContributionGrid({ t, locale }) {
       previousMonth = key;
       marks.push({
         key,
-        column: Math.floor(index / 7) + 1,
+        column: Math.floor((index + leadIn) / 7) + 1,
         label: formatter.format(new Date(year, (month || 1) - 1, 1)),
       });
     });
@@ -1322,7 +1317,7 @@ function ContributionGrid({ t, locale }) {
       // A month showing only a column or two has no room for its name and
       // would sit on top of the next one. GitHub drops those too.
       .filter((mark) => mark.span >= 3);
-  }, [cells, locale, weekCount]);
+  }, [cells, locale, weekCount, leadIn]);
 
   return (
     <section className="dashed contribution" aria-label={t.a11y.contributionGrid}>
@@ -1339,6 +1334,10 @@ function ContributionGrid({ t, locale }) {
             <span
               key={day.date || index}
               className={`cell level-${day.level}`}
+              // Only the first cell is placed explicitly; the rest auto-flow
+              // down its column and on into the next, so every column below
+              // lines up on the same weekday.
+              style={index === 0 && leadIn ? { gridRowStart: leadIn + 1 } : undefined}
               data-tooltip={t.dayTooltip(day.count, formatCellDate(day.date, locale))}
             />
           ))}

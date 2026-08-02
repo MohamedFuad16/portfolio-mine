@@ -946,11 +946,18 @@ overridden by GSAP's leftover inline transform.
 
 ### The two contribution-window bugs (carried over from ADR-053)
 
-4. **Sunday alignment.** The grid is seven rows deep flowing column-first, so a column
-   only means "one week" if the first cell is a Sunday — which a flat `slice(-364)` of
-   data ending *today* satisfies one day in seven. It now keeps a little over 52 weeks
-   and trims from the front to the first Sunday; the last column is the current, possibly
-   partial, week, as GitHub shows.
+4. **Weekday alignment.** The grid is seven rows deep flowing column-first, so a column
+   only means "one week" if the first cell sits in the row for its own weekday — which a
+   flat `slice(-364)` of data ending *today* satisfies one day in seven.
+
+   The first attempt trimmed forward to the next Sunday, and the very next snapshot showed
+   why that was wrong: pulled on 2026-08-02 it starts on a **Monday**, so trimming threw
+   away six days of history and silently shrank the total. Instead the first cell is now
+   offset into its own weekday row (`gridRowStart: leadIn + 1`) and the rest auto-flow from
+   there, so column one is partial — which is what GitHub does — and not a single day is
+   lost. `weekCount` and every month label's column count from `leadIn` rather than zero.
+   Verified by grouping the painted cells by their actual Y: seven rows, each holding
+   exactly one weekday, mapping 0..6 in order, with all 364 days retained.
 5. **Caption vs grid.** `pickTotal` used the API's `total.lastYear`, computed over its
    whole returned range rather than the range drawn. Simulated across a fortnight of
    dates, the caption disagreed with the grid on **13 days out of 14**. The total is now
@@ -964,6 +971,7 @@ back/headline/shot travel **0px** each (was 26), `.pd-back` final transform `non
 permanent `translate(0px, 25.574px)`), inline style just `opacity: 1`, and its gap back
 to the designed **44px**. The open still writes the tapped card's exact rect and the
 close still lands on it. The grid fix proved itself live: this ran on Sunday 2026-08-02,
-exactly the case the old code got wrong, and rendered a Sunday-aligned 53-column grid
-with caption 587 equal to the sum of its cells. 28 route x locale x breakpoint combos
+exactly the case the old code got wrong, and rendered a correctly weekday-aligned
+53-column grid — seven rows, zero rows mixing weekdays, all 364 days kept — with caption
+587 equal to the sum of its cells. 28 route x locale x breakpoint combos
 clean, 0 console errors, 0 responses >= 400. Production build clean.
