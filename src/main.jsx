@@ -1200,20 +1200,29 @@ function useContributionData() {
     // Drop any day the source sent without a usable date: everything
     // downstream (the tooltip formatter, the month labels) parses it, and one
     // malformed entry would otherwise throw during render.
-    const normalise = (days) =>
-      days
+    //
+    // The grid is seven rows deep and flows column-first, so a column only
+    // means "one week" if the first cell is a Sunday. Taking a flat
+    // `slice(-364)` of data that ends *today* only satisfies that when today is
+    // a Saturday — one day in seven. So keep a little over 52 weeks and trim
+    // from the front to the first Sunday instead; the last column is then the
+    // current, possibly partial, week, which is what GitHub shows too.
+    const startsWeek = (date) => new Date(`${date}T00:00:00Z`).getUTCDay() === 0;
+    const normalise = (days) => {
+      const clean = days
         .filter((day) => typeof day?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day.date))
-        .slice(-CONTRIBUTION_DAYS)
         .map((day) => ({
           date: day.date,
           count: Number(day.count) || 0,
           level: Number(day.level) || 0,
         }));
-
-    // `|| fallback` would rewrite a legitimately zero total, so only fall back
-    // when the source genuinely did not give us a finite number.
-    const pickTotal = (value, cells) =>
-      Number.isFinite(Number(value)) ? Number(value) : sumCounts(cells);
+      // Six spare days is always enough slack to reach a Sunday.
+      const window = clean.slice(-(CONTRIBUTION_DAYS + 6));
+      const first = window.findIndex((day) => startsWeek(day.date));
+      // If the source is too short to contain a Sunday at all, keep what there
+      // is rather than rendering nothing.
+      return first === -1 ? window : window.slice(first);
+    };
 
     const loadSnapshot = fetch('/assets/contributions.json', { cache: 'no-cache' })
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error('no snapshot'))))
@@ -1221,7 +1230,7 @@ function useContributionData() {
         if (cancelled || !Array.isArray(payload.cells)) return;
         const cells = normalise(payload.cells);
         if (!cells.length) return;
-        setData({ cells, total: pickTotal(payload.total, cells) });
+        setData({ cells, total: sumCounts(cells) });
       })
       .catch(() => {});
 
@@ -1234,7 +1243,13 @@ function useContributionData() {
           const today = new Date().toISOString().slice(0, 10);
           const cells = normalise(payload.contributions.filter((day) => day.date <= today));
           if (!cells.length) return;
-          setData({ cells, total: pickTotal(payload.total?.lastYear, cells) });
+          // Always the sum of the days actually on screen, never the source's
+          // own year total. The API computes `total.lastYear` over its whole
+          // returned range, which is not the range the grid draws: measured
+          // across a fortnight of dates, the caption disagreed with the grid on
+          // 13 days out of 14. The snapshot's own total is already the sum of
+          // its cells, so this changes nothing there.
+          setData({ cells, total: sumCounts(cells) });
         })
         .catch(() => {})
     );
@@ -1934,6 +1949,18 @@ function App() {
     const card = mobile ? trigger?.closest('.project') : null;
     detailReturnFocusRef.current = trigger || null;
     if (card) {
+      // Each card carries its own scroll-reveal `gsap.from(card, {y:36,
+      // opacity:0, scale:0.985})`. Tapping a card while that tween is still
+      // running used to snapshot its in-flight inline styles into the clone —
+      // measured as `opacity: 0; transform: translate(0px, 36px)
+      // scale(0.985)`, so the clone morphed as a featureless black rectangle
+      // with its title 266px out of place, and `measureOrigin()` (which
+      // neutralises `main`'s transform but not the card's own) returned the
+      // scaled box, 344.75x398.68 instead of 350x404.75. Settle the card
+      // first: it is about to be hidden by `is-expand-origin` anyway, and on
+      // close it should be at rest, which is exactly what clearProps leaves.
+      gsap.killTweensOf(card);
+      gsap.set(card, { clearProps: 'opacity,transform,translate,rotate,scale' });
       detailOriginMarkupRef.current = card.outerHTML;
       detailOriginCardRef.current = card;
       card.classList.add('is-expand-origin');
@@ -2147,12 +2174,29 @@ function App() {
             0
           )
           .to(mainRef.current, { scale: 0.95, opacity: 0.65, duration: 0.44, ease: cardExpandEase }, 0)
-          .to(face, { autoAlpha: 0, duration: 0.2, ease: 'power1.out' }, 0.24)
-          .to(inner, { autoAlpha: 1, duration: 0.22, ease: 'power2.out' }, 0.22)
+          // The clone and the real page are two different layouts: the cloned
+          // card's title rests 110.3px above the detail page's <h1>, and its
+          // preview image ~90px above `.pd-shot`. The old timing left both
+          // layers over 10% opaque for ~200ms, so two vertically offset copies
+          // of the same title and image visibly dissolved through each other —
+          // the "displaced, shows low then jumps" the animation was reported
+          // for. It is ~4x the box's own residual travel, so it dominates.
+          //
+          // Hand over instead of cross-fading: the clone is gone by 0.32 and
+          // the real content starts after it. `.project-detail` and
+          // `.pd-expand-face` share #0b0d0e, so the handover is invisible.
+          // Waiting until 0.32 also all but removes the second defect —
+          // `.project-detail-inner` is a normal-flow child of the box being
+          // tweened, so it rides the box's remaining journey. cardExpandEase is
+          // heavily front-loaded (95.5% covered by 0.22, which still left
+          // 4.5% x origin.top = up to 36px of travel in plain sight); by 0.32
+          // the residual is under a pixel or two.
+          .to(face, { autoAlpha: 0, duration: 0.1, ease: 'power1.out' }, 0.22)
+          .to(inner, { autoAlpha: 1, duration: 0.16, ease: 'power2.out' }, 0.32)
           .to(
             reveal,
             { y: 0, opacity: 1, duration: 0.34, stagger: 0.04, ease: 'power2.out' },
-            0.25
+            0.36
           )
           .set(face, { visibility: 'hidden' })
           // Hand layout back to CSS once nothing is animating, so the page
@@ -2162,12 +2206,36 @@ function App() {
         return;
       }
 
+      // The header block lands in place and only fades. It used to ride the
+      // same `y: 26` stagger as everything else, which meant the panel was
+      // fully opaque at ~290ms while its content was still sliding upward
+      // until ~1130ms — content visibly arriving low and then travelling up,
+      // which is what this animation kept getting reported for.
+      //
+      // Not tweening `y` here also fixes a real bug. `.pd-back` carries
+      // `transition: ... transform 160ms` for its hover nudge, and GSAP's
+      // `.from()` initialises lazily when the playhead reaches it — by then the
+      // CSS transition had already carried the transform partway, GSAP read
+      // that in-flight value as the element's resting `y`, and baked it in. The
+      // button slid *down* ~26px instead of up and stayed there for the life of
+      // the overlay (measured 25.57px at 1280x900, 18.34px at 1440x900 — a
+      // race, not a constant), leaving its gap at ~18px instead of 44px. With
+      // no transform written, the CSS keeps ownership and the hover nudge works
+      // again too; it had been dead, overridden by GSAP's leftover inline
+      // transform.
+      const hero = el.querySelectorAll('.pd-back, .pd-shot, .pd-headline');
+      const blocks = el.querySelectorAll('.pd-block');
       timeline
-        .to(el, { autoAlpha: 1, duration: 0.3, ease: 'power2.out' })
-        .from(
-          el.querySelectorAll('.pd-animate'),
-          { y: 26, opacity: 0, duration: 0.55, stagger: 0.07, ease: 'power3.out' },
-          '-=0.12'
+        .to(el, { autoAlpha: 1, duration: 0.28, ease: 'power2.out' }, 0)
+        .fromTo(hero, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, 0.06)
+        // Below the fold, so their rise is never seen arriving — but pin the
+        // end explicitly with fromTo rather than `.from()`, so no stray CSS
+        // transition can ever bake an offset in the way `.pd-back`'s did.
+        .fromTo(
+          blocks,
+          { y: 18, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: 'power2.out' },
+          0.12
         );
     },
     { dependencies: [shownProject] }

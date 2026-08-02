@@ -881,3 +881,89 @@ Production build clean.
 
 Not covered by this pass, and worth a look sometime: the resume PDFs, the strings inside
 the raster project screenshots, and colour contrast of the small grey type.
+
+## ADR-054 — The open animation's real defects, and two contribution-window bugs (2026-08-02)
+
+Context: the user reported, repeatedly, that opening a project "glitches out — it's
+displaced, it's supposed to be shown immediately up top, it shows down and then up at
+the top within a split second." Earlier passes had fixed the overlay's *origin*
+(ADR-051) but never the content's behaviour once the box was moving. Two diagnostic
+subagents measured the desktop and mobile paths per animation frame over CDP.
+
+### What was actually wrong
+
+**Desktop.** Every `.pd-animate` element was painted 26px below its resting position
+from the first visible frame, and the `.from()` was positioned `'-=0.12'` with a 0.07
+stagger — so the panel was fully opaque at ~290ms while its content was still sliding
+until ~1130ms. Content demonstrably arrived low and travelled up long after the panel
+was solid. That is the reported symptom, by design rather than by accident.
+
+Underneath it sat a genuine bug. `.pd-back` carries `transition: ... transform 160ms`
+for its `:hover { transform: translateX(-2px) }` nudge. GSAP's `.from()` initialises
+lazily when the playhead reaches it; by then the CSS transition had already carried the
+computed transform partway, GSAP read that in-flight value as the element's *resting*
+`y`, and baked it in. The button slid **down** ~26px instead of up and stayed there for
+the life of the overlay — final inline `translate(0px, 25.574px)`, still present at
+t=3000ms, and race-dependent (25.57px at 1280x900, 18.34px at 1440x900). Its gap to the
+screenshot rendered ~18px instead of the designed 44px, and its hover nudge was dead,
+overridden by GSAP's leftover inline transform.
+
+**Mobile.** Three separate things, in increasing order of how much they matter:
+- The box residual: `.project-detail-inner` is a normal-flow child of the element whose
+  `top` is being tweened, and `pinnedInnerLayout()` pins only width. `cardExpandEase`
+  has covered 95.5% by t=0.22 where the content faded in, leaving 4.5% x `origin.top`
+  (4–36px) of upward travel in plain sight.
+- **The dominant defect:** the clone and the real page are different layouts. The cloned
+  card's title rests **110.3px** above the detail page's `<h1>` and its preview ~90px
+  above `.pd-shot`, yet both layers were over 10% opaque for ~200ms — two vertically
+  offset copies of the same title and image dissolving through each other.
+- Tapping a card whose scroll-reveal `gsap.from(card, {y:36, opacity:0, scale:0.985})`
+  was still running snapshotted its in-flight inline styles into `card.outerHTML`. The
+  clone then morphed as a featureless black rectangle at `opacity: 0` with its title
+  266px out of place, and `measureOrigin()` — which neutralises `main`'s transform but
+  not the card's own — returned the scaled box, 344.75x398.68 instead of 350x404.75.
+
+### Decisions
+
+1. **Desktop hero lands in place and only fades.** `.pd-back`, `.pd-shot` and
+   `.pd-headline` get opacity only, no `y`. That removes the reported displacement and,
+   because GSAP no longer writes a transform to `.pd-back`, it removes the permanent
+   offset at its source and gives the hover nudge back to CSS. `.pd-block`s keep a small
+   staged rise — they are below the fold, so it is never seen arriving — but via
+   `fromTo` rather than `.from()`, so the end value is pinned and no stray CSS
+   transition can bake an offset in again.
+2. **Mobile hands over instead of cross-fading.** The clone is gone by 0.32 and the real
+   content starts after it. `.project-detail` and `.pd-expand-face` share `#0b0d0e`, so
+   the handover is invisible, and waiting until 0.32 also drops the box residual to
+   under a pixel. Rejected: pinning inner's vertical offset — a subagent verified
+   empirically that it puts `.pd-back` 474px above the box's top edge where
+   `overflow: hidden` deletes it, and the overflow cannot simply be dropped because the
+   real content is ~3000px tall.
+3. **Settle the card before snapshotting it.** `gsap.killTweensOf(card)` plus
+   `clearProps` before reading `outerHTML`. The card is about to be hidden by
+   `is-expand-origin`, and on close it should be at rest — which is what clearProps
+   leaves. This also fixes the bad `origin` rect.
+
+### The two contribution-window bugs (carried over from ADR-053)
+
+4. **Sunday alignment.** The grid is seven rows deep flowing column-first, so a column
+   only means "one week" if the first cell is a Sunday — which a flat `slice(-364)` of
+   data ending *today* satisfies one day in seven. It now keeps a little over 52 weeks
+   and trims from the front to the first Sunday; the last column is the current, possibly
+   partial, week, as GitHub shows.
+5. **Caption vs grid.** `pickTotal` used the API's `total.lastYear`, computed over its
+   whole returned range rather than the range drawn. Simulated across a fortnight of
+   dates, the caption disagreed with the grid on **13 days out of 14**. The total is now
+   always the sum of the cells on screen. The snapshot's own total already equalled the
+   sum of its cells, so nothing changes there.
+
+Consequences, all measured after the change: mobile travel-while-visible **0px** (was
+4–36), double-image window **0ms** (was ~200ms), clone-vs-real title gap **0** (was
+110.3px), with the box fully landed and the clone gone before content appears. Desktop
+back/headline/shot travel **0px** each (was 26), `.pd-back` final transform `none` (was a
+permanent `translate(0px, 25.574px)`), inline style just `opacity: 1`, and its gap back
+to the designed **44px**. The open still writes the tapped card's exact rect and the
+close still lands on it. The grid fix proved itself live: this ran on Sunday 2026-08-02,
+exactly the case the old code got wrong, and rendered a Sunday-aligned 53-column grid
+with caption 587 equal to the sum of its cells. 28 route x locale x breakpoint combos
+clean, 0 console errors, 0 responses >= 400. Production build clean.
