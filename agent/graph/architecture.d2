@@ -15,11 +15,13 @@ browser: "Browser" {
   cards: "Project cards"
   details: "Detail overlay"
   activity: "Contribution grid"
+  mascot: "Daijin mascot"
 
   shell -> app
   app -> cards
   cards -> details: "full-card clone + measured rect"
   app -> activity
+  app -> mascot: "section triggers once + hold"
 }
 
 presentation: "Presentation" {
@@ -31,6 +33,7 @@ presentation: "Presentation" {
 content: "Local content" {
   data: "EN / JA data"
   media: "Project assets"
+  mascot_media: "Daijin WebP pairs"
   resume: "Resume PDFs"
 }
 
@@ -44,3 +47,4 @@ browser.app -> content.data
 browser.cards -> content.media
 browser.app -> content.resume
 browser.activity -> github: "rolling 12 months"
+browser.mascot -> content.mascot_media: "selected canvas frames"

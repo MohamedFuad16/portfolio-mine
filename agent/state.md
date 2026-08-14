@@ -1,12 +1,47 @@
 # State
 
-> Last updated: 2026-08-02 · HEAD: main (see git log)
+> Last updated: 2026-08-14 · HEAD: main (see git log)
 
 ## Current state summary
 
-The workspace contains a Vite React portfolio inspired by `manixh.dev`, populated with Mohamed Fuad's CV content. It uses a professional headshot with a two-sided LinkedIn QR card, bilingual EN/JA copy, expandable work rows, a live rolling-12-month GitHub contribution grid, GSAP motion, and hash-routed project detail views. The homepage positions Mohamed as a third-year Information and Communication Technology student working toward Forward Deployed Engineering, with the symbol-only Tokai University mark in the profile metadata. Project cards use consistent 16:9 previews and a full-width, single-line technology rail. ClaudeShot has replaced Codex Account Switcher. On mobile, the entire tapped project card expands into the full-screen detail overlay and reverses back to its original rectangle on close. Latest checks (2026-07-22) verified the transition in flight and at both endpoints, reverse navigation, desktop/mobile layout, the symbol-only university mark, no horizontal overflow, and a clean production build. Install and build with pnpm.
+The workspace contains a Vite React portfolio inspired by `manixh.dev`, populated with Mohamed Fuad's CV content. It uses a professional headshot with a two-sided LinkedIn QR card, bilingual EN/JA copy, expandable work rows, a live rolling-12-month GitHub contribution grid, GSAP motion, and hash-routed project detail views. A fixed Daijin mascot now acts as a desktop-only section companion from a responsive left rail: it touches and plays with the portrait, then sits left of each active heading with breathing room. It uses an imperative 512×512 canvas and authored atlas frames without rerendering React per frame. Each section triggers one contextual performance and holds without an Idle turnaround. Playful is restricted to the clean front-facing reach frames 9–23–9, skipping the malformed turn/back-view passage. The active assets decode on demand, all 18 optimized files total 12.27 MB, and phones mount no mascot or images. The production build is clean on Node 25. Install and build with pnpm.
 
 ## Recent changes
+
+- 2026-08-14 (responsive left rail + clean portrait reach — ADR-059): Put Daijin to the left of the
+  portrait and section headings, with a separate inward profile offset so the drawn paw—not merely
+  the transparent canvas—touches the photo. Extended the card play to 3.2s. Removed the Idle handoff
+  and restricted Playful to a one-shot 9→23→9 reach, excluding the corrupted turnaround and entire
+  back-view sheet. Browser QA sampled only those front-facing frames and measured a 26px canvas/photo
+  overlap with vertically aligned centres; production build passes.
+
+- 2026-08-14 (mascot breathing room — ADR-058): Reduced the desktop mascot from 132px to 112px and
+  reserved a 132px top header area while leaving mobile padding unchanged. Measured 20px clear space
+  between Daijin and the profile photo at 1280px and 33px between Daijin and Skills immediately before
+  its interaction threshold; neither element overlaps now. Verified live screenshot and clean build.
+
+- 2026-08-14 (fixed left perch + one-shot interactions — ADR-057): Removed all rightward and vertical
+  mascot travel. Daijin now stays overlapped with the profile photo's top-left while headings scroll
+  up to him. Profile/Skills/Experience/Contributions/Projects/Writing/Contact trigger one complete
+  Playful/Clever/Working/Thinking/Curious/Listening/Happy performance, hold the final frame, then
+  settle into Idle. Section titles receive a small elastic push, and Playful rotates the profile card
+  through a restrained CSS keyframe. Verified a full Clever 1→46 trace, Idle handoff at 2.6s,
+  repeated down/up/down triggers, fixed x=241 at 1280px, and live title/photo transforms.
+
+- 2026-08-14 (section-aware low-cost Daijin — ADR-056): Replaced React/SVG frame updates with one
+  imperative 512px canvas, downsized the 18 atlases from 6144×4096 to 3072×2048, removed the animated
+  drop-shadow, and added a 280ms bridge only between complete clips. Mapped Playful/Clever/Working/
+  Thinking/Curious/Listening/Happy to Profile/Skills/Experience/Contributions/Projects/Writing/Contact
+  and moved the mascot between a profile perch and right-rail positions. Duplicate browser refreshes
+  are skipped while the authored frame is unchanged. Verified live section
+  selection, advancing frames, correct placement, successful asset decoding, and a clean build.
+
+- 2026-08-14 (Daijin desktop mascot — ADR-055): Pulled the latest main branch through `077d5bc`,
+  added a fixed bottom-right Daijin mascot using nine paired 6144×4096 WebP atlases, and connected
+  real scroll progress to shuffled non-repeating clip selection while playback remains time-based.
+  The mascot is hidden at `<=760px`, during project detail views, and from pointer interaction.
+  Verified Idle→Walk on real scroll with advancing frames, desktop rendering, 390×844 hiding, no
+  horizontal overflow, no browser warnings/errors, and a clean production build. No push or commit.
 
 - 2026-08-02 (open-animation glitch finally diagnosed and fixed; contribution window corrected — ADR-054): Two subagents measured the open per animation frame. **Desktop**: every `.pd-animate` element painted 26px low and was still sliding at ~1130ms while the panel was opaque at ~290ms — plus a real bug where `.pd-back`'s `transition: transform 160ms` (for its hover nudge) swallowed GSAP's lazily-initialised `.from()`, so the button slid *down* ~26px and stayed there permanently (25.57px at 1280, 18.34px at 1440 — a race), leaving its gap ~18px instead of 44px. **Mobile**: the clone and the real page are different layouts whose titles rest 110.3px apart, and both were over 10% opaque for ~200ms, so two offset copies dissolved through each other; on top of that the content rode the box's remaining travel (up to 36px), and tapping a card mid scroll-reveal baked `opacity: 0; transform: translate(0,36px) scale(0.985)` into the clone. Fixed by landing the desktop hero in place (opacity only — which also stops GSAP writing transforms to `.pd-back`), handing over on mobile instead of cross-fading, and settling the card before snapshotting it. Also fixed the two contribution-window issues left open on 2026-08-02: the grid now offsets its first cell into its own weekday row so every column is a real week without discarding any days (trimming to a Sunday was tried first and would have thrown away six days of the very next snapshot, which starts on a Monday), and the caption total is always the sum of the cells drawn (the API's own year total disagreed with the grid on 13 days of 14). Verified: travel 0px everywhere, double-image 0ms, `.pd-back` transform `none` and gap 44px, and the grid fix proved live on a Sunday — the exact case the old code got wrong.
 

@@ -11,6 +11,7 @@ import { useGSAP } from '@gsap/react';
 import { BorderBeam } from 'border-beam';
 import { ThinkingOrb } from 'thinking-orbs';
 import { signaturePath, signatureViewBox, signatureStrokeWidth } from './signature-path';
+import { DaijinMascot } from './DaijinMascot';
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -1075,8 +1076,12 @@ function useReducedMotion() {
   return reduced;
 }
 
-function SectionTitle({ children }) {
-  return <h2 className="section-title">{children}</h2>;
+function SectionTitle({ children, mascot }) {
+  return (
+    <h2 className="section-title" data-daijin-title={mascot}>
+      {children}
+    </h2>
+  );
 }
 
 function Signature() {
@@ -1925,6 +1930,7 @@ function App() {
   const [clickBursts, setClickBursts] = useState([]);
   const [route, setRoute] = useState(() => window.location.hash);
   const [shownProject, setShownProject] = useState(null);
+  const [mascotScene, setMascotScene] = useState({ clip: 'playful', scene: 'profile' });
   const reducedMotion = useReducedMotion();
   const visitorCount = useVisitorCount();
   const mainRef = useRef(null);
@@ -1941,6 +1947,7 @@ function App() {
   const pushedDetailRef = useRef(false);
   // The control that opened the overlay, so focus can go back to it on close.
   const detailReturnFocusRef = useRef(null);
+
   const t = copy[locale];
   const activeProject = projects.find((p) => route === `#/project/${p.slug}`) || null;
   const openProject = (slug, trigger) => {
@@ -2554,6 +2561,92 @@ function App() {
           ease,
         });
 
+        const mascotScenes = [
+          { trigger: '.profile', partner: '.avatar-shell', clip: 'playful', scene: 'profile' },
+          {
+            trigger: '[data-daijin-title="skills"]',
+            partner: '[data-daijin-title="skills"]',
+            clip: 'clever',
+            scene: 'skills',
+          },
+          {
+            trigger: '[data-daijin-title="work"]',
+            partner: '[data-daijin-title="work"]',
+            clip: 'working',
+            scene: 'work',
+          },
+          {
+            trigger: '.contribution',
+            partner: '.contribution',
+            clip: 'thinking',
+            scene: 'contributions',
+          },
+          {
+            trigger: '[data-daijin-title="projects"]',
+            partner: '[data-daijin-title="projects"]',
+            clip: 'curious',
+            scene: 'projects',
+          },
+          {
+            trigger: '[data-daijin-title="thoughts"]',
+            partner: '[data-daijin-title="thoughts"]',
+            clip: 'listening',
+            scene: 'writing',
+          },
+          {
+            trigger: '.contact-card',
+            partner: '.contact-card h3',
+            clip: 'happy',
+            scene: 'contact',
+          },
+        ];
+        const showMascotScene = (scene) => {
+          const next = { clip: scene.clip, scene: scene.scene };
+          setMascotScene((current) =>
+            current.clip === next.clip && current.scene === next.scene ? current : next
+          );
+          const partner = mainRef.current?.querySelector(scene.partner);
+          if (partner && scene.scene !== 'profile') {
+            gsap.killTweensOf(partner);
+            gsap.fromTo(
+              partner,
+              { x: -8, rotation: -1.4 },
+              {
+                x: 0,
+                rotation: 0,
+                duration: 0.9,
+                ease: 'elastic.out(1, 0.42)',
+                clearProps: 'transform',
+              }
+            );
+          }
+        };
+        let mascotSceneStarts = [];
+        let mascotSceneIndex = -1;
+        const measureMascotScenes = () => {
+          mascotSceneStarts = mascotScenes.map((scene) => smoother.offset(scene.trigger, 'top 150px'));
+        };
+        const syncMascotScene = (scrollPosition) => {
+          let nextIndex = 0;
+          mascotSceneStarts.forEach((start, index) => {
+            if (scrollPosition >= start) nextIndex = index;
+          });
+          if (nextIndex === mascotSceneIndex) return;
+          mascotSceneIndex = nextIndex;
+          showMascotScene(mascotScenes[nextIndex]);
+        };
+        measureMascotScenes();
+        ScrollTrigger.create({
+          trigger: mainRef.current,
+          start: 'top top',
+          end: 'bottom bottom',
+          onRefresh: (self) => {
+            measureMascotScenes();
+            syncMascotScene(self.scroll());
+          },
+          onUpdate: (self) => syncMascotScene(self.scroll()),
+        });
+
         // Smooth-scroll the hero's "#projects" link instead of jumping.
         const buildingLink = mainRef.current?.querySelector('.building');
         const smoothScroll = contextSafe((event) => {
@@ -2645,6 +2738,14 @@ function App() {
           originMarkup={detailOriginMarkupRef.current}
         />
       )}
+      {!shownProject && (
+        <DaijinMascot
+          clip={mascotScene.clip}
+          scene={mascotScene.scene}
+          loop={false}
+          reducedMotion={reducedMotion}
+        />
+      )}
       <div id="smooth-wrapper" ref={smoothWrapperRef}>
         <div id="smooth-content" ref={smoothContentRef}>
           <main ref={mainRef}>
@@ -2652,7 +2753,13 @@ function App() {
         {/* The beam traces the photo's edge; the QR toggle is a sibling of the
             beam, not a child, so BorderBeam keeps its own clipping and the
             button is never cut off or haloed (ADR-034). */}
-        <div className="avatar-shell">
+        <div
+          className={`avatar-shell ${
+            mascotScene.scene === 'profile' && mascotScene.clip === 'playful'
+              ? 'daijin-playing-with-photo'
+              : ''
+          }`}
+        >
         <BorderBeam
           className="avatar-beam"
           size="md"
@@ -2791,7 +2898,7 @@ function App() {
         </a>
       </nav>
 
-      <SectionTitle>{t.skills}</SectionTitle>
+      <SectionTitle mascot="skills">{t.skills}</SectionTitle>
       <div className="skills-marquees" aria-label={t.a11y.skillsCarousel}>
         {skillRows.map((row, rowIndex) => (
           <div className="skills-marquee" data-direction={rowIndex === 0 ? 'left' : 'right'} key={rowIndex}>
@@ -2804,7 +2911,7 @@ function App() {
         ))}
       </div>
 
-      <SectionTitle>{t.work}</SectionTitle>
+      <SectionTitle mascot="work">{t.work}</SectionTitle>
       <section className="dashed timeline">
         <div className="line" />
         {experience.map((item) => (
@@ -2814,7 +2921,7 @@ function App() {
 
       <ContributionGrid t={t} locale={locale} />
 
-      <SectionTitle>{t.projects}</SectionTitle>
+      <SectionTitle mascot="projects">{t.projects}</SectionTitle>
       <section className="projects" id="projects">
         {projects.map((project) => (
           <ProjectCard key={project.title} project={project} t={t} locale={locale} onOpen={openProject} />
@@ -2828,7 +2935,7 @@ function App() {
         </a>
       </div>
 
-      <SectionTitle>{t.thoughtsTitle}</SectionTitle>
+      <SectionTitle mascot="thoughts">{t.thoughtsTitle}</SectionTitle>
       <section className="dashed blog-content">
         <p>
           {t.thoughts}{' '}

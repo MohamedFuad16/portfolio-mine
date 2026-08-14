@@ -528,6 +528,34 @@ main {
   flex: 0 0 auto;
 }
 
+.avatar-shell.daijin-playing-with-photo {
+  transform-origin: 50% 85%;
+  animation: daijin-photo-play 3.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes daijin-photo-play {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  18% {
+    transform: rotate(-2.6deg);
+  }
+
+  46% {
+    transform: rotate(2deg);
+  }
+
+  72% {
+    transform: rotate(-0.7deg);
+  }
+
+  88% {
+    transform: rotate(0.35deg);
+  }
+}
+
 .avatar-beam {
   width: 100%;
   height: 100%;
@@ -2301,6 +2329,12 @@ footer {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .avatar-shell.daijin-playing-with-photo {
+    animation: none;
+  }
+}
+
 @media (max-width: 560px) {
   /* Two-row summary: icon | name+role, with the date tucked underneath,
      so the company name never fights an 82px date column for space. */
@@ -2409,4 +2443,59 @@ footer {
     width: 100%;
   }
 }
+.daijin-mascot {
+  position: fixed;
+  z-index: 24;
+  top: 108px;
+  left: max(12px, calc(50vw - 468px));
+  width: 112px;
+  height: 112px;
+  pointer-events: none;
+  contain: strict;
+  transition: top 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
 
+.daijin-mascot[data-scene='profile'] {
+  top: 76px;
+  /* The playful pose has transparent breathing room on its right edge. Move
+     only the portrait scene into the photo so the drawn tail/paw—not merely
+     the 512px canvas box—actually meets the card. Section scenes keep their
+     wider reading gap. */
+  left: max(54px, calc(50vw - 426px));
+}
+
+.daijin-mascot canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 760px) {
+  .daijin-mascot {
+    display: none;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1000px) {
+  main {
+    width: min(700px, calc(100% - 220px));
+  }
+
+  .daijin-mascot {
+    top: 124px;
+    left: max(32px, calc(50vw - 428px));
+    width: 80px;
+    height: 80px;
+  }
+
+  .daijin-mascot[data-scene='profile'] {
+    top: 92px;
+    left: max(64px, calc(50vw - 396px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .daijin-mascot {
+    transition: none;
+  }
+}

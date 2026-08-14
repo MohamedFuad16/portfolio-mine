@@ -1,5 +1,33 @@
 # Errors
 
+- Daijin's Playful source has a malformed in-between at frame 8 followed by a turn/back-view passage.
+  Playing all 46 frames makes the portrait gesture appear to spin and glitch. Keep the profile path
+  restricted to clean front-facing frames 9→23→9 and decode only sheet A for it. The visible drawing
+  also has transparent right padding, so canvas-box spacing is not visual spacing: profile mode needs
+  its dedicated inward offset while section scenes use the wider left-rail coordinate.
+
+- Daijin clips use two 3072×2048 6×4 WebP sheets with 512×512 cells: `-a.webp` is frames 0–22 and
+  `-b.webp` is 23–45. Keep the final cell empty and draw only the exact 512px source crop, or
+  neighboring frames become visible. The 18 optimized files are 12.27 MB; one active
+  pair is about 48 MB decoded. Keep playback on the imperative canvas and decode only the current pair.
+- Semantic section position selects Daijin's clip; it must not be used as the frame clock. The component uses
+  elapsed time through `requestAnimationFrame`, skips frames after lag, and freezes its poster under
+  `prefers-reduced-motion`. Scrubbing the frame index directly from scroll recreates visible cuts.
+- Context performances are one-shot and hold their final selected frame. Do not restore the timed
+  transition to Idle: it reads as an unrelated turnaround after every reaction and a stale timer can
+  also overwrite a newer section. Full clips clamp at frame 46; Playful follows its explicit frame path.
+- Daijin intentionally stays at one fixed top-left coordinate. Titles are timed to cross his perch and
+  receive a short transform, rather than moving the mascot vertically or into a right rail. Keep the
+  top-left `right:min(...)` clamp synchronized with the 760px mobile cutoff.
+- The fixed mascot needs reserved document space even though it is outside normal flow. Desktop main
+  padding is 132px and mascot height is 112px at top 10px; reducing that padding or enlarging Daijin
+  recreates the portrait/title collision. Do not copy the desktop padding into the <=760px rule.
+- The mascot belongs outside `#smooth-wrapper`: a fixed descendant of ScrollSmoother's transformed
+  content is fixed to that transform rather than to the viewport. Keep `pointer-events:none`, hide it
+  at `max-width:760px`, and unmount it while a project detail is shown.
+- Interrupted `cwebp` runs can leave zero-byte files. Validate every Daijin atlas with an image
+  decoder and exact 3072×2048 dimensions before trusting filename presence.
+
 - System `pdftotext` is not installed. Use bundled Python with `pdfplumber` for CV extraction.
 - The shared `adr_index.sh` parser does not understand this repository's `## ADR-001 - date - title` headings; it leaves the date in the title and cannot read `Status:` from the following line. After running it, normalize the generated table manually unless the ADR heading format is migrated first.
 - The agent-folder skill is installed under `~/.codex/skills/agent-folder/` in Codex; the `~/.claude/skills/agent-folder/` example path in its documentation may not exist. Resolve the scripts from the active skill directory before running graph or ADR helpers.

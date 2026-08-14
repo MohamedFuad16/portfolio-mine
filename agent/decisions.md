@@ -1,39 +1,67 @@
-# Decisions
-
 ## Index
 
 | ADR | Title | Status |
 |-----|-------|--------|
-| ADR-001 | Use Vite React Static Portfolio | Accepted |
-| ADR-002 | Generate Local Bitmap Portfolio Visuals | Accepted |
-| ADR-003 | Use Live Project Screenshots And Public Logo Assets | Accepted |
-| ADR-004 | Match Reference Portfolio Measurements | Accepted |
-| ADR-005 | Use Local Avatar Decoration Layer | Accepted |
-| ADR-006 | Prefer Local Icon Components And Bilingual Runtime Copy | Accepted |
-| ADR-007 | Use Flip QR Avatar And Browser-Locale Copy | Accepted |
-| ADR-008 | Download Remote Favicons Locally, Never Hotlink | Accepted |
-| ADR-009 | Untrack node_modules and dist, Never Commit Build Output | Accepted |
-| ADR-010 | Prevent Title Wrapping With Ellipsis, Not Just flex-wrap | Accepted |
-| ADR-011 | Delay `visibility` Transitions Instead of Snapping Them | Accepted |
-| ADR-012 | Give Every Interactive Element a Transitioned Hover State | Accepted |
-| ADR-013 | Add GSAP + ScrollTrigger for Scroll Reveals via useGSAP | Accepted |
-| ADR-014 | Timeline Dots: Keep Flat Original Style, Fix Only Alignment | Accepted |
-| ADR-015 | Project Title: nowrap + Wrapping Heading Row | Accepted |
-| ADR-016 | Adapt Reference-Image UI Patterns: Timeline Nodes, Segmented Locale Pill, Waveform Divider | Accepted |
-| ADR-017 | GSAP Pass 2: Coordinated Hero Timeline, Per-Card Reveals, Scrubbed Parallax, ScrollTo Anchors | Accepted |
-| ADR-018 | ScrollSmoother + DrawSVG Signature + SplitText: the Three Gotchas That Cost Debugging Time | Accepted |
-| ADR-019 | Round-2 Reference Adaptations and Responsive Restructure | Accepted |
-| ADR-020 | Drop the Signature Pin; Hero Order Is Name → Building → Handle | Accepted |
-| ADR-021 | Signature redesign: single-stroke "hello"-style monoline (Hershey Script), replacing the Great Vibes fill | Accepted |
-| ADR-022 | Signature: drop the red dot, add a perpetual tracing-highlight loop | Accepted |
-| ADR-023 | Mobile layout polish, brighter dashed borders, and Android-jank mitigation | Accepted |
-| ADR-024 | Tap effect: water-ripple rings (user pick) replacing the ring + dots | Accepted |
-| ADR-026 | Hash-routed bilingual project detail pages + Qiita notes + headshot | Accepted |
-| ADR-027 | Use fitted 16:9 project captures and lightweight system maps | Accepted |
-| ADR-028 | Full-width technology rails, ClaudeShot, and mobile shared-element expansion | Accepted |
-| ADR-029 | Expand the complete mobile project card and use a retro coin sound | Accepted |
-| ADR-030 | Use the supplied achievement-completed interaction sound | Accepted |
-| ADR-031 | Keep interactive controls silent | Accepted |
+| ADR-001 | - 2026-07-04 - Use Vite React Static Portfolio | — |
+| ADR-002 | - 2026-07-04 - Generate Local Bitmap Portfolio Visuals | — |
+| ADR-003 | - 2026-07-04 - Use Live Project Screenshots And Public Logo Assets | — |
+| ADR-004 | - 2026-07-04 - Match Reference Portfolio Measurements | — |
+| ADR-005 | - 2026-07-04 - Use Local Avatar Decoration Layer | — |
+| ADR-006 | - 2026-07-04 - Prefer Local Icon Components And Bilingual Runtime Copy | — |
+| ADR-007 | - 2026-07-04 - Use Flip QR Avatar And Browser-Locale Copy | — |
+| ADR-008 | - 2026-07-05 - Download Remote Favicons Locally, Never Hotlink | — |
+| ADR-009 | - 2026-07-05 - Untrack node_modules and dist, Never Commit Build Output | — |
+| ADR-010 | - 2026-07-05 - Prevent Title Wrapping With Ellipsis, Not Just flex-wrap | — |
+| ADR-011 | - 2026-07-05 - Delay `visibility` Transitions Instead of Snapping Them | — |
+| ADR-012 | - 2026-07-05 - Give Every Interactive Element a Transitioned Hover State | — |
+| ADR-013 | - 2026-07-05 - Add GSAP + ScrollTrigger for Scroll Reveals via useGSAP | — |
+| ADR-014 | - 2026-07-05 - Timeline Dots: Keep Flat Original Style, Fix Only Alignment | — |
+| ADR-015 | - 2026-07-05 - Project Title: nowrap + Wrapping Heading Row | — |
+| ADR-016 | - 2026-07-06 - Adapt Reference-Image UI Patterns: Timeline Nodes, Segmented Locale Pill, Waveform Divider | — |
+| ADR-017 | - 2026-07-06 - GSAP Pass 2: Coordinated Hero Timeline, Per-Card Reveals, Scrubbed Parallax, ScrollTo Anchors | — |
+| ADR-018 | - 2026-07-06 - ScrollSmoother + DrawSVG Signature + SplitText: the Three Gotchas That Cost Debugging Time | — |
+| ADR-019 | - 2026-07-06 - Round-2 Reference Adaptations and Responsive Restructure | — |
+| ADR-020 | - 2026-07-06 - Drop the Signature Pin; Hero Order Is Name → Building → Handle | — |
+| ADR-021 | - 2026-07-06 - Signature redesign: single-stroke "hello"-style monoline (Hershey Script), replacing the Great Vibes fill | — |
+| ADR-022 | - 2026-07-06 - Signature: drop the red dot, add a perpetual tracing-highlight loop | — |
+| ADR-023 | - 2026-07-06 - Mobile layout polish, brighter dashed borders, and Android-jank mitigation | — |
+| ADR-024 | - 2026-07-06 - Tap effect: water-ripple rings (user pick) replacing the ring + dots | — |
+| ADR-026 | - 2026-07-08 - Hash-routed bilingual project detail pages + Qiita notes + headshot | — |
+| ADR-027 | - 2026-07-21 - Use fitted 16:9 project captures and lightweight system maps | — |
+| ADR-028 | - 2026-07-21 - Full-width technology rails, ClaudeShot, and mobile shared-element expansion | — |
+| ADR-029 | - 2026-07-22 - Expand the complete mobile project card and use a retro coin sound | — |
+| ADR-030 | - 2026-07-22 - Use the supplied achievement-completed interaction sound | — |
+| ADR-031 | - 2026-07-22 - Keep interactive controls silent | — |
+| ADR-032 | - 2026-07-25 - Whole experience card toggles, dots re-anchored | — |
+| ADR-033 | - 2026-07-25 - Contribution snapshot refreshed by GitHub Actions | — |
+| ADR-034 | - 2026-07-25 - Border beam and thinking orb | — |
+| ADR-035 | - 2026-07-25 - Project detail gains a real flow chart | — |
+| ADR-036 | - 2026-07-25 - Pin detail content width during the mobile expand | — |
+| ADR-037 | - 2026-07-26 - Fix real bugs found after the previous session's mobile "verification" | — |
+| ADR-038 | - 2026-07-26 - Avatar glow offset on mobile, bio split, and a real mobile card-expand bug | — |
+| ADR-039 | - 2026-07-26 - Excalidraw-style hand-drawn flow chart | — |
+| ADR-040 | - 2026-07-26 - Mobile detail header shares the image's animation track, not the staggered reveal | — |
+| ADR-041 | - 2026-07-26 - Flow chart connector lines: filter region must not depend on a zero-area bounding box | — |
+| ADR-042 | - 2026-07-29 - Repository-wide bug sweep: layout drift, modal semantics, toolchain pinning | — |
+| ADR-043 | - 2026-07-29 - Two current projects added; private repos and detail depth | — |
+| ADR-044 | - 2026-07-29 - The flow chart's hand-drawn filter was invisible; commit to a precise diagram | — |
+| ADR-045 | - 2026-07-29 - Project order, a "New" flag, and the title gets its own line | — |
+| ADR-046 | - 2026-07-29 - The mobile card-expand clone was reflowing; pin it to the origin card | — |
+| ADR-047 | - 2026-07-29 - The mobile close measured its target through a scaled ancestor | — |
+| ADR-048 | - 2026-07-29 - Shimmer heading and a visitor counter with number pop-in | — |
+| ADR-049 | — Human-voiced copy for Internship Portal and AI Brain Platform (2026-07-30) | — |
+| ADR-050 | — A two-line label must straddle a diamond's midline (2026-07-30) | — |
+| ADR-051 | — GSAP applies vars in reverse, so never mix `inset` with `left`/`top` (2026-07-30) | — |
+| ADR-052 | — Japanese is a real locale, not a translation layer (2026-07-30) | — |
+| ADR-053 | — Copy consistency pass, and the Japanese spacing trap (2026-08-02) | — |
+| ADR-054 | — The open animation's real defects, and two contribution-window bugs (2026-08-02) | — |
+| ADR-055 | — Daijin is a desktop-only, time-driven scroll companion (2026-08-14) | — |
+| ADR-056 | — Use semantic scenes and an imperative half-scale canvas (2026-08-14) | — |
+| ADR-057 | — Keep one left perch and make section performances one-shot (2026-08-14) | — |
+| ADR-058 | — Reserve a mascot header gap instead of overlapping content (2026-08-14) | — |
+| ADR-059 | — Use a responsive left rail and exclude the Playful turnaround (2026-08-14) | — |
+
+# Decisions
 
 ## ADR-001 - 2026-07-04 - Use Vite React Static Portfolio
 
@@ -975,3 +1003,111 @@ exactly the case the old code got wrong, and rendered a correctly weekday-aligne
 53-column grid — seven rows, zero rows mixing weekdays, all 364 days kept — with caption
 587 equal to the sum of its cells. 28 route x locale x breakpoint combos
 clean, 0 console errors, 0 responses >= 400. Production build clean.
+
+## ADR-055 — Daijin is a desktop-only, time-driven scroll companion (2026-08-14)
+
+Status: Accepted.
+
+Context: The finished Daijin mascot was built as complete traditional-animation frames in a separate
+lab. The portfolio needs the character at the bottom-right without disturbing its dense mobile
+layout, inheriting ScrollSmoother transforms, blocking controls, or turning scrolling into choppy
+frame scrubbing. Copying all 15 lossless lab clips would also add unnecessary download weight.
+
+Decision: Add `DaijinMascot` outside `#smooth-wrapper` and render a persistent 1024×1024 SVG viewport
+over one of nine optimized paired WebP clips. Playback uses elapsed time and `requestAnimationFrame`;
+the existing scoped ScrollTrigger only chooses a shuffled, non-repeating clip from progress bands.
+Hide the mascot at 760px and below, set `pointer-events:none`, freeze a poster frame for reduced
+motion, and unmount it while a project detail is open. Keep the files local under
+`public/assets/daijin/` and do not depend on the mascot lab server.
+
+Consequences: The desktop mascot remains anchored to the viewport, changes personality naturally as
+the visitor moves through the page, and continues smooth animation between scroll events. Phones pay
+no decoded-image or layout cost because CSS hides the component. The selected nine clip pairs add
+about 27.3 MB of compressed public assets; future work should retain paired lazy loading and validate
+every atlas rather than preloading the full library.
+
+## ADR-056 — Use semantic scenes and an imperative half-scale canvas (2026-08-14)
+
+Status: Accepted; refines ADR-055.
+
+Context: The first portfolio integration decoded two 6144×4096 atlases per active clip, roughly
+192 MB of RGBA pixels, and changed React state at up to 24 fps. The animated CSS drop-shadow added
+another full transparent-layer filter each frame. Scroll bands selected clips arbitrarily, and a
+hard change between independently drawn poses exposed the different body silhouettes.
+
+Decision: Downsample the portfolio copies to 3072×2048 with 512×512 cells, which is still slightly
+above 2× the largest CSS display size. Draw crops imperatively into one 512×512 canvas and update only
+diagnostic data attributes, not React state. Remove the drop-shadow, decode only the active pair, and
+blend the retained old canvas into the new clip over 280ms at section boundaries. Replace arbitrary
+bands with semantic scenes: Profile→Playful, Skills→Clever, Experience→Working,
+Contributions→Thinking, Projects→Curious, Writing→Listening, and Contact→Happy. Move between a small
+profile perch and three right-rail positions with a contained CSS transition.
+
+Consequences: Active decoded memory falls to about 48 MB, the complete portfolio mascot asset set is
+12.27 MB, React does no frame-rate work, and the canvas redraws only when the authored frame advances
+after the brief transition. Internal clips remain traditional frame animation; only
+the boundary between two complete performances blends. Daijin now relates to the content currently
+being viewed and phones do not mount or decode the component. New sections must be placed in the scene
+map in document order, and atlas copies must remain 3072×2048.
+
+## ADR-057 — Keep one left perch and make section performances one-shot (2026-08-14)
+
+Status: Accepted; refines ADR-056.
+
+Context: Moving Daijin from the profile to high/middle/low right-rail positions made the mascot feel
+detached from the page. The long vertical travel was visible during scrolling, and looping a new clip
+for an entire section read as a background GIF rather than a character reacting. A short clip blend
+did not solve the spatial mismatch.
+
+Decision: Keep the mascot fixed at one clamped top-left coordinate, overlapping the profile photo and
+remaining on the left for the whole desktop visit. Measure section thresholds so their headings
+scroll up to that perch. Trigger one complete contextual clip per crossing, clamp non-Idle playback at
+frame 46, then use a React effect keyed by clip and scene to return to looping Idle. Give SectionTitle
+stable `data-daijin-title` partner hooks and play one restrained elastic nudge when Skills, Work,
+Projects, or Thoughts reaches Daijin; nudge the Contribution block and Contact heading similarly.
+During the profile Playful action, apply a one-shot CSS keyframe that rotates the photo shell left,
+right, and back to rest. Disable the photo keyframe under reduced motion.
+
+Consequences: Daijin has a stable spatial relationship with the portrait and never slides vertically
+or crosses to the right. Reactions read as discrete performances with a clear start and finish, can
+retrigger when scrolling back, and remain independent of scroll velocity. Partner selectors and scene
+order are now part of the interaction contract; adding a heading requires both its data hook and scene
+entry. Idle remains the only intentional infinite clip.
+
+## ADR-058 — Reserve a mascot header gap instead of overlapping content (2026-08-14)
+
+Status: Accepted; refines ADR-057.
+
+Context: A 132px fixed mascot at top 10px extended to y=142 while the profile photo began near y=70.
+The deliberate overlap covered the portrait and, while scrolling, put Daijin directly on top of the
+section title. This looked crowded at both full desktop and the narrower split-browser width.
+
+Decision: Reduce Daijin to 112×112 and increase desktop main top padding from 58px to 132px. Keep the
+mascot at top 10px, the semantic section trigger at top 150px, and the existing <=760px main padding
+of 46px because the mascot is not mounted there.
+
+Consequences: At 1280px, Daijin ends at y=122 and the portrait begins at y=142, producing a measured
+20px clear gap. Titles meet the perch around y=150–155, producing 28–33px of breathing room while
+remaining close enough for the nudge interaction to read. The extra desktop header height is now part
+of the mascot layout contract.
+
+## ADR-059 — Use a responsive left rail and exclude the Playful turnaround (2026-08-14)
+
+Status: Accepted; supersedes ADR-057's Idle handoff and ADR-058's above-content gap.
+
+Context: The above-image perch still did not match the intended composition: Daijin belongs beside
+the portrait and beside each section title. Canvas bounds also overstated the visual reach because
+the sprite contains transparent padding. More importantly, Playful's source sheet contains a
+malformed generated in-between and an unwanted back-view turn, so playing all 46 frames created the
+reported spin/glitch even after the Idle transition was removed.
+
+Decision: Restore the original desktop top padding and reserve a responsive left rail. Use a
+profile-only horizontal inset so the drawn paw crosses the portrait edge, while non-profile scenes
+use the wider heading coordinate. Extend the card-rock keyframe to 3.2 seconds. Give Playful an
+explicit front-facing frame path (9 through 23, then back to 9), decode only sheet A for that path,
+and hold the final selected frame. Do not automatically transition contextual clips to Idle.
+
+Consequences: Daijin now reads as physically beside the current element, touches the photo during the
+reach, and never displays the corrupted turn or back-view frames. The portrait uses a deliberate
+overlap while headings retain breathing room. Clip-specific frame paths are now part of the renderer
+contract and can exclude bad source passages without regenerating the atlas.

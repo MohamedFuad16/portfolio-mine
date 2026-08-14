@@ -1,6 +1,21 @@
 # Components
 
 - `App`: page composition and section order. Holds the single `useGSAP(..., { scope: mainRef })` block (GSAP + ScrollTrigger) that drives all scroll/entrance animations, gated by `gsap.matchMedia` for reduced-motion. Add new scroll animations there, not as separate effects (see ADR-013).
+- `DaijinMascot`: desktop-only fixed mascot outside `#smooth-wrapper`. It decodes only the active
+  clip's needed 6×4 WebP atlas sheets, crops authored frames into an imperative 512×512 canvas, skips
+  duplicate browser refreshes while the authored frame is unchanged, and exposes clip/frame/scene
+  data attributes for diagnostics. React does not rerender per frame. `App` maps semantic page
+  sections to deliberate one-shot clips through one scoped ScrollTrigger; a 280ms bridge hides the
+  pose jump before the action holds its last selected frame. Playful uses a clean front-facing
+  9→23→9 reach timeline and never decodes its corrupted turn/back-view sheet.
+- Daijin partners: `SectionTitle` emits `data-daijin-title` hooks for Skills, Work, Projects, and
+  Thoughts. Crossing the fixed top threshold plays an elastic title nudge; Contributions nudges its
+  grid and Contact nudges its heading. The profile shell gets the `daijin-playing-with-photo` class,
+  whose 3.2-second CSS keyframe rocks and releases the photo without fighting GSAP transforms.
+- Daijin spacing: at desktop widths the mascot occupies a responsive fixed left rail. Profile mode
+  shifts the canvas inward so the visible reaching paw overlaps the portrait edge; every section
+  mode returns to the wider rail position beside its heading. At 761–1000px the rail uses an 80px
+  mascot and reserves 220px beside `main`. The mascot remains absent at `<=760px`.
 - `SectionTitle`: dashed-corner heading label matching the reference site.
 - `SkillPill`: `react-icons` component/text skill item inside two slower opposite-direction animated marquee rows; animation pauses on hover.
 - `BrandIcon`: local `react-icons` helper for LinkedIn and GitHub button icons.
@@ -20,3 +35,6 @@
 - `ProjectFlowChart`: SVG system-architecture flow chart under the system map, driven by each project's `detail.stack`. Stages run down a centre lane; a stage may carry a `branch` drawn to its right. Shapes follow flow-chart convention (terminator, process, decision diamond, cylinder store); geometry is tuned twice (`FLOW_WIDE`/`FLOW_COMPACT`, chosen live by `useCompactFlow`) since a single geometry rendered illegibly small on phones (ADR-035). Styled to match the user's Excalidraw-style reference (ADR-039): self-hosted "Excalifont" hand-drawn typeface (`public/fonts/Excalifont-Regular.woff2`), Excalidraw's own palette per stage `kind` via `FLOW_TONE`/`--fc-tone`, and a shared `#fc-sketch` SVG filter for a hand-drawn wobble on shapes/edges only (not text). Labels must stay short — SVG text does not wrap.
 - `useReducedMotion`: shared live `prefers-reduced-motion` flag used to stand down the border beam and thinking orb.
 - Profile decorations: `BorderBeam` wraps the avatar and `ThinkingOrb` replaces the sparkle on the "Building AI agent tools" line (ADR-034).
+- Daijin media: `public/assets/daijin/` contains paired 3072×2048 `-a.webp`/`-b.webp` sheets for Idle,
+  Listening, Thinking, Working, Clever, Playful, Curious, Happy, and Walk. Each cell is 512×512;
+  sheet A carries frames 0–22 and sheet B frames 23–45.
