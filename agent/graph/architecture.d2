@@ -10,18 +10,20 @@ direction: down
 visitor: "Portfolio visitor" {shape: person}
 
 browser: "Browser" {
-  shell: "Vite shell"
+  shell: "Vite + analytics entry"
   app: "React App"
   cards: "Project cards"
   details: "Detail overlay"
   activity: "Contribution grid"
   mascot: "Daijin mascot"
+  analytics: "Virtual page views"
 
   shell -> app
   app -> cards
   cards -> details: "full-card clone + measured rect"
   app -> activity
   app -> mascot: "section triggers once + hold"
+  app -> analytics
 }
 
 presentation: "Presentation" {
@@ -37,7 +39,14 @@ content: "Local content" {
   resume: "Resume PDFs"
 }
 
-github: "GitHub contributions API" {shape: cloud}
+services: "External services" {
+  github: "GitHub contributions API" {shape: cloud}
+  analytics: "Vercel Web Analytics" {shape: cloud}
+  visits: "Vercel visits function" {shape: cloud}
+  redis: "Upstash Redis" {shape: cylinder}
+
+  visits -> redis: "de-duplicated count"
+}
 
 visitor -> browser.shell: "visit / interact"
 browser.app -> presentation.styles
@@ -46,5 +55,7 @@ browser.app -> presentation.audio
 browser.app -> content.data
 browser.cards -> content.media
 browser.app -> content.resume
-browser.activity -> github: "rolling 12 months"
+browser.activity -> services.github: "rolling 12 months"
 browser.mascot -> content.mascot_media: "selected canvas frames"
+browser.analytics -> services.analytics: "sanitized paths"
+browser.app -> services.visits: "footer count"

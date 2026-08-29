@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Refresh the GitHub contribution snapshot committed at
- * public/assets/contributions.json.
+ * public/media/data/contributions.json.
  *
  * Preferred source is GitHub's own GraphQL API (needs a token with read:user —
  * the Actions GITHUB_TOKEN works for public contribution data). If no token is
@@ -18,7 +18,7 @@ const USER = process.env.GH_USER || 'MohamedFuad16';
 const TOKEN = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
 const OUT = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  '../public/assets/contributions.json'
+  '../public/media/data/contributions.json'
 );
 // The grid renders 52 whole weeks, one column per week — matching the
 // "last 12 months" its caption claims. Keep in sync with CONTRIBUTION_DAYS in

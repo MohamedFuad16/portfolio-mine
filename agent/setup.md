@@ -9,6 +9,7 @@
 - Install: `pnpm install`
 - Develop: `pnpm dev`
 - Build: `pnpm build`
+- Verify assets + build: `pnpm check`
 - Preview: `pnpm preview`
 
 `vite.config.js` wires up `@vitejs/plugin-react`; without it Vite still compiles
@@ -35,3 +36,7 @@ either way.
 
 `vite dev` does not run Vercel functions, so `vite.config.js` mocks
 `/api/visits` from memory in dev only.
+
+## Web Analytics
+
+Enable Web Analytics from the Vercel project dashboard and redeploy. It needs no environment variable. Production reports `/` and each sanitized `/project/<slug>` path; development sends no analytics.

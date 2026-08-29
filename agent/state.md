@@ -1,12 +1,14 @@
 # State
 
-> Last updated: 2026-08-14 · HEAD: main (see git log)
+> Last updated: 2026-08-30 · HEAD: d819a17
 
 ## Current state summary
 
-The workspace contains a Vite React portfolio inspired by `manixh.dev`, populated with Mohamed Fuad's CV content. It uses a professional headshot with a two-sided LinkedIn QR card, bilingual EN/JA copy, expandable work rows, a live rolling-12-month GitHub contribution grid, GSAP motion, and hash-routed project detail views. A fixed Daijin mascot now acts as a desktop-only section companion from a responsive left rail: it touches and plays with the portrait, then sits left of each active heading with breathing room. It uses an imperative 512×512 canvas and authored atlas frames without rerendering React per frame. Each section triggers one contextual performance and holds without an Idle turnaround. Playful is restricted to the clean front-facing reach frames 9–23–9, skipping the malformed turn/back-view passage. The active assets decode on demand, all 18 optimized files total 12.27 MB, and phones mount no mascot or images. The production build is clean on Node 25. Install and build with pnpm.
+The workspace contains a Vite React portfolio deployed to Vercel, populated with Mohamed Fuad's bilingual CV content. `src/main.jsx` is entry-only; `src/App.jsx`, `src/components/`, `src/data/`, `src/styles/`, and typed `public/media/` folders separate application concerns without dropping the latest Internship Portal, AI Brain, contribution snapshot, visitor counter, or Daijin mascot features. Upstash backs the existing de-duplicated footer count. Vercel Web Analytics records anonymous `/` and hash-routed project page views, with no GA4 code or Google tag configuration. The Japanese locale serves the exact user-supplied one-page A4 CV. The GitHub skill-marquee hover mask is disabled only while a skill is hovered, preventing the icon overlay/clipping issue while preserving the edge fade at rest. Asset references are validated by `pnpm check:assets`.
 
 ## Recent changes
+
+- 2026-08-30 (remote-safe portfolio integration; ADR-060): Integrated the requested analytics, Japanese CV, GitHub hover-mask fix, and directory cleanup on top of 62 newer remote commits instead of overwriting them. Preserved Daijin, Internship Portal, AI Brain, the scheduled contribution snapshot, and the existing Upstash visitor API. Added Vercel Web Analytics with sanitized manual virtual page views, moved source/media into purpose-named folders, restored the missing ClaudeShot icon, and added asset-path/security/env documentation. `pnpm check`, dependency graph/diagram regeneration, PDF checksum/metadata verification, and `git diff --check` pass.
 
 - 2026-08-14 (responsive left rail + clean portrait reach — ADR-059): Put Daijin to the left of the
   portrait and section headings, with a separate inward profile offset so the drawn paw—not merely

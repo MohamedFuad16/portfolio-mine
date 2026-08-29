@@ -32,7 +32,7 @@ const frameAt = (elapsedMs, timing, loop) => {
   return frames[loop ? position % frames.length : Math.min(frames.length - 1, position)];
 };
 
-const clipUrl = (clip, suffix) => `/assets/daijin/daijin-${clip}-${suffix}.webp`;
+const clipUrl = (clip, suffix) => `/media/mascot/daijin-${clip}-${suffix}.webp`;
 
 const loadImage = async (url) => {
   const image = new Image();

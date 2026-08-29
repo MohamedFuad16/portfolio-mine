@@ -60,6 +60,7 @@
 | ADR-057 | — Keep one left perch and make section performances one-shot (2026-08-14) | — |
 | ADR-058 | — Reserve a mascot header gap instead of overlapping content (2026-08-14) | — |
 | ADR-059 | — Use a responsive left rail and exclude the Playful turnaround (2026-08-14) | — |
+| ADR-060 | — Integrate anonymous analytics and structure without dropping newer remote work (2026-08-30) | — |
 
 # Decisions
 
@@ -1111,3 +1112,13 @@ Consequences: Daijin now reads as physically beside the current element, touches
 reach, and never displays the corrupted turn or back-view frames. The portrait uses a deliberate
 overlap while headings retain breathing room. Clip-specific frame paths are now part of the renderer
 contract and can exclude bad source passages without regenerating the atlas.
+
+## ADR-060 — Integrate anonymous analytics and structure without dropping newer remote work (2026-08-30)
+
+Status: Accepted.
+
+Context: The requested cleanup and analytics work was prepared from a checkout 62 commits behind `origin/main`. The remote had since added the Daijin mascot, Internship Portal, AI Brain Platform, a scheduled GitHub contribution snapshot, and a more capable Upstash visitor API. Replaying the stale snapshot wholesale would have silently deleted those features. The user also explicitly rejected the custom GA4 setup and supplied the desired Japanese CV.
+
+Decision: Integrate onto current `origin/main`. Preserve every newer feature and the existing `api/visits.mjs` counter. Add production-only Vercel Web Analytics with automatic history tracking disabled and manual sanitized `/` plus `/project/<slug>` page views. Do not add GA4, Google tags, raw-IP storage, or custom free-tier events. Make `src/main.jsx` entry-only, move the application, mascot, generated signature, and CSS into purpose-named source folders, and sort public files into typed `public/media/` folders. Add asset-reference validation and security headers. Replace the Japanese resume with the exact user-supplied one-page A4 PDF. Disable the marquee mask only while a skill is hovered so the GitHub icon is not clipped.
+
+Consequences: The Vercel dashboard supplies anonymous page/referrer/country/browser/device/OS reporting with no analytics environment variable, while Upstash remains the separate de-duplicated visitor count. The free analytics tier intentionally omits custom click/section events. Source and media paths are cleaner without regressing remote features, and the scheduled contribution workflow now writes to `public/media/data/contributions.json`.

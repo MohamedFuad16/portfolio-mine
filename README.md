@@ -17,8 +17,9 @@
 
 A dark, compact, dashed-border personal site that presents who I am, my work
 experience, my skills, and my projects — with a heavy focus on motion, polish,
-and a clean mobile-first responsive layout. It is a **static front end with no
-backend, API, or persistence layer**; everything renders in the browser.
+and a clean mobile-first responsive layout. The UI is a static Vite SPA with a
+small Vercel Function for the existing Upstash visitor counter and Vercel Web
+Analytics for anonymous traffic reporting.
 
 **Live:** <https://portfolio-mine-two-ruddy.vercel.app>
 
@@ -37,6 +38,9 @@ backend, API, or persistence layer**; everything renders in the browser.
 - **Live GitHub contribution grid** — a real contribution heatmap pulled from my
   GitHub activity, with edge-aware hover tooltips (date + contribution count,
   localized).
+- **Traffic analytics** — Vercel Web Analytics records the home page and each
+  virtual project page for page, referrer, approximate-location, browser, OS,
+  and device reports. Upstash keeps the existing de-duplicated visitor counter.
 - **Two-sided flip card** — profile photo that flips to reveal a LinkedIn QR code.
 - **Expandable work history** — timeline rows with official company logos that
   expand to bilingual role details.
@@ -69,17 +73,22 @@ backend, API, or persistence layer**; everything renders in the browser.
 - **GSAP** (`ScrollTrigger`, `ScrollSmoother`, `DrawSVG`, `SplitText`, `ScrollToPlugin`) + `@gsap/react`
 - **lucide-react** and **react-icons** for iconography
 - **border-beam** and **thinking-orbs** for the avatar beam and the agent motif
+- **Vercel Web Analytics** for anonymous, cookie-free page-view reporting
+- **Upstash Redis** for the de-duplicated visitor counter
 - Hand-written CSS visual system (dark, dashed-border, compact)
 
 ## Project Structure
 
 ```
-index.html            # Loads fonts + the React entry
-src/main.jsx          # Portfolio data (experience, skills, projects) + React components
-src/styles.css        # Dark, compact, dashed-border visual system
-src/signature-path.js # Generated single-stroke signature path data
-public/assets/        # Project screenshots & logos (EN + JA variants)
-public/resume/        # CV PDFs (EN / JA)
+api/visits.mjs                  # Vercel Function for the Upstash-backed counter
+src/main.jsx                    # React + Vercel Analytics entry point
+src/App.jsx                     # Portfolio data, views, routing, and motion
+src/components/DaijinMascot.jsx # Canvas mascot component
+src/data/signature-path.js      # Generated single-stroke signature data
+src/styles/global.css           # Dark dashed-border visual system
+public/media/                   # Typed audio/data/images/logos/mascot/project assets
+public/resume/                  # CV PDFs (EN / JA)
+scripts/check-assets.mjs        # Verifies public and nested SVG asset references
 ```
 
 ## Getting Started
@@ -91,7 +100,7 @@ public/resume/        # CV PDFs (EN / JA)
 ```bash
 pnpm install      # this workspace is pnpm-managed
 pnpm dev          # Vite dev server on http://127.0.0.1:5173
-pnpm build        # Production build into dist/
+pnpm check        # Asset validation + production build
 pnpm preview      # Preview the production build
 ```
 
@@ -110,10 +119,16 @@ Without them the endpoint returns 503 and the footer omits the counter, so the
 site works unchanged. Visitors are de-duplicated server-side by a truncated
 salted hash of IP + user-agent with a 30-day expiry; no address is stored.
 
+Vercel Web Analytics needs no environment variable or external analytics
+account. In the Vercel project, open **Analytics**, select **Enable**, and
+deploy. The app reports `/` and each `/project/<slug>` virtual page separately
+so hash-routed project views appear in the dashboard. Reports are anonymous
+aggregates and do not expose raw IP addresses or identify anonymous people.
+
 ## Deployment
 
-The site is a static build deployed to **Vercel**. Run `pnpm build` and
-serve `dist/` from any static host.
+The site is deployed to **Vercel**, which builds the Vite application, serves
+`api/visits.mjs`, and hosts the Web Analytics dashboard.
 
 ---
 

@@ -795,6 +795,7 @@ main {
   overflow: hidden;
   margin: 0;
   padding: 16px 0 8px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
 }
 
@@ -802,9 +803,13 @@ main {
   animation-name: skill-marquee-right;
 }
 
-.skills-marquees:hover .skills,
 .skills-marquee:hover .skills {
   animation-play-state: paused;
+}
+
+.skills-marquee:has(.skill:hover) {
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 .skill {

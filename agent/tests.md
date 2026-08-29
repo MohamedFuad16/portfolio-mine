@@ -3,7 +3,7 @@
 No automated test suite yet.
 
 Verification workflow:
-- Run `pnpm build`.
+- Run `pnpm check` (asset references + production build).
 - Run the local dev server.
 - Use the in-app browser to compare desktop and mobile views against the reference site.
 - Check for console errors and responsive text overflow.
@@ -11,6 +11,8 @@ Verification workflow:
 - Open a project from mobile and confirm the entire card clone expands from its exact rectangle to the viewport, the underlying page reaches scale 0.95/opacity 0.65, and the real detail content replaces the clone. Close it and confirm the motion reverses into the source card with no stuck hidden state.
 - Repeat the route with reduced motion enabled when animation code changes.
 - Verify both EN and JA profile/project copy, including the symbol-only Tokai mark and ClaudeShot card.
+- In production with Vercel Web Analytics enabled, verify one page view for `/` and each `/project/<slug>` path, including Back/Escape navigation, and confirm there are no Google Analytics requests.
+- Switch to Japanese and open the resume; verify the localized one-page A4 PDF is served.
 - Confirm a non-interactive page-surface click plays the achievement sound, while buttons, links, form controls, summaries, labels, and role/contenteditable controls remain silent. The visual ripple may still appear on controls that bubble to the page handler.
 - At a desktop viewport, confirm `.daijin-mascot` sits to the left of the portrait, its reaching paw
   visibly crosses the portrait's left edge, and frame numbers advance without React rerenders.
