@@ -30,6 +30,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_USER: MohamedFuad16
+          # The calendar buckets pull requests and issues by the profile's zone.
+          GH_TIME_ZONE: Asia/Tokyo
         run: node scripts/fetch-contributions.mjs
 
       - name: Commit when the snapshot changed

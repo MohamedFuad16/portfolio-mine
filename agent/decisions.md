@@ -62,6 +62,7 @@
 | ADR-059 | — Use a responsive left rail and exclude the Playful turnaround (2026-08-14) | — |
 | ADR-060 | — Integrate anonymous analytics and structure without dropping newer remote work (2026-08-30) | — |
 | ADR-061 | — Remove the click sound; rebuild the contribution grid around one portal tooltip (2026-09-23) | — |
+| ADR-062 | — Ledger and CCFT projects, hover clips, tech filter, repo-aware heatmap, Cmd+K, tenure timeline, light theme (2026-09-23) | — |
 
 # Decisions
 
@@ -1134,3 +1135,24 @@ Decision: Delete the WAV and its playback; keep the visual ripple. Replace the 3
 
 Consequences: The tooltip can no longer be covered or clipped. All stats are re-derivable from `public/media/data/contributions.json` (verified 2026-09-23: 596 total, 62 active days, 14-day longest streak, 40 on 2026-05-30). Only the calendar scrolls on phones; stats and caption stay fixed.
 
+## ADR-062 — Ledger and CCFT projects, hover clips, tech filter, repo-aware heatmap, Cmd+K, tenure timeline, light theme (2026-09-23)
+
+Status: Accepted.
+
+Context: The owner asked for a second overhaul round without changing section order: hover video loops on project cards, filtering by technology, a heatmap linked to repositories, experience shown as a timeline, a Cmd+K menu, a light theme, removal of the thinking orb, a new Ledger project (an annual-report extraction pipeline, presented without the company it was first built for), and CCFT replacing the AI Brain Platform. Mid-session the owner also asked to remove the year-level repository panel under the heatmap (it pulled attention) and to show product results, not engineering trivia, in Ledger's figures.
+
+Decision:
+- Ledger figures come from the live /api/benchmark-summary and /api/benchmark-runs, using the same Gemini 3.7 Flash cohort as the site's own charts: 966/966 rows exact on 47 reports across 10 companies, 31.0s mean pass, 8.9k vs 92.9k input tokens. The repo README's 75-report figure predates the published summary and is not used. The site's $0.104 per report averages all three strategies, so it is not quoted.
+- Every card image gets a 1.12x parallax zoom (ADR-era scroll tween), so dense UI captures are framed inside a 78% window on a backdrop; the zoom then trims only backdrop.
+- Hover clips play only for a mouse pointer or keyboard focus, never on touch or reduced motion, with preload="none". Only Ledger and CCFT have clips: the other live sites open on a login wall, an onboarding modal or an empty upload screen, which would make poor loops.
+- The CCFT clip is a layered parallax built from real captures of the app (landing screen, a Haiku 4.5 Low task-table answer, reasoning slider, General/Agents/About settings), not a screen recording. A live sub-agent website run was attempted; the engine refused delegation with "CCFT verification plan is missing or conflicts with this task", so no run footage is used.
+- The contribution snapshot now also stores per-day public repository counts (GraphQL, month-sized windows so no connection page truncates). Commit nodes are calendar days already; pull requests, issues and reviews are exact instants bucketed in GH_TIME_ZONE (Asia/Tokyo), which is the only zone where 2026-07-19 reconciles (9 commits + 8 events = 17). Private repositories are dropped by name. Named counts never exceed the grid count on any day (574 of 596 named). Repositories appear in the day tooltip only.
+- Projects carry explicit `tags`; filter chips list only tags some project has, and matching skill pills become buttons that apply the filter.
+- Experience shows tenure and a bar on a shared first-start-to-today axis. A `result`/`resultJa` field renders when present; none is filled because no measured outcomes were supplied.
+- Light theme lives in src/styles/theme-light.css, scoped under :root[data-theme='light']; the app follows the system until the visitor chooses, then remembers the choice.
+
+Consequences: Two new media folders (public/media/video). The AI Brain image and clip are gone. The heatmap depends on the Actions GITHUB_TOKEN for repository names; without it the grid still renders and tooltips simply omit repositories.
+
+Addendum 2026-09-24: WebDrop, Internship Portal and Tutor-System now have hover clips, recorded with Playwright's recordVideo and scripted clicks (WebDrop: onboarding slides, then settings name, icon, ring, language and dark mode; Internship Portal: language switch and the sign-up form filled with a demo name and example.com email, never submitted; Tutor-System: study cards, tutor chat, analytics, library, settings). WebDrop's clip hides one toast: every profile change re-sends `client:hello` on the open socket, the server answers `unsupported_type`, and the app shows "The nearby connection could not be confirmed." That is a real WebDrop bug, reported separately rather than shown in a demo. Ledger's framed capture grew from 78% to 87% of the frame. Neither beautifului.dev nor rareui.com has a theme toggle, so the toggle is an in-house sun/moon morph (mask slide plus ray fold) driven by CSS off `data-theme`. TokaiHub needs a signed-in session; the owner logs in to a separate Chrome profile and the clip is recorded from there. TokaiHub was recorded from the owner's signed-in session in a separate Chrome profile over CDP; the sidebar card with the student ID is blurred and the clip ends before Settings, which shows grade and credit figures.
+
+Addendum 2026-09-24 (review round): Ledger's detail page gained two bar charts (time and input tokens per report, Gemini 3.7 Flash, the 46 reports all three methods processed: 36.7s/34.7s/31.0s and 92.9k/93.2k/8.9k), colours checked with the dataviz validator (#5591ec vs #6a6e73 dark, #1f5fc4 vs #8a8f95 light). Daijin is now placed from live geometry so the paw reaches the photo, and the photo knock is driven by the mascot's own frame. A review pass fixed: the command menu opening under the project overlay (z-index 950), Escape closing both layers, the snapshot script overwriting the repo breakdown on failure, a dark-then-light flash (public/theme-init.js sets data-theme before the bundle; same-origin so it fits the report-only CSP), triplicated marquee copies in the tab order, hover clips starting on programmatic focus, an unexplained gap between a day's count and its listed repositories ("Other" row), silent truncation of PR/issue/review pages, and the first grid day's early JST hours being skipped.

@@ -1,0 +1,767 @@
+/* Light theme. Active when <html data-theme="light">; dark stays the default.
+   Every rule overrides a hard-coded colour in global.css, so this file must
+   load after it. Palette (on page #f6f6f7):
+     text     #141517 (18:1)   body copy #45484d (8.9:1)
+     muted    #5c6066 (6.1:1)  faint     #686c72 (5.0:1)
+   Accents stay #6ea8ff / #10e777 for marks and fills. Where an accent carries
+   text or a focus ring it darkens to #1f5fc4 / #0a7d43, because the original
+   tones measure about 2.4:1 and 1.4:1 on white. */
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  background: #f6f6f7;
+  color: #141517;
+}
+
+:root[data-theme='light'],
+:root[data-theme='light'] body {
+  background: #f6f6f7;
+}
+
+:root[data-theme='light'] body {
+  color: #141517;
+}
+
+/* ---- Error fallback ---- */
+:root[data-theme='light'] .fatal-error {
+  color: #2a2c2f;
+}
+
+:root[data-theme='light'] .fatal-error h1 {
+  color: #141517;
+}
+
+:root[data-theme='light'] .fatal-error p {
+  color: #45484d;
+}
+
+:root[data-theme='light'] .fatal-error button,
+:root[data-theme='light'] .pd-back {
+  border-color: #a9adb2;
+  background: #ffffff;
+  color: #1d1f22;
+}
+
+:root[data-theme='light'] .fatal-error button:hover,
+:root[data-theme='light'] .pd-back:hover {
+  border-color: #6f7378;
+  background: #eeeff1;
+}
+
+/* ---- Click ripple: dark rings so they show on white ---- */
+:root[data-theme='light'] .click-burst::before {
+  background: radial-gradient(circle, rgba(20, 21, 23, 0.4), rgba(20, 21, 23, 0));
+}
+
+:root[data-theme='light'] .click-burst i {
+  border-color: rgba(20, 21, 23, 0.45);
+}
+
+:root[data-theme='light'] .click-burst i:nth-child(2) {
+  border-color: rgba(20, 21, 23, 0.3);
+}
+
+:root[data-theme='light'] .click-burst i:nth-child(3) {
+  border-color: rgba(20, 21, 23, 0.18);
+}
+
+/* ---- Locale switch ---- */
+:root[data-theme='light'] .locale-switch {
+  border-color: #d2d4d8;
+  background: #ffffff;
+  box-shadow: rgba(0, 0, 0, 0.08) 0 6px 16px -8px;
+}
+
+:root[data-theme='light'] .locale-switch button {
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .locale-switch button:hover {
+  color: #141517;
+}
+
+:root[data-theme='light'] .locale-switch button.on {
+  background: #141517;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+/* ---- Profile / avatar ---- */
+:root[data-theme='light'] .avatar-face {
+  border-color: #c9ccd0;
+  background: #ffffff;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme='light'] .avatar-back {
+  background: #ffffff;
+}
+
+:root[data-theme='light'] .avatar-lightbox {
+  background: rgba(246, 246, 247, 0.9);
+}
+
+:root[data-theme='light'] .avatar-lightbox img {
+  border-color: #d2d4d8;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.2);
+}
+
+:root[data-theme='light'] .qr-toggle-btn {
+  border-color: #b9bcc1;
+  background: #ffffff;
+  color: #141517;
+  /* The ring matches the page so the beam passes behind the button. */
+  box-shadow: 0 0 0 3px #f6f6f7;
+}
+
+:root[data-theme='light'] .qr-toggle-btn:hover {
+  border-color: #6f7378;
+  background: #eeeff1;
+}
+
+:root[data-theme='light'] .identity h1 {
+  color: #141517;
+}
+
+/* The heart keeps its red; #d91a15 is 4.9:1 on the page. */
+:root[data-theme='light'] .name-action {
+  color: #d91a15;
+}
+
+:root[data-theme='light'] .name-action:hover {
+  color: #b8120e;
+  filter: none;
+}
+
+:root[data-theme='light'] .handle,
+:root[data-theme='light'] .meta {
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .building {
+  color: #141517;
+}
+
+/* Shimmer runs dark-to-mid on light, the reverse of the dark theme. */
+:root[data-theme='light'] .building-text {
+  --shimmer-base: #2a2c2f;
+  --shimmer-hi: #8a8f96;
+}
+
+:root[data-theme='light'] .building:hover .building-text {
+  --shimmer-base: #141517;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme='light'] .building-text {
+    color: #141517;
+    -webkit-text-fill-color: #141517;
+  }
+}
+
+:root[data-theme='light'] .building svg {
+  color: #45484d;
+}
+
+:root[data-theme='light'] .university-meta img {
+  background: #ffffff;
+  box-shadow: 0 0 0 1px #d2d4d8;
+}
+
+:root[data-theme='light'] .university-meta:hover span {
+  color: #141517;
+}
+
+:root[data-theme='light'] .intro {
+  color: #45484d;
+}
+
+:root[data-theme='light'] .intro b {
+  color: #141517;
+}
+
+:root[data-theme='light'] .inline-logo img {
+  filter: none;
+}
+
+/* Simple Icons ship black; the dark theme inverts them to white. */
+:root[data-theme='light'] .inline-logo img[src*='simple-icons'] {
+  filter: none;
+}
+
+/* ---- Buttons (hero actions, project actions, contact links) ---- */
+:root[data-theme='light'] .actions a,
+:root[data-theme='light'] .project-actions a,
+:root[data-theme='light'] .contact-links a {
+  background: #ffffff;
+  color: #141517;
+  box-shadow:
+    rgba(0, 0, 0, 0.06) 0 8px 16px -6px,
+    rgba(0, 0, 0, 0.08) 0 2px 4px -1px,
+    #c9ccd0 0 0 0 1px;
+}
+
+:root[data-theme='light'] .actions a:hover,
+:root[data-theme='light'] .project-actions a:hover,
+:root[data-theme='light'] .contact-links a:hover {
+  background: #eeeff1;
+}
+
+:root[data-theme='light'] .btn-icon {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+:root[data-theme='light'] .actions span {
+  color: #3b5a78;
+}
+
+:root[data-theme='light'] .actions i {
+  background: #9a9ea4;
+}
+
+/* ---- Section titles ---- */
+:root[data-theme='light'] .section-title {
+  background: #e9eaec;
+  box-shadow: none;
+  color: #1d1f22;
+}
+
+:root[data-theme='light'] .section-title::before,
+:root[data-theme='light'] .section-title::after {
+  border-color: #5c6066;
+}
+
+/* ---- Skill marquee ---- */
+:root[data-theme='light'] .skill {
+  color: #1d1f22;
+}
+
+:root[data-theme='light'] .skill-link:focus-visible {
+  outline-color: #141517;
+}
+
+:root[data-theme='light'] .skill-mark svg {
+  filter: none;
+}
+
+/* Icon colours are inline styles from App.jsx. The white and near-white ones
+   (GitHub, Vercel, MCP) would vanish on the page, and Deepgram's mint is
+   1.4:1, so those four are matched by their serialised colour and darkened. */
+:root[data-theme='light'] .skill-mark svg[style*='rgb(255, 255, 255)'],
+:root[data-theme='light'] .skill-mark svg[style*='rgb(243, 243, 243)'] {
+  color: #141517 !important;
+}
+
+:root[data-theme='light'] .skill-mark svg[style*='rgb(19, 239, 147)'] {
+  color: #0a8f55 !important;
+}
+
+/* ---- Dashed containers and timeline ---- */
+:root[data-theme='light'] .dashed {
+  border-color: #b4b8bd;
+}
+
+:root[data-theme='light'] .line {
+  border-left-color: #c3c6ca;
+}
+
+:root[data-theme='light'] .experience-summary:hover {
+  background-color: rgba(0, 0, 0, 0.035);
+}
+
+:root[data-theme='light'] .dot {
+  background: #f6f6f7;
+  border-color: #b4b8bd;
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .dot.green {
+  background: #10e777;
+  border-color: #0bc764;
+}
+
+:root[data-theme='light'] .company-icon {
+  background: #ffffff;
+  box-shadow: 0 0 0 1px #d8dadd;
+}
+
+:root[data-theme='light'] .experience-item h3 a {
+  color: #141517;
+}
+
+:root[data-theme='light'] .experience-item h3 a:hover {
+  color: #45484d;
+}
+
+:root[data-theme='light'] .experience-item p,
+:root[data-theme='light'] .experience-item time {
+  color: #45484d;
+}
+
+@media (max-width: 560px) {
+  :root[data-theme='light'] .experience-item time {
+    color: #5c6066;
+  }
+}
+
+:root[data-theme='light'] small.green {
+  background: rgba(16, 231, 119, 0.16);
+  color: #0a7d43;
+}
+
+:root[data-theme='light'] small.red {
+  background: rgba(255, 64, 90, 0.12);
+  color: #c21d35;
+}
+
+:root[data-theme='light'] .chevron {
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .experience-summary:hover .chevron,
+:root[data-theme='light'] .chevron:hover {
+  color: #141517;
+}
+
+:root[data-theme='light'] .chevron:focus-visible::after {
+  outline-color: rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme='light'] .experience-details ul {
+  color: #4f5358;
+}
+
+/* ---- Contribution section ---- */
+:root[data-theme='light'] .contribution-stat {
+  border-left-color: #b4b8bd;
+}
+
+:root[data-theme='light'] .contribution-stat dt {
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .contribution-stat strong {
+  color: #141517;
+}
+
+:root[data-theme='light'] .contribution-stat span {
+  color: #686c72;
+}
+
+:root[data-theme='light'] .months button {
+  color: #2a2c2f;
+}
+
+:root[data-theme='light'] .months button:hover,
+:root[data-theme='light'] .months button.is-active {
+  background: #e3e4e7;
+  color: #141517;
+}
+
+:root[data-theme='light'] .months button:focus-visible {
+  outline-color: #141517;
+}
+
+:root[data-theme='light'] .weekdays {
+  color: #686c72;
+}
+
+:root[data-theme='light'] .grid:focus-visible {
+  box-shadow: 0 0 0 2px #f6f6f7, 0 0 0 4px #141517;
+}
+
+/* Ramp runs the other way on light: empty is pale, busiest is near-black. */
+:root[data-theme='light'] .cell {
+  background: #e6e8eb;
+}
+
+:root[data-theme='light'] .level-1 {
+  background: #c4c8cd;
+}
+
+:root[data-theme='light'] .level-2 {
+  background: #959aa1;
+}
+
+:root[data-theme='light'] .level-3 {
+  background: #5c6066;
+}
+
+:root[data-theme='light'] .level-4 {
+  background: #1d1f22;
+}
+
+:root[data-theme='light'] .grid .cell.is-active {
+  box-shadow: 0 0 0 1.5px #f6f6f7, 0 0 0 3px #1f5fc4;
+}
+
+:root[data-theme='light'] .contribution-tooltip {
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14), 0 0 0 1px #d2d4d8;
+  color: #141517;
+}
+
+:root[data-theme='light'] .contribution-tooltip span,
+:root[data-theme='light'] .contribution-tooltip-repos i {
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .contribution-tooltip::after {
+  border-top-color: #ffffff;
+  filter: drop-shadow(0 1px 0 #d2d4d8);
+}
+
+:root[data-theme='light'] .contribution-tooltip-repos {
+  border-top-color: #e3e4e7;
+}
+
+:root[data-theme='light'] .contribution-foot {
+  color: #1d1f22;
+}
+
+/* ---- Projects ---- */
+:root[data-theme='light'] .project h3,
+:root[data-theme='light'] .project strong {
+  color: #141517;
+}
+
+:root[data-theme='light'] .project p {
+  color: #45484d;
+}
+
+:root[data-theme='light'] .project-shot {
+  background: #e9eaec;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme='light'] .project-shot:focus-visible {
+  outline-color: #1f5fc4;
+}
+
+/* Badges and the hover hint sit on screenshots, not on the page, so they
+   stay dark for contrast against any image. */
+:root[data-theme='light'] .project-badge,
+:root[data-theme='light'] .project-shot-hint,
+:root[data-theme='light'] .pd-shot span {
+  box-shadow: rgba(0, 0, 0, 0.25) 0 0 0 1px;
+}
+
+:root[data-theme='light'] .project-filters button {
+  border-color: #b4b8bd;
+  color: #2a2c2f;
+}
+
+:root[data-theme='light'] .project-filters button span {
+  color: #686c72;
+}
+
+:root[data-theme='light'] .project-filters button:hover {
+  border-color: #6f7378;
+  color: #141517;
+}
+
+:root[data-theme='light'] .project-filters button.on {
+  border-color: #141517;
+  background: #141517;
+  color: #ffffff;
+}
+
+:root[data-theme='light'] .project-filters button.on span {
+  color: #c4c8cd;
+}
+
+:root[data-theme='light'] .project-filters button:focus-visible {
+  outline-color: #141517;
+}
+
+:root[data-theme='light'] .repo-private {
+  border-color: #b4b8bd;
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .tags span {
+  border-color: #d2d4d8;
+  background: #ffffff;
+  color: #1d1f22;
+}
+
+:root[data-theme='light'] .view-all-btn {
+  border-color: #b4b8bd;
+  background: #ffffff;
+  color: #141517;
+  box-shadow: rgba(0, 0, 0, 0.05) 0 4px 12px 0;
+}
+
+:root[data-theme='light'] .view-all-btn:hover {
+  border-color: #6f7378;
+  background: #eeeff1;
+}
+
+/* ---- Blog ---- */
+:root[data-theme='light'] .blog-content p {
+  color: #45484d;
+}
+
+:root[data-theme='light'] .blog-content a {
+  color: #141517;
+}
+
+:root[data-theme='light'] .qiita-link {
+  text-decoration-color: rgba(20, 21, 23, 0.45);
+}
+
+:root[data-theme='light'] .qiita-link svg {
+  color: #3f9400;
+}
+
+/* ---- Project detail overlay ---- */
+:root[data-theme='light'] .project-detail,
+:root[data-theme='light'] .pd-expand-face {
+  background: #f6f6f7;
+}
+
+:root[data-theme='light'] .pd-shot {
+  background: #e9eaec;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+}
+
+:root[data-theme='light'] .pd-headline h1 {
+  color: #141517;
+}
+
+:root[data-theme='light'] .pd-headline h1 svg {
+  color: #45484d;
+}
+
+:root[data-theme='light'] .pd-tagline {
+  color: #45484d;
+}
+
+:root[data-theme='light'] .pd-actions a {
+  border-color: #c9ccd0;
+  background: #ffffff;
+  color: #141517;
+}
+
+:root[data-theme='light'] .pd-actions a:hover {
+  border-color: #9a9ea4;
+  background: #eeeff1;
+}
+
+:root[data-theme='light'] .pd-block {
+  border-top-color: #c3c6ca;
+}
+
+:root[data-theme='light'] .pd-h {
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .pd-overview,
+:root[data-theme='light'] .pd-features li {
+  color: #2f3236;
+}
+
+:root[data-theme='light'] .pd-figures li,
+:root[data-theme='light'] .pd-map-step,
+:root[data-theme='light'] .pd-flow {
+  border-color: #d2d4d8;
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme='light'] .pd-figures strong,
+:root[data-theme='light'] .pd-map-step strong {
+  color: #141517;
+}
+
+:root[data-theme='light'] .pd-figures span,
+:root[data-theme='light'] .pd-map-step small {
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .pd-status {
+  border-left-color: #b4b8bd;
+  color: #45484d;
+}
+
+:root[data-theme='light'] .pd-map-number {
+  color: #1f5fc4;
+}
+
+/* ---- Flow chart SVG ---- */
+:root[data-theme='light'] .fc-shape {
+  fill: color-mix(in srgb, var(--fc-tone, #1971c2) 8%, #ffffff);
+}
+
+:root[data-theme='light'] .fc-title {
+  fill: #141517;
+}
+
+/* Mixing the tone toward near-black keeps the per-stage tint and gets the
+   orange (#e8590c, 3.6:1 raw) above 4.5:1. */
+:root[data-theme='light'] .fc-sub {
+  fill: color-mix(in srgb, var(--fc-tone, #5c6066) 70%, #141517);
+}
+
+:root[data-theme='light'] .fc-edge {
+  stroke: #6f757c;
+}
+
+:root[data-theme='light'] .fc-arrowhead {
+  fill: #6f757c;
+}
+
+:root[data-theme='light'] .fc-edge-label {
+  fill: #45484d;
+}
+
+/* ---- Contact card ---- */
+:root[data-theme='light'] .contact-card h3 {
+  color: #141517;
+}
+
+:root[data-theme='light'] .contact-card p {
+  color: #45484d;
+}
+
+/* ---- Signature, divider, footer ---- */
+:root[data-theme='light'] .signature .sig-name {
+  stroke: #1d1f22;
+}
+
+:root[data-theme='light'] .signature .sig-trace {
+  stroke: #000000;
+  filter: none;
+}
+
+:root[data-theme='light'] .wave-line {
+  border-top-color: #b4b8bd;
+}
+
+:root[data-theme='light'] .wave-bars i {
+  background: #8a8f96;
+}
+
+:root[data-theme='light'] footer {
+  color: #5c6066;
+}
+
+/* ---- Experience tenure and timeline bar (added to global.css 23 Sep 2026) ---- */
+:root[data-theme='light'] .experience-summary time small {
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .experience-span {
+  background: #e3e4e7;
+}
+
+:root[data-theme='light'] .experience-span i {
+  background: #8a8f96;
+}
+
+:root[data-theme='light'] .experience-span.green i {
+  background: #10e777;
+}
+
+:root[data-theme='light'] .experience-result {
+  color: #45484d;
+}
+
+/* ---- Cmd/Ctrl+K menu and theme toggle ---- */
+:root[data-theme='light'] .command-trigger,
+:root[data-theme='light'] .theme-toggle {
+  border-color: #b4b8bd;
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .command-trigger:hover,
+:root[data-theme='light'] .command-trigger:focus-visible,
+:root[data-theme='light'] .theme-toggle:hover,
+:root[data-theme='light'] .theme-toggle:focus-visible {
+  border-color: #6f7378;
+  color: #141517;
+}
+
+:root[data-theme='light'] .command-backdrop {
+  background: rgba(246, 246, 247, 0.6);
+}
+
+:root[data-theme='light'] .command-menu {
+  border-color: #d2d4d8;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16);
+  color: #141517;
+}
+
+:root[data-theme='light'] .command-input {
+  border-bottom-color: #e3e4e7;
+}
+
+:root[data-theme='light'] .command-input::placeholder {
+  color: #686c72;
+}
+
+:root[data-theme='light'] .command-group,
+:root[data-theme='light'] .command-foot {
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .command-list [role='option'] {
+  color: #2a2c2f;
+}
+
+:root[data-theme='light'] .command-list [role='option'].on {
+  background: #eeeff1;
+  color: #141517;
+}
+
+:root[data-theme='light'] .command-list [role='option'] svg {
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .command-empty {
+  color: #5c6066;
+}
+
+:root[data-theme='light'] .command-foot {
+  border-top-color: #e3e4e7;
+}
+
+:root[data-theme='light'] .command-foot kbd {
+  border-color: #d2d4d8;
+}
+
+:root[data-theme='light'] .pd-bench-chart {
+  border-color: #dcdfe3;
+  background: #ffffff;
+}
+
+:root[data-theme='light'] .pd-bench-chart figcaption,
+:root[data-theme='light'] .pd-bench-value {
+  color: #26292c;
+}
+
+:root[data-theme='light'] .pd-bench-label {
+  color: #5c6166;
+}
+
+:root[data-theme='light'] .pd-bench-track {
+  background: #eceef0;
+}
+
+:root[data-theme='light'] .pd-bench-track i {
+  background: #8a8f95;
+}
+
+:root[data-theme='light'] .pd-bench-chart li.is-ours .pd-bench-label,
+:root[data-theme='light'] .pd-bench-chart li.is-ours .pd-bench-value {
+  color: #111315;
+}
+
+:root[data-theme='light'] .pd-bench-chart li.is-ours .pd-bench-track i {
+  background: #1f5fc4;
+}
+
+:root[data-theme='light'] .pd-bench-caption {
+  color: #6b7076;
+}

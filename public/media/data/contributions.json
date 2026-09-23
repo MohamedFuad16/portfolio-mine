@@ -1,7 +1,7 @@
 {
   "user": "MohamedFuad16",
   "source": "github-graphql",
-  "generatedAt": "2026-09-23T08:32:30.974Z",
+  "generatedAt": "2026-09-23T14:22:35.795Z",
   "total": 596,
   "cells": [
     {
@@ -1221,12 +1221,12 @@
     },
     {
       "date": "2026-05-26",
-      "count": 1,
-      "level": 1
+      "count": 0,
+      "level": 0
     },
     {
       "date": "2026-05-27",
-      "count": 19,
+      "count": 20,
       "level": 3
     },
     {
@@ -1282,7 +1282,7 @@
     {
       "date": "2026-06-07",
       "count": 8,
-      "level": 1
+      "level": 2
     },
     {
       "date": "2026-06-08",
@@ -1322,7 +1322,7 @@
     {
       "date": "2026-06-15",
       "count": 8,
-      "level": 1
+      "level": 2
     },
     {
       "date": "2026-06-16",
@@ -1332,7 +1332,7 @@
     {
       "date": "2026-06-17",
       "count": 8,
-      "level": 1
+      "level": 2
     },
     {
       "date": "2026-06-18",
@@ -1342,7 +1342,7 @@
     {
       "date": "2026-06-19",
       "count": 16,
-      "level": 2
+      "level": 3
     },
     {
       "date": "2026-06-20",
@@ -1386,12 +1386,12 @@
     },
     {
       "date": "2026-06-28",
-      "count": 2,
+      "count": 1,
       "level": 1
     },
     {
       "date": "2026-06-29",
-      "count": 32,
+      "count": 33,
       "level": 4
     },
     {
@@ -1411,13 +1411,13 @@
     },
     {
       "date": "2026-07-03",
-      "count": 15,
+      "count": 14,
       "level": 2
     },
     {
       "date": "2026-07-04",
-      "count": 22,
-      "level": 3
+      "count": 23,
+      "level": 4
     },
     {
       "date": "2026-07-05",
@@ -1496,13 +1496,13 @@
     },
     {
       "date": "2026-07-20",
-      "count": 8,
+      "count": 7,
       "level": 1
     },
     {
       "date": "2026-07-21",
-      "count": 0,
-      "level": 0
+      "count": 1,
+      "level": 1
     },
     {
       "date": "2026-07-22",
@@ -1651,13 +1651,13 @@
     },
     {
       "date": "2026-08-20",
-      "count": 1,
-      "level": 1
+      "count": 0,
+      "level": 0
     },
     {
       "date": "2026-08-21",
-      "count": 0,
-      "level": 0
+      "count": 1,
+      "level": 1
     },
     {
       "date": "2026-08-22",
@@ -1824,5 +1824,443 @@
       "count": 0,
       "level": 0
     }
-  ]
+  ],
+  "repos": {
+    "TokaiHub": "https://github.com/MohamedFuad16/TokaiHub",
+    "Tutor-System": "https://github.com/MohamedFuad16/Tutor-System",
+    "WebDrop": "https://github.com/MohamedFuad16/WebDrop",
+    "Codex-Acc-Switcher": "https://github.com/MohamedFuad16/Codex-Acc-Switcher",
+    "resume-studio-dashboard": "https://github.com/MohamedFuad16/resume-studio-dashboard",
+    "portfolio-mine": "https://github.com/MohamedFuad16/portfolio-mine",
+    "ClaudeShot": "https://github.com/MohamedFuad16/ClaudeShot",
+    "cc-fleet": "https://github.com/ethanhq/cc-fleet"
+  },
+  "activity": {
+    "2026-04-03": [
+      [
+        "TokaiHub",
+        2
+      ]
+    ],
+    "2026-04-23": [
+      [
+        "TokaiHub",
+        2
+      ]
+    ],
+    "2026-05-27": [
+      [
+        "Tutor-System",
+        19
+      ]
+    ],
+    "2026-05-28": [
+      [
+        "Tutor-System",
+        12
+      ]
+    ],
+    "2026-05-29": [
+      [
+        "Tutor-System",
+        10
+      ],
+      [
+        "Codex-Acc-Switcher",
+        2
+      ]
+    ],
+    "2026-05-30": [
+      [
+        "WebDrop",
+        26
+      ],
+      [
+        "Tutor-System",
+        9
+      ],
+      [
+        "Codex-Acc-Switcher",
+        4
+      ]
+    ],
+    "2026-05-31": [
+      [
+        "WebDrop",
+        8
+      ],
+      [
+        "Tutor-System",
+        1
+      ]
+    ],
+    "2026-06-01": [
+      [
+        "Tutor-System",
+        18
+      ]
+    ],
+    "2026-06-02": [
+      [
+        "Tutor-System",
+        33
+      ]
+    ],
+    "2026-06-03": [
+      [
+        "Tutor-System",
+        28
+      ]
+    ],
+    "2026-06-04": [
+      [
+        "Tutor-System",
+        27
+      ],
+      [
+        "WebDrop",
+        1
+      ]
+    ],
+    "2026-06-05": [
+      [
+        "Tutor-System",
+        6
+      ],
+      [
+        "WebDrop",
+        6
+      ]
+    ],
+    "2026-06-06": [
+      [
+        "Tutor-System",
+        6
+      ]
+    ],
+    "2026-06-07": [
+      [
+        "WebDrop",
+        7
+      ],
+      [
+        "Tutor-System",
+        1
+      ]
+    ],
+    "2026-06-08": [
+      [
+        "Tutor-System",
+        1
+      ],
+      [
+        "WebDrop",
+        1
+      ],
+      [
+        "Codex-Acc-Switcher",
+        1
+      ]
+    ],
+    "2026-06-10": [
+      [
+        "Tutor-System",
+        7
+      ],
+      [
+        "Codex-Acc-Switcher",
+        2
+      ]
+    ],
+    "2026-06-11": [
+      [
+        "Codex-Acc-Switcher",
+        1
+      ]
+    ],
+    "2026-06-15": [
+      [
+        "WebDrop",
+        8
+      ]
+    ],
+    "2026-06-16": [
+      [
+        "WebDrop",
+        7
+      ]
+    ],
+    "2026-06-17": [
+      [
+        "WebDrop",
+        8
+      ]
+    ],
+    "2026-06-18": [
+      [
+        "WebDrop",
+        10
+      ]
+    ],
+    "2026-06-19": [
+      [
+        "WebDrop",
+        16
+      ]
+    ],
+    "2026-06-20": [
+      [
+        "WebDrop",
+        7
+      ]
+    ],
+    "2026-06-23": [
+      [
+        "WebDrop",
+        7
+      ]
+    ],
+    "2026-06-24": [
+      [
+        "WebDrop",
+        1
+      ]
+    ],
+    "2026-06-25": [
+      [
+        "WebDrop",
+        17
+      ]
+    ],
+    "2026-06-28": [
+      [
+        "Codex-Acc-Switcher",
+        1
+      ]
+    ],
+    "2026-06-29": [
+      [
+        "WebDrop",
+        20
+      ],
+      [
+        "resume-studio-dashboard",
+        12
+      ]
+    ],
+    "2026-06-30": [
+      [
+        "resume-studio-dashboard",
+        6
+      ],
+      [
+        "WebDrop",
+        3
+      ]
+    ],
+    "2026-07-01": [
+      [
+        "resume-studio-dashboard",
+        2
+      ],
+      [
+        "WebDrop",
+        1
+      ]
+    ],
+    "2026-07-02": [
+      [
+        "WebDrop",
+        10
+      ],
+      [
+        "resume-studio-dashboard",
+        1
+      ]
+    ],
+    "2026-07-03": [
+      [
+        "resume-studio-dashboard",
+        10
+      ],
+      [
+        "WebDrop",
+        4
+      ]
+    ],
+    "2026-07-04": [
+      [
+        "resume-studio-dashboard",
+        18
+      ],
+      [
+        "WebDrop",
+        4
+      ]
+    ],
+    "2026-07-05": [
+      [
+        "resume-studio-dashboard",
+        2
+      ]
+    ],
+    "2026-07-06": [
+      [
+        "resume-studio-dashboard",
+        5
+      ]
+    ],
+    "2026-07-09": [
+      [
+        "WebDrop",
+        9
+      ],
+      [
+        "ClaudeShot",
+        2
+      ],
+      [
+        "Tutor-System",
+        2
+      ]
+    ],
+    "2026-07-10": [
+      [
+        "WebDrop",
+        6
+      ],
+      [
+        "ClaudeShot",
+        4
+      ],
+      [
+        "Tutor-System",
+        2
+      ]
+    ],
+    "2026-07-11": [
+      [
+        "WebDrop",
+        8
+      ],
+      [
+        "ClaudeShot",
+        2
+      ]
+    ],
+    "2026-07-12": [
+      [
+        "WebDrop",
+        4
+      ]
+    ],
+    "2026-07-14": [
+      [
+        "WebDrop",
+        1
+      ]
+    ],
+    "2026-07-15": [
+      [
+        "resume-studio-dashboard",
+        7
+      ]
+    ],
+    "2026-07-16": [
+      [
+        "resume-studio-dashboard",
+        27
+      ],
+      [
+        "WebDrop",
+        3
+      ]
+    ],
+    "2026-07-17": [
+      [
+        "resume-studio-dashboard",
+        19
+      ]
+    ],
+    "2026-07-18": [
+      [
+        "resume-studio-dashboard",
+        6
+      ]
+    ],
+    "2026-07-19": [
+      [
+        "resume-studio-dashboard",
+        17
+      ]
+    ],
+    "2026-07-20": [
+      [
+        "resume-studio-dashboard",
+        7
+      ]
+    ],
+    "2026-07-22": [
+      [
+        "resume-studio-dashboard",
+        2
+      ]
+    ],
+    "2026-07-23": [
+      [
+        "Tutor-System",
+        2
+      ],
+      [
+        "resume-studio-dashboard",
+        1
+      ]
+    ],
+    "2026-07-24": [
+      [
+        "resume-studio-dashboard",
+        1
+      ]
+    ],
+    "2026-07-25": [
+      [
+        "resume-studio-dashboard",
+        2
+      ],
+      [
+        "portfolio-mine",
+        1
+      ]
+    ],
+    "2026-07-26": [
+      [
+        "portfolio-mine",
+        4
+      ]
+    ],
+    "2026-07-29": [
+      [
+        "portfolio-mine",
+        7
+      ]
+    ],
+    "2026-07-30": [
+      [
+        "portfolio-mine",
+        3
+      ]
+    ],
+    "2026-08-02": [
+      [
+        "portfolio-mine",
+        3
+      ]
+    ],
+    "2026-09-16": [
+      [
+        "cc-fleet",
+        1
+      ]
+    ]
+  }
 }

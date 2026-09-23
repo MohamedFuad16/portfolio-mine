@@ -65,7 +65,7 @@ const drawFrame = (context, atlases, frame, alpha = 1) => {
   );
 };
 
-export function DaijinMascot({ clip = 'idle', scene = 'profile', loop = true, reducedMotion = false }) {
+export function DaijinMascot({ clip = 'idle', scene = 'profile', loop = true, reducedMotion = false, playKey = 0 }) {
   const safeClip = clipTimings[clip] ? clip : 'idle';
   const [isDesktop, setIsDesktop] = useState(() =>
     typeof window === 'undefined' ? false : window.matchMedia('(min-width: 761px)').matches
@@ -138,7 +138,7 @@ export function DaijinMascot({ clip = 'idle', scene = 'profile', loop = true, re
       cancelled = true;
       cancelAnimationFrame(request);
     };
-  }, [isDesktop, loop, reducedMotion, safeClip]);
+  }, [isDesktop, loop, reducedMotion, safeClip, playKey]);
 
   if (!isDesktop) return null;
 

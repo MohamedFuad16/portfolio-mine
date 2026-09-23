@@ -10,13 +10,11 @@ import { SplitText } from 'gsap/SplitText';
 import { CustomEase } from 'gsap/CustomEase';
 import { useGSAP } from '@gsap/react';
 import { BorderBeam } from 'border-beam';
-import { ThinkingOrb } from 'thinking-orbs';
 import { signaturePath, signatureViewBox, signatureStrokeWidth } from './data/signature-path';
 import { DaijinMascot } from './components/DaijinMascot';
 import {
   ArrowLeft,
   ArrowUpRight,
-  BrainCircuit,
   BriefcaseBusiness,
   Camera,
   Check,
@@ -25,9 +23,11 @@ import {
   Database,
   ExternalLink,
   FileDown,
+  FileSearch,
   Languages,
   Lock,
   Mail,
+  Network,
   MapPin,
   Plane,
   QrCode,
@@ -36,6 +36,8 @@ import {
   Server,
   Smartphone,
   Sparkles,
+  Sun,
+  Moon,
   Target,
   Terminal,
   Users,
@@ -58,6 +60,7 @@ import {
   SiVite,
 } from 'react-icons/si';
 import './styles/global.css';
+import './styles/theme-light.css';
 
 gsap.registerPlugin(
   ScrollTrigger,
@@ -161,6 +164,8 @@ const experience = [
     status: 'Active',
     statusJa: '在職中',
     date: 'Jun 2023 - Now',
+    start: '2023-06',
+    end: null,
     dateJa: '2023年6月 - 現在',
     icon: Languages,
     logo: '/media/logos/altius-link.png',
@@ -184,6 +189,8 @@ const experience = [
     status: 'Done',
     statusJa: '完了',
     date: 'Apr 2023 - Jul 2023',
+    start: '2023-04',
+    end: '2023-07',
     dateJa: '2023年4月 - 2023年7月',
     icon: BriefcaseBusiness,
     logo: '/media/logos/hotel-sui-akasaka.ico',
@@ -207,6 +214,8 @@ const experience = [
     status: 'Done',
     statusJa: '完了',
     date: 'Feb 2023 - Apr 2023',
+    start: '2023-02',
+    end: '2023-04',
     dateJa: '2023年2月 - 2023年4月',
     icon: Plane,
     logo: '/media/logos/japan-airlines.png',
@@ -260,6 +269,33 @@ const copy = {
     privateRepo: 'Private repo',
     visitors: (n) => ` ${n === 1 ? 'visitor' : 'visitors'}`,
     moreProjects: 'More Projects',
+    filterLabel: 'Filter projects by technology',
+    tenure: (months) => {
+      const years = Math.floor(months / 12);
+      const rest = months % 12;
+      const parts = [];
+      if (years) parts.push(`${years} yr${years === 1 ? '' : 's'}`);
+      if (rest) parts.push(`${rest} mo${rest === 1 ? '' : 's'}`);
+      return parts.join(' ');
+    },
+    command: {
+      label: 'Command menu',
+      placeholder: 'Jump to a section, open a project, copy my email…',
+      empty: 'Nothing matches that.',
+      sections: 'Go to',
+      actions: 'Actions',
+      settings: 'Settings',
+      contributions: 'Contributions',
+      copyEmail: 'Copy email address',
+      resume: 'Open résumé',
+      move: 'move',
+      open: 'open',
+      close: 'close',
+      button: 'Open command menu',
+      light: 'Switch to light theme',
+      dark: 'Switch to dark theme',
+    },
+    filterAll: 'All',
     thoughtsTitle: 'Thoughts in words.',
     thoughts: 'I write about the things I build and learn. Browse all of my posts on',
     thoughtsLink: 'my Qiita profile',
@@ -291,6 +327,7 @@ const copy = {
       count: (n) => (n === 0 ? 'No contributions' : `${n} contribution${n === 1 ? '' : 's'}`),
       month: (label, count, active) => `${label}: ${count} contribution${count === 1 ? '' : 's'} across ${active} active day${active === 1 ? '' : 's'}`,
       gridHint: 'Contribution calendar. Use the arrow keys to move between days.',
+      other: 'Other',
     },
     // Screen-reader-only strings. These used to be hardcoded English, so a
     // Japanese visitor got a fully translated page with English controls.
@@ -343,6 +380,30 @@ const copy = {
     privateRepo: '非公開リポジトリ',
     visitors: () => '人の訪問者',
     moreProjects: '他のプロジェクト',
+    filterLabel: '技術でプロジェクトを絞り込む',
+    tenure: (months) => {
+      const years = Math.floor(months / 12);
+      const rest = months % 12;
+      return `${years ? `${years}年` : ''}${rest ? `${rest}か月` : ''}`;
+    },
+    command: {
+      label: 'コマンドメニュー',
+      placeholder: 'セクションへ移動、プロジェクトを開く、メールをコピー…',
+      empty: '一致する項目がありません。',
+      sections: '移動',
+      actions: '操作',
+      settings: '設定',
+      contributions: 'コントリビューション',
+      copyEmail: 'メールアドレスをコピー',
+      resume: '履歴書を開く',
+      move: '移動',
+      open: '開く',
+      close: '閉じる',
+      button: 'コマンドメニューを開く',
+      light: 'ライトテーマに切り替え',
+      dark: 'ダークテーマに切り替え',
+    },
+    filterAll: 'すべて',
     thoughtsTitle: '言葉のメモ。',
     thoughts: '開発や学びについて書いています。すべての記事は',
     thoughtsLink: 'Qiitaプロフィール',
@@ -374,6 +435,7 @@ const copy = {
       count: (n) => (n === 0 ? 'コントリビューションなし' : `${n}件のコントリビューション`),
       month: (label, count, active) => `${label}：${active}日間で${count}件のコントリビューション`,
       gridHint: 'コントリビューションカレンダー。矢印キーで日付を移動できます。',
+      other: 'その他',
     },
     a11y: {
       language: '言語',
@@ -396,12 +458,159 @@ const copy = {
 
 const projects = [
   {
+    title: 'Ledger',
+    slug: 'ledger',
+    tags: ['AI', 'Python', 'React', 'TypeScript', 'AWS'],
+    badge: 'AI pipeline',
+    badgeJa: 'AIパイプライン',
+    image: '/media/projects/ledger-en.jpg',
+    imageJa: '/media/projects/ledger-ja.jpg',
+    video: '/media/video/ledger.mp4',
+    icon: FileSearch,
+    live: 'https://assignment.mohamedfuad.com',
+    github: 'https://github.com/MohamedFuad16/ledger-financial-report-system',
+    description:
+      'Reads a 100-page annual report, finds the few pages that matter, and returns a checked balance sheet.',
+    descriptionJa:
+      '100ページを超える年次報告書から必要なページだけを見つけ、検証済みの貸借対照表を返します。',
+    tech: ['Python', 'pdf-inspector', 'Firecrawl', 'LLM', 'React'],
+    detail: {
+      tagline: {
+        en: 'Turn an annual report PDF into 27 verified balance-sheet rows, using a tenth of the tokens a whole-document prompt needs.',
+        ja: '年次報告書のPDFを、文書全体を渡す場合の約10分の1のトークンで、検証済みの貸借対照表27行に変換します。',
+      },
+      // Re-derived on 2026-09-23 from the live /api/benchmark-summary and
+      // /api/benchmark-runs endpoints, not from the repo README, whose corpus
+      // figures (75 reports, 34 companies) predate the published summary.
+      // Speed and tokens use the same cohort as the site's own charts: Gemini
+      // 3.7 Flash runs on the 46 reports every strategy processed (whole
+      // report without OCR 36.7s and 92.9k tokens, gate 31.0s and 8.9k).
+      highlights: [
+        { value: '100%', label: { en: 'exact accuracy, all 966 rows correct', ja: '完全一致率（全966行が正解）' } },
+        { value: '47', label: { en: 'annual reports tested across 10 companies', ja: '10社・47件の年次報告書で検証' } },
+        { value: '31s', label: { en: 'average time per report, end to end', ja: '1件あたりの平均処理時間' } },
+        { value: '90%', label: { en: 'fewer tokens than sending the whole report', ja: '文書全体を渡す場合より少ないトークン' } },
+      ],
+      // Same cohort as the highlights: Gemini 3.7 Flash, the 46 reports every
+      // method processed, mean per report (re-derived 2026-09-24 from
+      // /api/benchmark-runs). One chart per measure; they never share an axis.
+      benchmark: {
+        caption: {
+          en: 'Mean per report on the 46 annual reports all three methods processed, with the same model (Gemini 3.7 Flash). From Ledger\'s published benchmark runs.',
+          ja: '3つの方式すべてが処理した46件の年次報告書での1件あたり平均（同一モデル Gemini 3.7 Flash）。Ledgerが公開しているベンチマーク実行結果より。',
+        },
+        charts: [
+          {
+            title: { en: 'Time per report', ja: '1件あたりの処理時間' },
+            unit: 's',
+            digits: 1,
+            rows: [
+              { label: { en: 'Whole report, no OCR', ja: '文書全体（OCRなし）' }, value: 36.7 },
+              { label: { en: 'Whole report, with OCR', ja: '文書全体（OCRあり）' }, value: 34.7 },
+              { label: { en: 'Ledger, best 3 to 5 pages', ja: 'Ledger（上位3〜5ページ）' }, value: 31.0, ours: true },
+            ],
+          },
+          {
+            title: { en: 'Input tokens per report', ja: '1件あたりの入力トークン' },
+            unit: 'k',
+            digits: 1,
+            rows: [
+              { label: { en: 'Whole report, no OCR', ja: '文書全体（OCRなし）' }, value: 92.9 },
+              { label: { en: 'Whole report, with OCR', ja: '文書全体（OCRあり）' }, value: 93.2 },
+              { label: { en: 'Ledger, best 3 to 5 pages', ja: 'Ledger（上位3〜5ページ）' }, value: 8.9, ours: true },
+            ],
+          },
+        ],
+      },
+      overview: {
+        en: 'Annual reports run past a hundred pages, and the balance sheet is a handful of them. Sending the whole PDF to a model is slow, expensive and gives it more places to pick the wrong number. Ledger reads the report locally with Firecrawl\'s pdf-inspector, which decides page by page whether the text layer can be trusted or needs OCR. A scoring gate then ranks every page against the fields it is looking for and sends only the best three to five to the model. The model maps those pages to a fixed 27-row asset schema, and the answer is validated and checked arithmetically before anything is scored. I built it as a benchmark, so it also compares four PDF parsers with and without OCR on the same reports and the same model.',
+        ja: '年次報告書は100ページを超えますが、貸借対照表はそのうちの数ページです。PDF全体をモデルに渡すと遅く、費用がかかり、間違った数字を拾う余地も増えます。LedgerはFirecrawlのpdf-inspectorで報告書をローカルに読み込み、ページごとにテキスト層を信頼できるか、OCRが必要かを判定します。次にスコアリングゲートが全ページを探している項目と照らして順位付けし、上位3〜5ページだけをモデルに送ります。モデルはそのページを27行の固定スキーマに対応付け、回答は採点前に検証と計算チェックを通ります。ベンチマークとして作ったため、同じ報告書と同じモデルで4種類のPDFパーサーをOCRあり・なしで比較することもできます。',
+      },
+      features: [
+        {
+          en: 'pdf-inspector keeps native text where it is readable and sends only the broken pages through local OCR at 200 DPI, so a scanned appendix does not slow down the rest of the report.',
+          ja: 'pdf-inspectorは読めるページはそのままのテキストを使い、崩れたページだけを200 DPIのローカルOCRに回します。スキャンされた付録があっても、他のページの処理は遅くなりません。',
+        },
+        {
+          en: 'The page gate scores every page on schema vocabulary, financial headings, tables and numeric density. On a 132-page 3M report it kept 5 pages, and the model saw about 8,500 tokens instead of the whole document.',
+          ja: 'ページゲートは、スキーマの語彙、財務の見出し、表、数値の密度で全ページを採点します。132ページある3Mの報告書では5ページだけを残し、モデルが読んだのは文書全体ではなく約8,500トークンでした。',
+        },
+        {
+          en: 'Every answer has to match an exact 27-row contract, then passes balance-sheet identity checks. A low-confidence value stays visible and is flagged for review instead of being hidden.',
+          ja: 'すべての回答は27行の厳密な契約に合致する必要があり、その後に貸借対照表の恒等式チェックを通ります。確信度が低い値も隠さずに表示し、レビュー対象として示します。',
+        },
+        {
+          en: 'The answer key never reaches the model. Gold values are tied to the exact PDF by SHA-256, and a reviewer approves them beside the searchable source.',
+          ja: '正解データがモデルに渡ることはありません。正解値はSHA-256で特定のPDFに紐づけ、レビュアーが検索可能な原本を見ながら承認します。',
+        },
+        {
+          en: 'Firecrawl finds official reports for any company and year, and each download is screened and pinned before it joins the benchmark corpus.',
+          ja: 'Firecrawlで任意の企業と年度の公式報告書を探し、ダウンロードしたファイルは検査と固定を経てからベンチマーク用コーパスに加わります。',
+        },
+      ],
+      flow: {
+        en: 'A report comes in as an upload or from the corpus. pdf-inspector classifies each page and extracts Markdown, with OCR only where the text layer fails. The gate scores the complete pages and keeps the top three to five in their original order. One model call maps them to the 27-row schema as JSON. The response is normalized, validated against the contract, checked against the accounting identities and, where a verified answer key exists, scored. Progress streams to the browser live, and every run is stored so it can be inspected or compared later.',
+        ja: '報告書はアップロードまたはコーパスから取り込みます。pdf-inspectorが各ページを分類してMarkdownを抽出し、テキスト層が使えないページだけOCRにかけます。ゲートが完全なページを採点し、上位3〜5ページを元の順序のまま残します。モデルを1回呼び出して27行のスキーマにJSONで対応付けます。応答は正規化、契約による検証、会計恒等式のチェックを経て、検証済みの正解がある場合は採点されます。進捗はリアルタイムでブラウザに表示され、すべての実行結果は後から確認・比較できるよう保存されます。',
+      },
+      architecture: [
+        { label: { en: 'Inspect', ja: '解析' }, detail: { en: 'Native text or OCR per page', ja: 'ページごとにテキストかOCR' } },
+        { label: { en: 'Select', ja: '選別' }, detail: { en: 'Top 3 to 5 pages', ja: '上位3〜5ページ' } },
+        { label: { en: 'Map', ja: '対応付け' }, detail: { en: 'One model call, 27 rows', ja: 'モデル1回で27行' } },
+        { label: { en: 'Verify', ja: '検証' }, detail: { en: 'Contract and arithmetic', ja: '契約と計算チェック' } },
+      ],
+      stack: [
+        {
+          kind: 'terminal',
+          title: { en: 'Annual report PDF', ja: '年次報告書PDF' },
+          sub: { en: 'Upload or corpus', ja: 'アップロード/コーパス' },
+          edge: { en: 'inspect', ja: '解析' },
+        },
+        {
+          title: { en: 'pdf-inspector', ja: 'pdf-inspector' },
+          sub: { en: 'Classifies every page', ja: '全ページを分類' },
+          edge: { en: 'pages', ja: 'ページ' },
+          branch: {
+            title: { en: 'Local OCR', ja: 'ローカルOCR' },
+            edge: { en: 'broken pages', ja: '崩れたページ' },
+          },
+        },
+        {
+          title: { en: 'Page scoring gate', ja: 'ページ採点ゲート' },
+          sub: { en: 'Keeps the top 3 to 5', ja: '上位3〜5ページ' },
+          edge: { en: 'evidence', ja: '根拠' },
+        },
+        {
+          title: { en: 'LLM mapping', ja: 'LLMで対応付け' },
+          sub: { en: '27 rows as JSON', ja: '27行のJSON' },
+          edge: { en: 'validate', ja: '検証' },
+        },
+        {
+          kind: 'decision',
+          title: { en: 'Checks pass?', ja: '検証を通過？' },
+          sub: { en: 'Schema and arithmetic', ja: 'スキーマと計算' },
+          edge: { en: 'yes', ja: 'はい' },
+          branch: {
+            title: { en: 'Flag for review', ja: 'レビューへ回す' },
+            edge: { en: 'no', ja: 'いいえ' },
+          },
+        },
+        {
+          kind: 'terminal',
+          title: { en: 'Verified balance sheet', ja: '検証済みの貸借対照表' },
+          sub: { en: 'Stored and scored', ja: '保存して採点' },
+        },
+      ],
+    },
+  },
+  {
     title: 'WebDrop',
     slug: 'webdrop',
+    tags: ['JavaScript', 'Node.js'],
     badge: 'live app',
     badgeJa: '公開中のアプリ',
     image: '/media/projects/webdrop-en.png',
     imageJa: '/media/projects/webdrop-ja.png',
+    video: '/media/video/webdrop.mp4',
     icon: Radio,
     live: 'https://web-drop-lyart.vercel.app/',
     github: 'https://github.com/MohamedFuad16/WebDrop',
@@ -494,10 +703,12 @@ const projects = [
   {
     title: 'Internship Portal',
     slug: 'internship-portal',
+    tags: ['React', 'Swift', 'Node.js'],
     badge: 'in progress',
     badgeJa: '開発中',
     image: '/media/projects/internship-portal-en.jpg',
     imageJa: '/media/projects/internship-portal-ja.jpg',
+    video: '/media/video/internship-portal.mp4',
     icon: Target,
     live: 'https://editor-omega-two.vercel.app',
     github: 'https://github.com/MohamedFuad16/resume-studio-dashboard',
@@ -585,111 +796,104 @@ const projects = [
     },
   },
   {
-    title: 'AI Brain Platform',
-    slug: 'ai-brain-platform',
-    badge: 'research project',
-    badgeJa: '研究プロジェクト',
-    image: '/media/projects/ai-brain.png',
-    icon: BrainCircuit,
-    // The repo stays private, but the generated gym dashboard is published,
-    // so the card carries a Live link alongside the "Private repo" label.
-    live: 'https://brain.mohamedfuad.com',
+    title: 'CCFT',
+    slug: 'ccft',
+    tags: ['AI', 'Swift'],
+    badge: 'multi-agent runtime',
+    badgeJa: 'マルチエージェント実行基盤',
+    image: '/media/projects/ccft.jpg',
+    video: '/media/video/ccft.mp4',
+    icon: Network,
     private: true,
     description:
-      'Project memory kept as versioned Markdown, indexed for search, with exams that check whether it actually helps.',
+      'A leader model plans the work as a task graph, and a scheduler runs parallel worker agents through it, with a native macOS app on top.',
     descriptionJa:
-      'バージョン管理されたMarkdownとして残すプロジェクトの記憶。検索用に索引化し、試験で実際の効果を確かめます。',
-    tech: ['PostgreSQL', 'pgvector', 'RAG', 'MCP', 'Node.js'],
+      'リーダーモデルが作業をタスクグラフとして計画し、スケジューラが並列のワーカーエージェントを実行します。操作はネイティブのmacOSアプリから行います。',
+    tech: ['Go', 'SwiftUI', 'Claude Code', 'tmux', 'DAG'],
     detail: {
       tagline: {
-        en: 'A knowledge base an agent reads before it writes code, with exams that check whether it actually helps.',
-        ja: 'エージェントがコードを書く前に読む知識ベースと、それが本当に役立っているかを確かめる試験。',
+        en: 'One model plans, a team of workers builds, and nothing counts as done until it passes a check.',
+        ja: '一つのモデルが計画し、ワーカーのチームが作り、チェックを通るまで何も完了とみなしません。',
       },
+      // Figures from the engine's own status write-up (CCFT-OVERVIEW.md,
+      // 19 Sep 2026) and its guardrail table, not estimates.
       highlights: [
-        { value: '370', label: { en: 'knowledge units indexed', ja: '索引化した知識ユニット' } },
-        { value: '522', label: { en: 'embedded chunks, 356 links', ja: '埋め込み済みチャンク（356の関連）' } },
-        { value: '9', label: { en: 'exams held out from the Brain', ja: 'Brainに教えない持ち出し不可試験' } },
-        { value: '139', label: { en: 'lessons curated over 21 cycles', ja: '21サイクルで蓄積した学び' } },
+        { value: '20', label: { en: 'guardrail rules on every tool call', ja: 'すべてのツール呼び出しに適用するガードレール' } },
+        { value: '11', label: { en: 'failure cases tested, each with a control', ja: '対照付きで検証した障害ケース' } },
+        { value: '133', label: { en: 'tests in the macOS app', ja: 'macOSアプリのテスト数' } },
+        { value: '2.8k', label: { en: 'tokens in a typical worker brief', ja: 'ワーカー1件あたりの指示トークン' } },
       ],
       overview: {
-        en: 'I wanted to see how far a cheap model can get if you give it good memory instead of training it. So the knowledge lives outside the model. Architecture notes, decisions, conventions and past mistakes are kept as versioned Markdown, and Postgres with pgvector is an index over those files rather than a second copy of the truth. When an agent starts a task, retrieval pulls the relevant pieces in, and an MCP server hands the same context to any harness. A stronger model plans and reviews while a cheaper one writes the code. Every night a loop replays my own git history as exams, to see whether any of this actually works.',
-        ja: '安価なモデルに学習をさせるのではなく、しっかりした記憶を与えたらどこまでやれるのかを確かめたくて始めました。そのため知識はモデルの外に置いています。アーキテクチャの記録、意思決定、規約、過去の失敗はバージョン管理されたMarkdownとして保存し、pgvectorを使うPostgresは真実の写しではなくそれらのファイルへの索引です。エージェントが作業を始めると検索が必要な部分を取り込み、MCPサーバーがどのハーネスにも同じ文脈を渡します。上位のモデルが計画とレビューを行い、安価なモデルがコードを書きます。夜ごとにループが自分のGit履歴を試験として再生し、これが実際に機能しているのかを確かめます。',
+        en: 'I wanted parallel sub-agents I could actually trust with a real repository. In CCFT you talk to one model, the leader, and it never does the work itself. It writes the job as a task graph, where each node has a role, the files it may touch, what it depends on and how it will be checked. A runtime scheduler then sends every node whose dependencies are done out as a wave of workers running at the same time, within what each account can carry. Workers only see a compiled brief for their own task, answer in a typed contract, and a node is accepted only after its checks pass. Hooks enforce each role on every tool call. The native SwiftUI app shows the conversation, the task checklist and every worker side by side.',
+        ja: '実際のリポジトリを安心して任せられる並列サブエージェントが欲しくて作りました。CCFTではリーダーとなる一つのモデルと会話し、リーダー自身は作業をしません。仕事をタスクグラフとして書き出し、各ノードに役割、触れてよいファイル、依存関係、検証方法を持たせます。ランタイムスケジューラは依存が完了したノードをまとめて一つのウェーブとし、各アカウントが処理できる範囲でワーカーを同時に走らせます。ワーカーは自分のタスク用にまとめられた指示だけを受け取り、型付きの契約で回答し、ノードはチェックを通って初めて受理されます。役割はすべてのツール呼び出しでフックが強制します。ネイティブのSwiftUIアプリでは、会話、タスクのチェックリスト、各ワーカーを並べて確認できます。',
       },
       features: [
         {
-          en: 'Markdown is the source of truth. If the database and the files disagree, the files win, and the whole index can be dropped and rebuilt from them.',
-          ja: 'Markdownが唯一の正です。データベースとファイルが食い違った場合はファイルが優先され、索引はいつでも破棄してファイルから再構築できます。',
+          en: 'The graph is validated before anything runs. Two nodes that would write the same file at once are refused, and a node with nothing checkable is sent back with the exact field to add.',
+          ja: '実行前にグラフを検証します。同じファイルを同時に書き込む2つのノードは拒否され、検証できる項目がないノードは追加すべき項目を示して差し戻されます。',
         },
         {
-          en: 'Retrieval mixes semantic search over pgvector embeddings with a relationship graph in SQL, because a question like "what breaks if I change this" is structural, not semantic.',
-          ja: '検索はpgvectorの埋め込みによる意味検索と、SQL上の関係グラフを組み合わせます。「これを変えると何が壊れるか」という問いは意味ではなく構造の問題だからです。',
+          en: 'The scheduler reserves capacity per account before each dispatch, so a wave never asks a connection for more than its quota allows, and a dead run gives its reservation back.',
+          ja: 'スケジューラは送信前にアカウントごとに枠を確保するため、ウェーブが接続先のクォータを超えることはなく、停止した実行は確保した枠を返します。',
         },
         {
-          en: 'A brain-mcp server gives the same retrieval to any harness and any model, so the memory outlives whichever model is best value this year.',
-          ja: 'brain-mcpサーバーが同じ検索機能をあらゆるハーネスとモデルに提供するため、その年に最も費用対効果の高いモデルが変わっても記憶は残ります。',
+          en: 'A failed report ends the attempt and takes one of three routes: retry with the failure in the handoff, replan the graph, or continue. Every refusal names the node, the field and the command to run next.',
+          ja: '失敗した報告はその試行を終了させ、失敗内容を引き継いだ再試行、グラフの再計画、続行のいずれかに進みます。拒否には必ず対象ノード、項目、次に実行するコマンドが示されます。',
         },
         {
-          en: 'The exams are real commits replayed as tasks the cheap model has never seen, and a teacher model grades the result against evidence rather than a feeling.',
-          ja: '試験は実際のコミットを、安価なモデルが見たことのない課題として再生したものです。教師モデルが感覚ではなく根拠に基づいて採点します。',
+          en: 'Hooks enforce roles on every call. The leader cannot write product code, workers cannot write outside their allowed paths, and no model can edit CCFT\'s own control files.',
+          ja: 'フックがすべての呼び出しで役割を強制します。リーダーはプロダクトコードを書けず、ワーカーは許可されたパスの外に書き込めず、どのモデルもCCFT自身の制御ファイルを編集できません。',
         },
         {
-          en: 'A curation gate decides what a graded run is allowed to teach the Brain, so a bad run cannot pollute the knowledge base.',
-          ja: '採点済みの実行結果から何をBrainに学習させてよいかをキュレーションゲートが判断するため、失敗した実行が知識ベースを汚すことはありません。',
+          en: 'Workers can come from different accounts and models, such as Claude, Codex, GLM or Grok, and the app shows each connection\'s quota before it is offered work.',
+          ja: 'ワーカーにはClaude、Codex、GLM、Grokなど異なるアカウントとモデルを使えます。アプリは作業を割り当てる前に各接続のクォータを表示します。',
         },
       ],
       flow: {
-        en: 'Every commit exports into the Brain, which is ingested and embedded, so the index is current as of the last commit. When an agent picks up a task it pulls in the conventions and the decisions that bind it, along with what has broken here before and how far the change can reach. Overnight the loop replays the held-out exams and the teacher model grades them. Whatever gets past the curation gate goes back into the files and the index is rebuilt, so the next run starts from a slightly better memory.',
-        ja: 'コミットごとにBrainへエクスポートされ、取り込みと埋め込みが行われるため、索引は直近のコミットの状態を保ちます。エージェントは作業を始めるとき、従うべき規約と決定に加えて、そこで過去に何が壊れたか、その変更がどこまで影響するかを取り込みます。夜間には持ち出し不可の試験を再生し、教師モデルが採点します。キュレーションゲートを通ったものだけがファイルへ戻り、索引が再構築されるので、次の実行は少しだけ良くなった記憶から始まります。',
+        en: 'You describe the job in the app. The leader registers a task graph and asks the controller what to do next. The controller answers with the ready nodes, the worker type for each and the exact calls to make, and the leader makes only those calls. Each worker starts from its compiled brief plus the accepted reports of the nodes it depends on, and returns a JSON contract. CCFT validates it and runs the node\'s checks. Accepted nodes unlock the next wave, failed ones are retried or replanned, and when the last node is accepted the leader answers you.',
+        ja: 'アプリで仕事を伝えると、リーダーがタスクグラフを登録し、次に何をすべきかをコントローラーに尋ねます。コントローラーは実行可能なノード、それぞれのワーカー種別、実行すべき呼び出しを返し、リーダーはその呼び出しだけを行います。各ワーカーはまとめられた指示と依存ノードの受理済み報告から作業を始め、JSONの契約で結果を返します。CCFTがそれを検証してノードのチェックを実行します。受理されたノードは次のウェーブを解放し、失敗したノードは再試行または再計画され、最後のノードが受理されるとリーダーが回答します。',
       },
       architecture: [
-        { label: { en: 'Markdown Brain', ja: 'MarkdownのBrain' }, detail: { en: 'Versioned source of truth', ja: 'バージョン管理された真実' } },
-        { label: { en: 'Index', ja: '索引' }, detail: { en: 'Postgres and pgvector', ja: 'Postgresとpgvector' } },
-        { label: { en: 'Retrieval', ja: '検索' }, detail: { en: 'RAG through an MCP server', ja: 'MCPサーバー経由のRAG' } },
-        { label: { en: 'Exam loop', ja: '試験ループ' }, detail: { en: 'Graded, then curated back', ja: '採点しBrainへ還元' } },
+        { label: { en: 'Leader', ja: 'リーダー' }, detail: { en: 'Plans a task graph', ja: 'タスクグラフを計画' } },
+        { label: { en: 'Scheduler', ja: 'スケジューラ' }, detail: { en: 'Dispatches ready waves', ja: '実行可能なウェーブを送信' } },
+        { label: { en: 'Workers', ja: 'ワーカー' }, detail: { en: 'Parallel, role-fenced', ja: '並列・役割を制限' } },
+        { label: { en: 'Verify', ja: '検証' }, detail: { en: 'Contract and checks', ja: '契約とチェック' } },
       ],
       stack: [
         {
           kind: 'terminal',
-          title: { en: 'Repository commit', ja: 'リポジトリのコミット' },
-          sub: { en: 'Docs, ADRs, lessons, examples', ja: '資料・ADR・学び・実例' },
-          edge: { en: 'export', ja: 'エクスポート' },
+          title: { en: 'Request in the app', ja: 'アプリでの依頼' },
+          sub: { en: 'SwiftUI on macOS', ja: 'macOSのSwiftUI' },
+          edge: { en: 'plan', ja: '計画' },
         },
         {
-          kind: 'store',
-          title: { en: 'Postgres + pgvector', ja: 'Postgres + pgvector' },
-          sub: { en: 'Rebuildable index, not a store', ja: '再構築可能な索引' },
-          edge: { en: 'retrieve', ja: '検索' },
+          title: { en: 'Leader model', ja: 'リーダーモデル' },
+          sub: { en: 'Registers a task graph', ja: 'タスクグラフを登録' },
+          edge: { en: 'register', ja: '登録' },
         },
         {
-          title: { en: 'brain-mcp server', ja: 'brain-mcpサーバー' },
-          sub: { en: 'Same context for any harness', ja: 'どのハーネスにも同じ文脈' },
-          edge: { en: 'context', ja: 'コンテキスト' },
+          title: { en: 'Runtime scheduler', ja: 'ランタイムスケジューラ' },
+          sub: { en: 'Ready nodes as a wave', ja: '実行可能なノードをまとめて送信' },
+          edge: { en: 'dispatch', ja: '送信' },
           branch: {
-            title: { en: 'Engineer model', ja: '実装モデル' },
-            edge: { en: 'implements', ja: '実装' },
+            title: { en: 'Parallel workers', ja: '並列ワーカー' },
+            edge: { en: 'wave', ja: 'ウェーブ' },
           },
         },
         {
           kind: 'decision',
-          title: { en: 'Did it pass?', ja: '合格したか' },
-          // Kept short because a diamond has almost no width left at the
-          // subtitle's own bottom edge: the usable span there is ~150 units
-          // against the box's 250. The full "Teacher grades held-out exams" /
-          // "教師モデルが持ち出し不可試験を採点" measured 159.97 and 177.88 and
-          // pushed its lower corners outside the outline even after ADR-050
-          // centred the pair. What it dropped ("held-out exams") is already in
-          // the prose above the chart (ADR-050).
-          sub: { en: 'Graded by the teacher model', ja: '教師モデルが採点' },
-          edge: { en: 'curate', ja: 'キュレーション' },
+          title: { en: 'Report accepted?', ja: '報告を受理？' },
+          sub: { en: 'Contract and checks', ja: '契約とチェック' },
+          edge: { en: 'yes', ja: 'はい' },
           branch: {
-            title: { en: 'Discard the run', ja: '結果を破棄' },
+            title: { en: 'Retry or replan', ja: '再試行か再計画' },
             edge: { en: 'no', ja: 'いいえ' },
           },
         },
         {
           kind: 'terminal',
-          title: { en: 'Lesson back into the Brain', ja: '学びをBrainへ還元' },
-          sub: { en: 'Re-index, next run starts better', ja: '再索引し次回へ' },
+          title: { en: 'Leader answers', ja: 'リーダーが回答' },
+          sub: { en: 'After the last node', ja: '最後のノードの後' },
         },
       ],
     },
@@ -697,10 +901,12 @@ const projects = [
   {
     title: 'Tutor-System',
     slug: 'tutor-system',
+    tags: ['AI', 'React', 'TypeScript'],
     badge: 'long-term project',
     badgeJa: '長期プロジェクト',
     image: '/media/projects/tutor-en.png',
     imageJa: '/media/projects/tutor-ja.png',
+    video: '/media/video/tutor-system.mp4',
     icon: Sparkles,
     live: 'https://tutor-system-architecture.vercel.app/',
     github: 'https://github.com/MohamedFuad16/Tutor-System',
@@ -786,10 +992,12 @@ const projects = [
   {
     title: 'TokaiHub',
     slug: 'tokaihub',
+    tags: ['React', 'AWS'],
     badge: 'student PWA',
     badgeJa: '学生向けPWA',
     image: '/media/projects/tokaihub-en.png',
     imageJa: '/media/projects/tokaihub-ja.png',
+    video: '/media/video/tokaihub.mp4',
     icon: Smartphone,
     live: 'https://tokaihub.mohamedfuad.com/',
     github: 'https://github.com/MohamedFuad16/TokaiHub',
@@ -871,6 +1079,7 @@ const projects = [
   {
     title: 'ClaudeShot',
     slug: 'claudeshot',
+    tags: ['Swift'],
     badge: 'macOS utility',
     badgeJa: 'macOSユーティリティ',
     image: '/media/projects/claudeshot.svg',
@@ -953,6 +1162,181 @@ const projects = [
     },
   },
 ];
+
+// Filter chips, in the order they appear above the cards. Only tags that at
+// least one project carries are shown, so a chip can never lead to nothing.
+const PROJECT_TAGS = ['AI', 'React', 'TypeScript', 'JavaScript', 'Python', 'Swift', 'Node.js', 'AWS'].filter(
+  (tag) => projects.some((project) => project.tags?.includes(tag))
+);
+// Skill pills whose label names a filter differently.
+const SKILL_TAG = { NodeJS: 'Node.js' };
+const skillTag = (label) => {
+  const tag = SKILL_TAG[label] || label;
+  return PROJECT_TAGS.includes(tag) ? tag : null;
+};
+
+// Cmd/Ctrl+K menu. Every entry does something a visitor can already do
+// somewhere on the page; this only makes it reachable from the keyboard.
+function CommandMenu({ open, onClose, items, t }) {
+  const [query, setQuery] = useState('');
+  const [cursor, setCursor] = useState(0);
+  const inputRef = useRef(null);
+  const listRef = useRef(null);
+  const returnFocusRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    returnFocusRef.current = document.activeElement;
+    setQuery('');
+    setCursor(0);
+    const frame = requestAnimationFrame(() => inputRef.current?.focus());
+    return () => {
+      cancelAnimationFrame(frame);
+      returnFocusRef.current?.focus?.({ preventScroll: true });
+    };
+  }, [open]);
+
+  const needle = query.trim().toLowerCase();
+  const matches = needle
+    ? items.filter((item) => `${item.label} ${item.group} ${item.keywords || ''}`.toLowerCase().includes(needle))
+    : items;
+
+  useEffect(() => {
+    listRef.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
+  }, [cursor, needle]);
+
+  if (!open) return null;
+
+  const run = (item) => {
+    onClose();
+    // Let the dialog unmount (and focus return) before the action scrolls or navigates.
+    requestAnimationFrame(() => item.run());
+  };
+
+  const onKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      onClose();
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setCursor((index) => Math.min(matches.length - 1, index + 1));
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setCursor((index) => Math.max(0, index - 1));
+    } else if (event.key === 'Enter' && matches[cursor]) {
+      event.preventDefault();
+      run(matches[cursor]);
+    } else if (event.key === 'Tab') {
+      // The input is the only focusable element, so focus stays in the dialog.
+      event.preventDefault();
+    }
+  };
+
+  let lastGroup = null;
+  return (
+    <div className="command-backdrop" onPointerDown={(event) => event.target === event.currentTarget && onClose()}>
+      <div className="command-menu" role="dialog" aria-modal="true" aria-label={t.command.label} onKeyDown={onKeyDown}>
+        <input
+          ref={inputRef}
+          className="command-input"
+          type="text"
+          value={query}
+          placeholder={t.command.placeholder}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setCursor(0);
+          }}
+          role="combobox"
+          aria-expanded="true"
+          aria-controls="command-list"
+          aria-activedescendant={matches[cursor] ? `command-${matches[cursor].id}` : undefined}
+        />
+        <ul className="command-list" id="command-list" role="listbox" ref={listRef}>
+          {matches.length === 0 && <li className="command-empty">{t.command.empty}</li>}
+          {matches.map((item, index) => {
+            const heading = item.group !== lastGroup ? item.group : null;
+            lastGroup = item.group;
+            const Icon = item.icon;
+            return (
+              <React.Fragment key={item.id}>
+                {heading && (
+                  <li className="command-group" role="presentation">
+                    {heading}
+                  </li>
+                )}
+                <li
+                  id={`command-${item.id}`}
+                  role="option"
+                  aria-selected={index === cursor}
+                  className={index === cursor ? 'on' : ''}
+                  onPointerMove={() => setCursor(index)}
+                  onClick={() => run(item)}
+                >
+                  {Icon && <Icon size={15} aria-hidden="true" />}
+                  <span>{item.label}</span>
+                  {item.hint && <kbd>{item.hint}</kbd>}
+                </li>
+              </React.Fragment>
+            );
+          })}
+        </ul>
+        <p className="command-foot" aria-hidden="true">
+          <span><kbd>↑</kbd><kbd>↓</kbd> {t.command.move}</span>
+          <span><kbd>↵</kbd> {t.command.open}</span>
+          <span><kbd>esc</kbd> {t.command.close}</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// One drawing for both states: in dark mode the rays fold in and a mask
+// slides across the disc to leave a crescent; in light mode it reverses.
+// Driven entirely by CSS off <html data-theme>, which public/theme-init.js
+// sets before first paint.
+function SunMoonIcon() {
+  return (
+    <svg className="sun-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+      <mask id="sun-moon-mask">
+        <rect width="24" height="24" fill="#fff" />
+        <circle className="sun-moon-cut" cx="24" cy="10" r="6" fill="#000" />
+      </mask>
+      <circle className="sun-moon-core" cx="12" cy="12" r="5" fill="currentColor" mask="url(#sun-moon-mask)" />
+      <g className="sun-moon-rays" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <line x1="12" y1="1.5" x2="12" y2="3.5" />
+        <line x1="12" y1="20.5" x2="12" y2="22.5" />
+        <line x1="1.5" y1="12" x2="3.5" y2="12" />
+        <line x1="20.5" y1="12" x2="22.5" y2="12" />
+        <line x1="4.6" y1="4.6" x2="6" y2="6" />
+        <line x1="18" y1="18" x2="19.4" y2="19.4" />
+        <line x1="4.6" y1="19.4" x2="6" y2="18" />
+        <line x1="18" y1="6" x2="19.4" y2="4.6" />
+      </g>
+    </svg>
+  );
+}
+
+function ProjectFilters({ active, onChange, t }) {
+  return (
+    <div className="project-filters" role="group" aria-label={t.filterLabel}>
+      {[null, ...PROJECT_TAGS].map((tag) => {
+        const count = tag ? projects.filter((project) => project.tags?.includes(tag)).length : projects.length;
+        return (
+          <button
+            key={tag || 'all'}
+            type="button"
+            className={active === tag ? 'on' : ''}
+            aria-pressed={active === tag}
+            onClick={() => onChange(tag)}
+          >
+            {tag || t.filterAll}
+            <span>{count}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 // Number pop-in, after transitions.dev's transition of the same name. Their
 // measured parameters: 500ms, cubic-bezier(0.34, 1.45, 0.64, 1), 70ms stagger
@@ -1179,14 +1563,27 @@ function Highlight({ name, children }) {
   );
 }
 
-function SkillPill({ skill }) {
+function SkillPill({ skill, onPick, copy }) {
   const Icon = skill.Icon;
-  return (
-    <li className="skill">
+  const tag = skillTag(skill.label);
+  const body = (
+    <>
       <span className="skill-mark">
         <Icon style={{ color: skill.color }} aria-hidden="true" />
       </span>
       <span>{skill.label}</span>
+    </>
+  );
+  // A skill that some project uses doubles as a shortcut to those projects.
+  return (
+    <li className="skill" aria-hidden={copy || undefined}>
+      {tag ? (
+        <button type="button" className="skill-link" onClick={() => onPick(tag)} tabIndex={copy ? -1 : undefined}>
+          {body}
+        </button>
+      ) : (
+        body
+      )}
     </li>
   );
 }
@@ -1224,6 +1621,8 @@ function useContributionData() {
   const [data, setData] = useState(() => ({
     cells: fallbackCells,
     total: sumCounts(fallbackCells),
+    activity: {},
+    repos: {},
   }));
 
   useEffect(() => {
@@ -1249,7 +1648,11 @@ function useContributionData() {
         if (cancelled || !Array.isArray(payload.cells)) return;
         const cells = normalise(payload.cells);
         if (!cells.length) return;
-        setData({ cells, total: sumCounts(cells) });
+        // Only the snapshot knows which repositories each day went to; the
+        // live read below refreshes the counts and keeps this breakdown.
+        const activity = payload.activity && typeof payload.activity === 'object' ? payload.activity : {};
+        const repos = payload.repos && typeof payload.repos === 'object' ? payload.repos : {};
+        setData({ cells, total: sumCounts(cells), activity, repos });
       })
       .catch(() => {});
 
@@ -1268,7 +1671,7 @@ function useContributionData() {
           // across a fortnight of dates, the caption disagreed with the grid on
           // 13 days out of 14. The snapshot's own total is already the sum of
           // its cells, so this changes nothing there.
-          setData({ cells, total: sumCounts(cells) });
+          setData((current) => ({ ...current, cells, total: sumCounts(cells) }));
         })
         .catch(() => {})
     );
@@ -1295,6 +1698,15 @@ function formatCellDate(dateStr, locale, { weekday = false } = {}) {
     year: 'numeric',
   }).format(date);
 }
+
+// GitHub repository names that differ from the project titles on this page.
+const REPO_TITLES = {
+  'resume-studio-dashboard': 'Internship Portal',
+  'ledger-financial-report-system': 'Ledger',
+  'portfolio-mine': 'This portfolio',
+  'Codex-Acc-Switcher': 'Codex Account Switcher',
+};
+const repoLabel = (name) => REPO_TITLES[name] || name;
 
 // Streaks and peaks are computed from the cells actually drawn, so every
 // figure above the grid can be checked against the squares below it.
@@ -1323,7 +1735,7 @@ function summariseContributions(cells) {
 }
 
 function ContributionGrid({ t, locale }) {
-  const { cells, total } = useContributionData();
+  const { cells, total, activity } = useContributionData();
   const [activeIndex, setActiveIndex] = useState(null);
   const [focusMonth, setFocusMonth] = useState(null);
   const [tooltip, setTooltip] = useState(null);
@@ -1416,6 +1828,7 @@ function ContributionGrid({ t, locale }) {
   }, [cells, locale, weekCount, leadIn]);
 
   const stats = useMemo(() => summariseContributions(cells), [cells]);
+
   const monthTotal = useMemo(() => {
     if (!focusMonth) return null;
     const days = cells.filter((day) => day.date.startsWith(focusMonth));
@@ -1447,6 +1860,10 @@ function ContributionGrid({ t, locale }) {
       y: rect.top,
       count: day.count,
       date: formatCellDate(day.date, locale, { weekday: true }),
+      repos: (activity[day.date] || []).slice(0, 3),
+      // Whatever the listed repositories do not account for: private repos,
+      // anything past the first three, or work newer than the snapshot.
+      other: Math.max(0, day.count - (activity[day.date] || []).slice(0, 3).reduce((sum, [, n]) => sum + n, 0)),
     });
   };
 
@@ -1608,12 +2025,47 @@ function ContributionGrid({ t, locale }) {
           >
             <strong>{t.contributionStats.count(tooltip.count)}</strong>
             <span>{tooltip.date}</span>
+            {tooltip.repos.length > 0 && (
+              <ul className="contribution-tooltip-repos">
+                {tooltip.repos.map(([name, count]) => (
+                  <li key={name}>
+                    <b>{repoLabel(name)}</b>
+                    <i>{count}</i>
+                  </li>
+                ))}
+                {tooltip.other > 0 && (
+                  <li>
+                    <b>{t.contributionStats.other}</b>
+                    <i>{tooltip.other}</i>
+                  </li>
+                )}
+              </ul>
+            )}
           </div>,
           document.body
         )}
     </section>
   );
 }
+
+// Months between two "YYYY-MM" stamps, counting both ends, so Feb to Apr is
+// three months. `end: null` means the job is current.
+const monthIndex = (stamp) => {
+  const [year, month] = stamp.split('-').map(Number);
+  return year * 12 + month - 1;
+};
+const currentMonth = () => {
+  const now = new Date();
+  return now.getFullYear() * 12 + now.getMonth();
+};
+function tenure(item) {
+  return (item.end ? monthIndex(item.end) : currentMonth()) - monthIndex(item.start) + 1;
+}
+// The span every bar is drawn against: first start to today.
+const EXPERIENCE_RANGE = (() => {
+  const first = Math.min(...experience.map((item) => monthIndex(item.start)));
+  return { first, length: currentMonth() - first + 1 };
+})();
 
 function ExperienceItem({ item, locale, t }) {
   const [open, setOpen] = useState(false);
@@ -1623,6 +2075,10 @@ function ExperienceItem({ item, locale, t }) {
   const date = locale === 'ja' ? item.dateJa : item.date;
   const details = locale === 'ja' ? item.detailsJa : item.details;
   const company = locale === 'ja' && item.companyJa ? item.companyJa : item.company;
+  const months = tenure(item);
+  const barStart = ((monthIndex(item.start) - EXPERIENCE_RANGE.first) / EXPERIENCE_RANGE.length) * 100;
+  const barWidth = (months / EXPERIENCE_RANGE.length) * 100;
+  const result = locale === 'ja' ? item.resultJa : item.result;
   return (
     <article className={`experience-item ${open ? 'open' : ''}`}>
       <div className="experience-summary">
@@ -1660,8 +2116,16 @@ function ExperienceItem({ item, locale, t }) {
             </small>
           </h3>
           <p>{role}</p>
+          {result && <p className="experience-result">{result}</p>}
+          {/* Where this job sits between the first start date and today. */}
+          <span className={`experience-span ${item.tone}`} aria-hidden="true">
+            <i style={{ left: `${barStart}%`, width: `${barWidth}%` }} />
+          </span>
         </div>
-        <time>{date}</time>
+        <time>
+          {date}
+          <small>{t.tenure(months)}</small>
+        </time>
         <button
           className="chevron"
           type="button"
@@ -1690,19 +2154,56 @@ function badgeLabel(project, locale) {
   return locale === 'ja' && project.badgeJa ? project.badgeJa : project.badge;
 }
 
-function ProjectCard({ project, t, locale, onOpen }) {
+function ProjectCard({ project, t, locale, onOpen, hidden }) {
   const Icon = project.icon;
   const image = locale === 'ja' && project.imageJa ? project.imageJa : project.image;
   const open = (event) => onOpen(project.slug, event.currentTarget);
+  const videoRef = useRef(null);
+  const [playing, setPlaying] = useState(false);
+  // The loop only runs while a mouse is over the preview (or it has keyboard
+  // focus). Touch devices and reduced-motion visitors keep the still image,
+  // and `preload="none"` means nobody downloads a clip they never hover.
+  const play = (event) => {
+    const video = videoRef.current;
+    if (!video || (event.pointerType && event.pointerType !== 'mouse')) return;
+    // Focus plays only for keyboard focus, not when focus is handed back to
+    // the card after the overlay closes or a touch tap focuses it.
+    if (event.type === 'focus' && !event.currentTarget.matches(':focus-visible')) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    video.play().then(() => setPlaying(true)).catch(() => {});
+  };
+  const stop = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.pause();
+    setPlaying(false);
+  };
   return (
-    <article className={`project project-${project.slug} dashed`}>
+    <article className={`project project-${project.slug} dashed`} hidden={hidden}>
       <button
         type="button"
-        className="project-shot"
+        className={`project-shot${playing ? ' is-playing' : ''}`}
         onClick={open}
+        onPointerEnter={play}
+        onPointerLeave={stop}
+        onFocus={play}
+        onBlur={stop}
         aria-label={`${project.title}: ${t.viewDetails}`}
       >
         <img src={image} alt={t.a11y.preview(project.title)} />
+        {project.video && (
+          <video
+            ref={videoRef}
+            className="project-video"
+            src={project.video}
+            muted
+            loop
+            playsInline
+            preload="none"
+            aria-hidden="true"
+            tabIndex={-1}
+          />
+        )}
         <span className="project-badge">{badgeLabel(project, locale)}</span>
         <span className="project-shot-hint">
           {t.viewDetails}
@@ -1748,6 +2249,53 @@ function ProjectCard({ project, t, locale, onOpen }) {
         </div>
       </div>
     </article>
+  );
+}
+
+// Horizontal bars, one measure per chart, each chart on its own zero-based
+// axis. Our row carries the accent; the baselines stay neutral so the
+// comparison reads without a legend. Values are labelled directly.
+function BenchmarkBars({ benchmark, locale }) {
+  const pick = (value) => (locale === 'ja' ? value.ja : value.en);
+  return (
+    <div className="pd-bench">
+      {benchmark.charts.map((chart) => {
+        const max = Math.max(...chart.rows.map((row) => row.value));
+        return (
+          <figure className="pd-bench-chart" key={chart.title.en}>
+            <figcaption>{pick(chart.title)}</figcaption>
+            <table className="sr-only">
+              <tbody>
+                {chart.rows.map((row) => (
+                  <tr key={row.label.en}>
+                    <th scope="row">{pick(row.label)}</th>
+                    <td>
+                      {row.value.toFixed(chart.digits)}
+                      {chart.unit}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <ul aria-hidden="true">
+              {chart.rows.map((row) => {
+                const value = `${row.value.toFixed(chart.digits)}${chart.unit}`;
+                return (
+                  <li key={row.label.en} className={row.ours ? 'is-ours' : ''} title={`${pick(row.label)}: ${value}`}>
+                    <span className="pd-bench-label">{pick(row.label)}</span>
+                    <span className="pd-bench-track">
+                      <i style={{ '--w': `${(row.value / max) * 100}%` }} />
+                    </span>
+                    <span className="pd-bench-value">{value}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </figure>
+        );
+      })}
+      <p className="pd-bench-caption">{pick(benchmark.caption)}</p>
+    </div>
   );
 }
 
@@ -2110,6 +2658,7 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup 
                 </li>
               ))}
             </ol>
+            {d.benchmark && <BenchmarkBars benchmark={d.benchmark} locale={locale} />}
           </section>
         )}
 
@@ -2175,6 +2724,23 @@ export default function App() {
   const [route, setRoute] = useState(() => window.location.hash);
   const [shownProject, setShownProject] = useState(null);
   const [mascotScene, setMascotScene] = useState({ clip: 'playful', scene: 'profile' });
+  const [projectTag, setProjectTag] = useState(null);
+  // public/theme-init.js has already set <html data-theme> before this
+  // bundle ran (saved choice, else the system setting), so start from that
+  // and there is no dark-then-light flash on first paint.
+  const [theme, setTheme] = useState(() =>
+    document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
+  );
+  // Nothing saved yet means the visitor never chose, so keep following the
+  // system if it changes while the page is open.
+  const [themeChosen, setThemeChosen] = useState(() => {
+    try {
+      return Boolean(window.localStorage.getItem('portfolio-theme'));
+    } catch {
+      return false;
+    }
+  });
+  const [commandOpen, setCommandOpen] = useState(false);
   const reducedMotion = useReducedMotion();
   const visitorCount = useVisitorCount();
   const mainRef = useRef(null);
@@ -2516,7 +3082,9 @@ export default function App() {
     smoothWrapper?.setAttribute('inert', '');
 
     const onKey = (event) => {
-      if (event.key === 'Escape') {
+      // A layer above (the command menu) that already handled Escape marks it
+      // with preventDefault; only a bare Escape closes the project.
+      if (event.key === 'Escape' && !event.defaultPrevented) {
         event.preventDefault();
         closeProject();
       }
@@ -2901,6 +3469,67 @@ export default function App() {
           onUpdate: (self) => syncMascotScene(self.scroll()),
         });
 
+        // Daijin is fixed outside the smoothed content, so it is placed every
+        // tick from live geometry rather than CSS guesses: beside the photo in
+        // the profile scene (positioned so the playful clip's outstretched paw,
+        // measured at 93% across and 45% down its frame, lands just inside the
+        // photo's left edge), on the left rail otherwise. It eases toward the
+        // target instead of jumping, and keeps tracking the photo while the page
+        // scrolls.
+        const mascotPosition = { x: null, y: null };
+        const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let knockArmed = true;
+        const PAW_X = 478 / 512;
+        const PAW_Y = 230 / 512;
+        const followMascot = () => {
+          const mascot = document.querySelector('.daijin-mascot');
+          if (!mascot) {
+            mascotPosition.x = null;
+            return;
+          }
+          const size = mascot.offsetWidth;
+          const width = window.innerWidth;
+          let targetX;
+          let targetY;
+          const photo = mascot.dataset.scene === 'profile' && mainRef.current?.querySelector('.avatar-shell');
+          if (photo) {
+            const rect = photo.getBoundingClientRect();
+            targetX = rect.left + 10 - size * PAW_X;
+            targetY = rect.top + rect.height * 0.4 - size * PAW_Y;
+          } else {
+            const compact = width <= 1000;
+            targetX = Math.max(compact ? 32 : 12, width / 2 - (compact ? 428 : 468));
+            targetY = compact ? 124 : 108;
+          }
+          if (mascotPosition.x === null) {
+            mascotPosition.x = targetX;
+            mascotPosition.y = targetY;
+          }
+          const ease = 1 - Math.pow(1 - 0.12, gsap.ticker.deltaRatio());
+          mascotPosition.x += (targetX - mascotPosition.x) * ease;
+          mascotPosition.y += (targetY - mascotPosition.y) * ease;
+          mascot.style.transform = `translate3d(${mascotPosition.x.toFixed(2)}px, ${mascotPosition.y.toFixed(2)}px, 0)`;
+
+          // The photo reacts to the paw itself, not to a timer: the knock fires
+          // on the frame where the playful reach is at full stretch (frame 20),
+          // so image decoding can never put the two out of step. It re-arms
+          // once the paw is back down.
+          const frame = Number(mascot.dataset.frame);
+          if (photo && mascot.dataset.clip === 'playful') {
+            if (frame <= 12) knockArmed = true;
+            if (knockArmed && frame >= 20 && !reducedMotionQuery.matches) {
+              knockArmed = false;
+              gsap.killTweensOf(photo);
+              gsap
+                .timeline()
+                .to(photo, { rotation: 7, x: 6, y: -3, duration: 0.16, ease: 'power2.out', transformOrigin: '80% 90%' })
+                .to(photo, { rotation: -2, x: -1, y: 0, duration: 0.35, ease: 'power1.inOut' })
+                .to(photo, { rotation: 0, x: 0, duration: 1.1, ease: 'elastic.out(1, 0.35)', clearProps: 'transform' });
+            }
+          }
+        };
+        gsap.ticker.add(followMascot);
+
         // Smooth-scroll the hero's "#projects" link instead of jumping.
         const buildingLink = mainRef.current?.querySelector('.building');
         const smoothScroll = contextSafe((event) => {
@@ -2918,6 +3547,7 @@ export default function App() {
         window.addEventListener('load', onLoad);
 
         return () => {
+          gsap.ticker.remove(followMascot);
           buildingLink?.removeEventListener('click', smoothScroll);
           window.removeEventListener('load', onLoad);
         };
@@ -2944,6 +3574,154 @@ export default function App() {
     return () => window.removeEventListener('click', handleTap);
   }, []);
 
+  // Hidden cards change the page height, so every ScrollTrigger below the
+  // project list has to re-measure.
+  useEffect(() => {
+    ScrollTrigger.refresh();
+  }, [projectTag]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#f6f6f7' : '#0f1011');
+  }, [theme]);
+
+  useEffect(() => {
+    if (themeChosen) return undefined;
+    const query = window.matchMedia('(prefers-color-scheme: light)');
+    const follow = () => setTheme(query.matches ? 'light' : 'dark');
+    query.addEventListener('change', follow);
+    return () => query.removeEventListener('change', follow);
+  }, [themeChosen]);
+
+  const toggleTheme = () => {
+    const next = theme === 'light' ? 'dark' : 'light';
+    setTheme(next);
+    setThemeChosen(true);
+    try {
+      window.localStorage.setItem('portfolio-theme', next);
+    } catch {
+      /* storage unavailable */
+    }
+  };
+
+  useEffect(() => {
+    const onKey = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setCommandOpen((value) => !value);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  const scrollToSection = (selector) => {
+    const target = document.querySelector(selector);
+    if (!target) return;
+    const smoother = ScrollSmoother.get();
+    if (smoother) smoother.scrollTo(target, true, 'top 120px');
+    else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const commandItems = [
+    ...[
+      ['skills', t.skills, '.skills-marquees', Code2],
+      ['work', t.work, '.timeline', BriefcaseBusiness],
+      ['contributions', t.command.contributions, '.contribution', Sparkles],
+      ['projects', t.projects, '#projects', Rocket],
+      ['writing', t.thoughtsTitle, '.blog-content', Terminal],
+      ['contact', t.connectTitle, '#contact', Mail],
+    ].map(([id, label, selector, icon]) => ({
+      id: `go-${id}`,
+      group: t.command.sections,
+      label,
+      keywords: id,
+      icon,
+      run: () => {
+        if (!activeProject) {
+          scrollToSection(selector);
+          return;
+        }
+        // Closing steps history back and plays the close animation; scroll
+        // once the page underneath is live again.
+        closeProject();
+        window.setTimeout(() => scrollToSection(selector), 650);
+      },
+    })),
+    ...projects.map((project) => ({
+      id: `project-${project.slug}`,
+      group: t.projects,
+      label: project.title,
+      keywords: project.tech.join(' '),
+      icon: project.icon,
+      run: () => openProject(project.slug, null),
+    })),
+    {
+      id: 'copy-email',
+      group: t.command.actions,
+      label: t.command.copyEmail,
+      icon: Mail,
+      run: () => navigator.clipboard?.writeText('mohamed.fuad.jp@gmail.com').catch(() => {}),
+    },
+    {
+      id: 'resume',
+      group: t.command.actions,
+      label: t.command.resume,
+      icon: FileDown,
+      run: () => window.open(resumeHref, '_blank', 'noopener'),
+    },
+    {
+      id: 'github',
+      group: t.command.actions,
+      label: 'GitHub',
+      icon: Code2,
+      run: () => window.open('https://github.com/MohamedFuad16', '_blank', 'noopener'),
+    },
+    {
+      id: 'linkedin',
+      group: t.command.actions,
+      label: 'LinkedIn',
+      icon: Users,
+      run: () => window.open('https://www.linkedin.com/in/mohamed-fuad-6b8483278', '_blank', 'noopener'),
+    },
+    {
+      id: 'theme',
+      group: t.command.settings,
+      label: theme === 'light' ? t.command.dark : t.command.light,
+      keywords: 'theme appearance light dark mode テーマ',
+      icon: theme === 'light' ? Moon : Sun,
+      run: toggleTheme,
+    },
+    {
+      id: 'language',
+      group: t.command.settings,
+      label: locale === 'ja' ? 'Switch to English' : '日本語に切り替え',
+      keywords: 'language locale english japanese 言語',
+      icon: Languages,
+      run: () => setLocale(locale === 'ja' ? 'en' : 'ja'),
+    },
+  ];
+
+  const pickTag = (tag) => {
+    setProjectTag(tag);
+    const target = document.getElementById('projects');
+    const smoother = ScrollSmoother.get();
+    if (smoother && target) smoother.scrollTo(target, true, 'top 140px');
+    else target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // While the visitor stays at the top, Daijin keeps playing: the reach
+  // replays every few seconds instead of happening once.
+  useEffect(() => {
+    if (reducedMotion || mascotScene.scene !== 'profile') return undefined;
+    const timer = window.setTimeout(() => {
+      setMascotScene((current) =>
+        current.scene === 'profile' ? { ...current, playKey: (current.playKey || 0) + 1 } : current
+      );
+    }, 5200);
+    return () => window.clearTimeout(timer);
+  }, [mascotScene, reducedMotion]);
+
   const handleNameAction = (event) => {
     event.stopPropagation();
     setBurst(false);
@@ -2953,6 +3731,7 @@ export default function App() {
 
   return (
     <>
+      <CommandMenu open={commandOpen} onClose={() => setCommandOpen(false)} items={commandItems} t={t} />
       <div className="page-click-effects" aria-hidden="true">
         {clickBursts.map((item) => (
           <span className="click-burst" key={item.id} style={{ left: item.x, top: item.y }}>
@@ -2991,6 +3770,7 @@ export default function App() {
         <DaijinMascot
           clip={mascotScene.clip}
           scene={mascotScene.scene}
+          playKey={mascotScene.playKey}
           loop={false}
           reducedMotion={reducedMotion}
         />
@@ -3003,11 +3783,7 @@ export default function App() {
             beam, not a child, so BorderBeam keeps its own clipping and the
             button is never cut off or haloed (ADR-034). */}
         <div
-          className={`avatar-shell ${
-            mascotScene.scene === 'profile' && mascotScene.clip === 'playful'
-              ? 'daijin-playing-with-photo'
-              : ''
-          }`}
+          className="avatar-shell"
         >
         <BorderBeam
           className="avatar-beam"
@@ -3060,25 +3836,8 @@ export default function App() {
               <i />
             </button>
           </h1>
-          {/* The thinking orb stands in for the sparkle: an agent-UI motif for
-              the line that says he builds AI agent tools (ADR-034). */}
           <a className="building" href="#projects">
-            {/* The shimmer needs its own element: background-clip: text only
-                clips to the glyphs of the element it is set on, and the orb
-                sibling must not inherit a transparent text fill. */}
             <span className="building-text">{t.building}</span>
-            {/* Rendered at the 64px preset (its own dot count and tuning, not a
-                scaled-up 20px orb) and displayed at 30px, so it reads clearly
-                on the line without dominating it. */}
-            <ThinkingOrb
-              className="building-orb"
-              state="searching"
-              size={64}
-              theme="dark"
-              speed={0.9}
-              paused={reducedMotion}
-              aria-hidden="true"
-            />
           </a>
           <p className="handle">
             @MohamedFuad16
@@ -3100,6 +3859,25 @@ export default function App() {
                 日本語
               </button>
             </span>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={theme === 'light' ? t.command.dark : t.command.light}
+              title={theme === 'light' ? t.command.dark : t.command.light}
+            >
+              <SunMoonIcon />
+            </button>
+            <button
+              type="button"
+              className="command-trigger"
+              onClick={() => setCommandOpen(true)}
+              aria-label={t.command.button}
+              aria-keyshortcuts="Meta+K Control+K"
+            >
+              <kbd>{/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'}</kbd>
+              <kbd>K</kbd>
+            </button>
           </p>
           <p className="meta">
             <span className="meta-location">
@@ -3153,7 +3931,14 @@ export default function App() {
           <div className="skills-marquee" data-direction={rowIndex === 0 ? 'left' : 'right'} key={rowIndex}>
             <ul className="skills">
               {[...row, ...row, ...row].map((skill, index) => (
-                <SkillPill key={`${skill.label}-${rowIndex}-${index}`} skill={skill} />
+                <SkillPill
+                  key={`${skill.label}-${rowIndex}-${index}`}
+                  skill={skill}
+                  onPick={pickTag}
+                  // The row repeats three times for the seamless loop; only the
+                  // first copy is reachable by keyboard and screen readers.
+                  copy={index >= row.length}
+                />
               ))}
             </ul>
           </div>
@@ -3171,9 +3956,17 @@ export default function App() {
       <ContributionGrid t={t} locale={locale} />
 
       <SectionTitle mascot="projects">{t.projects}</SectionTitle>
+      <ProjectFilters active={projectTag} onChange={setProjectTag} t={t} />
       <section className="projects" id="projects">
         {projects.map((project) => (
-          <ProjectCard key={project.title} project={project} t={t} locale={locale} onOpen={openProject} />
+          <ProjectCard
+            key={project.title}
+            project={project}
+            t={t}
+            locale={locale}
+            onOpen={openProject}
+            hidden={Boolean(projectTag) && !project.tags?.includes(projectTag)}
+          />
         ))}
       </section>
 
