@@ -1121,16 +1121,67 @@ small.red {
 
 .contribution {
   margin-bottom: 17px;
-  padding: 34px 36px 28px;
+  padding: 30px 36px 26px;
+}
+
+/* Four figures, each re-derivable from the squares underneath. */
+.contribution-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 26px;
+}
+
+.contribution-stat {
+  min-width: 0;
+  border-left: 1px dashed #3a3c3e;
+  padding-left: 12px;
+}
+
+.contribution-stat dt {
+  color: #9a9c9e;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.contribution-stat dd {
+  display: grid;
+  gap: 2px;
+  margin: 4px 0 0;
+}
+
+.contribution-stat strong {
+  color: #f2f2f2;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.contribution-stat span {
+  overflow: hidden;
+  color: #8a8c8e;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Only the calendar scrolls sideways on phones; the stats and caption stay put. */
+.calendar-viewport {
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.contribution::-webkit-scrollbar {
+.calendar-viewport::-webkit-scrollbar {
   display: none;
 }
 
+/* Weekday gutter plus calendar: row one is the month header, row two the grid. */
 .calendar-scroll {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 8px;
+  row-gap: 8px;
   min-width: 0;
 }
 
@@ -1140,9 +1191,45 @@ small.red {
   display: grid;
   grid-template-columns: repeat(var(--grid-columns, 52), minmax(0, 1fr));
   gap: 3px;
-  margin-bottom: 10px;
-  color: #f2f2f2;
-  font-size: 14px;
+  font-size: 13px;
+}
+
+.months button {
+  justify-self: start;
+  border: 0;
+  border-radius: 4px;
+  padding: 1px 4px;
+  margin-left: -4px;
+  background: transparent;
+  color: #d8d8d8;
+  font: inherit;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.months button:hover,
+.months button.is-active {
+  background: #26282a;
+  color: #fff;
+}
+
+.months button:focus-visible {
+  outline: 2px solid #ededed;
+  outline-offset: 1px;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-rows: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  color: #8a8c8e;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.weekdays span {
+  display: flex;
+  align-items: center;
 }
 
 /* One column per week, seven rows for the days in it — so a column is a
@@ -1153,86 +1240,29 @@ small.red {
   grid-template-rows: repeat(7, auto);
   grid-auto-flow: column;
   gap: 3px;
+  border-radius: 4px;
+  outline: none;
+}
+
+.grid:focus-visible {
+  box-shadow: 0 0 0 2px #0f1011, 0 0 0 4px #ededed;
 }
 
 .cell {
-  position: relative;
   display: block;
   aspect-ratio: 1;
   border-radius: 2px;
   background: #202224;
 }
 
-.cell[data-tooltip]::after,
-.cell[data-tooltip]::before {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 140ms ease, transform 140ms ease, visibility 0ms linear 140ms;
-  pointer-events: none;
+.grid .cell.is-active {
+  box-shadow: 0 0 0 1.5px #0f1011, 0 0 0 3px #f2f2f2;
 }
 
-.cell[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 9px);
-  left: 50%;
-  z-index: 20;
-  width: max-content;
-  max-width: 150px;
-  transform: translateX(-50%);
-  border-radius: 5px;
-  padding: 5px 9px;
-  background: #1c1e20;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
-  color: #f2f2f2;
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.3;
-  text-align: center;
-  white-space: normal;
-  transform: translate(-50%, 3px);
-}
-
-/* Cells flow column-first in sevens, so the first 14 are the two leftmost
-   week columns and the last 14 are the two rightmost — those are the ones
-   whose centred tooltip would hang off the edge of the card. Counting from
-   both ends keeps this correct however many weeks the data covers. */
-.cell:nth-child(-n + 14)[data-tooltip]::after {
-  left: 0;
-  transform: translateY(3px);
-}
-
-.cell:nth-last-child(-n + 14)[data-tooltip]::after {
-  left: auto;
-  right: 0;
-  transform: translateY(3px);
-}
-
-.cell[data-tooltip]::before {
-  content: '';
-  position: absolute;
-  bottom: calc(100% + 4px);
-  left: 50%;
-  z-index: 20;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: #1c1e20;
-}
-
-.cell[data-tooltip]:hover::after {
-  transform: translate(-50%, 0);
-}
-
-.cell:nth-child(-n + 14)[data-tooltip]:hover::after,
-.cell:nth-last-child(-n + 14)[data-tooltip]:hover::after {
-  transform: translateY(0);
-}
-
-.cell[data-tooltip]:hover::after,
-.cell[data-tooltip]:hover::before {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 140ms ease, transform 140ms ease, visibility 0ms linear 0ms;
+/* Hovering or focusing a month label dims every day outside it. */
+.grid.is-filtering .cell:not(.in-month) {
+  opacity: 0.18;
+  transition: opacity 160ms ease;
 }
 
 .level-1 {
@@ -1251,17 +1281,63 @@ small.red {
   background: #ededed;
 }
 
+/* Rendered into <body>, outside every transformed ancestor and scroll box,
+   so no cell and no overflow edge can cover or clip it. */
+.contribution-tooltip {
+  position: fixed;
+  z-index: 60;
+  display: grid;
+  gap: 2px;
+  transform: translate(-50%, calc(-100% - 10px));
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: #1c1e20;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  color: #f2f2f2;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.contribution-tooltip strong {
+  font-weight: 600;
+}
+
+.contribution-tooltip span {
+  color: #9a9c9e;
+  font-size: 11px;
+}
+
+.contribution-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: calc(50% + var(--arrow-shift, 0px));
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1c1e20;
+}
+
 .contribution-foot {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
   margin-top: 17px;
   color: #f0f0f0;
-  font-size: 16px;
+  font-size: 15px;
+}
+
+.contribution-caption {
+  min-height: 1.4em;
+  font-variant-numeric: tabular-nums;
 }
 
 .legend {
   display: inline-flex;
+  flex-shrink: 0;
   gap: 5px;
   align-items: center;
 }
@@ -2302,7 +2378,7 @@ footer {
     margin-left: 50px;
   }
 
-  /* Fixed 11px cells here instead of fractional tracks: the section scrolls
+  /* Fixed 11px cells here instead of fractional tracks: the calendar scrolls
      horizontally on phones, so the grid sets its own width and the wrapper's
      min-width is derived from the same numbers rather than hardcoded. */
   .grid {
@@ -2318,18 +2394,26 @@ footer {
   }
 
   .contribution {
-    padding: 25px 18px 24px;
+    padding: 22px 18px 22px;
+  }
+
+  .contribution-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .contribution-stat strong {
+    font-size: 19px;
   }
 
   .calendar-scroll {
-    min-width: calc(var(--grid-columns, 52) * 14px - 3px);
+    min-width: calc(var(--grid-columns, 52) * 14px + 30px);
   }
 
   .contribution-foot {
-    position: sticky;
-    left: 0;
     flex-direction: column;
-    width: min(calc(100vw - 78px), 100%);
+    align-items: flex-start;
     font-size: 14px;
   }
 }

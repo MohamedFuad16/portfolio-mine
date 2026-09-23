@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { pageview } from '@vercel/analytics';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -278,6 +279,19 @@ const copy = {
     less: 'Less',
     more: 'More',
     dayTooltip: (count, dateLabel) => `${count} contribution${count === 1 ? '' : 's'} on ${dateLabel}`,
+    contributionStats: {
+      total: 'Contributions',
+      window: 'last 12 months',
+      active: 'Active days',
+      activeOf: (days) => `of ${days} days`,
+      longest: 'Longest streak',
+      days: (n) => `${n} day${n === 1 ? '' : 's'}`,
+      current: (n) => `current: ${n} day${n === 1 ? '' : 's'}`,
+      best: 'Busiest day',
+      count: (n) => (n === 0 ? 'No contributions' : `${n} contribution${n === 1 ? '' : 's'}`),
+      month: (label, count, active) => `${label}: ${count} contribution${count === 1 ? '' : 's'} across ${active} active day${active === 1 ? '' : 's'}`,
+      gridHint: 'Contribution calendar. Use the arrow keys to move between days.',
+    },
     // Screen-reader-only strings. These used to be hardcoded English, so a
     // Japanese visitor got a fully translated page with English controls.
     a11y: {
@@ -348,6 +362,19 @@ const copy = {
     less: '少',
     more: '多',
     dayTooltip: (count, dateLabel) => `${dateLabel}に${count}件のコントリビューション`,
+    contributionStats: {
+      total: 'コントリビューション',
+      window: '直近12か月',
+      active: '活動日数',
+      activeOf: (days) => `${days}日中`,
+      longest: '最長連続記録',
+      days: (n) => `${n}日`,
+      current: (n) => `現在 ${n}日連続`,
+      best: '最多の日',
+      count: (n) => (n === 0 ? 'コントリビューションなし' : `${n}件のコントリビューション`),
+      month: (label, count, active) => `${label}：${active}日間で${count}件のコントリビューション`,
+      gridHint: 'コントリビューションカレンダー。矢印キーで日付を移動できます。',
+    },
     a11y: {
       language: '言語',
       skillsCarousel: '技術スキルのカルーセル',
@@ -1254,7 +1281,7 @@ function useContributionData() {
   return data;
 }
 
-function formatCellDate(dateStr, locale) {
+function formatCellDate(dateStr, locale, { weekday = false } = {}) {
   // Belt and braces: `normalise` already drops undated entries, but this runs
   // once per cell during render, so a bad value here would take the page down.
   if (typeof dateStr !== 'string') return '';
@@ -1262,14 +1289,46 @@ function formatCellDate(dateStr, locale) {
   if (!Number.isFinite(year)) return dateStr;
   const date = new Date(year, (month || 1) - 1, day || 1);
   return new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'en-US', {
+    ...(weekday ? { weekday: 'short' } : {}),
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   }).format(date);
 }
 
+// Streaks and peaks are computed from the cells actually drawn, so every
+// figure above the grid can be checked against the squares below it.
+function summariseContributions(cells) {
+  let longest = 0;
+  let run = 0;
+  let best = null;
+  let active = 0;
+  cells.forEach((day) => {
+    if (day.count > 0) {
+      active += 1;
+      run += 1;
+      longest = Math.max(longest, run);
+      if (!best || day.count > best.count) best = day;
+    } else {
+      run = 0;
+    }
+  });
+  // Today usually has no pushes yet when someone visits, so a zero on the
+  // last day does not break the current streak; it starts from yesterday.
+  let current = 0;
+  let index = cells.length - 1;
+  if (index >= 0 && cells[index].count === 0) index -= 1;
+  for (; index >= 0 && cells[index].count > 0; index -= 1) current += 1;
+  return { longest, current, best, active };
+}
+
 function ContributionGrid({ t, locale }) {
   const { cells, total } = useContributionData();
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [focusMonth, setFocusMonth] = useState(null);
+  const [tooltip, setTooltip] = useState(null);
+  const gridRef = useRef(null);
+  const viewportRef = useRef(null);
 
   // `cells` swaps from synthetic fallback data to the real snapshot/API data
   // after mount. Cells share `key={day.date}`, and recent dates commonly
@@ -1282,6 +1341,38 @@ function ContributionGrid({ t, locale }) {
   useEffect(() => {
     ScrollTrigger.refresh();
   }, [cells, total]);
+
+  // On phones the calendar scrolls sideways; open it on the recent end, which
+  // is the part anyone looking at it wants to see.
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (viewport) viewport.scrollLeft = viewport.scrollWidth;
+  }, [cells]);
+
+  // The tooltip is fixed to the viewport, and ScrollSmoother keeps emitting
+  // scroll events while it eases to rest, so re-anchor it to the active cell
+  // on every scroll rather than hiding it (which made it vanish mid-hover).
+  useEffect(() => {
+    if (activeIndex == null) return undefined;
+    let frame = 0;
+    const follow = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const rect = gridRef.current?.children[activeIndex]?.getBoundingClientRect();
+        if (rect) setTooltip((tip) => tip && { ...tip, x: rect.left + rect.width / 2, y: rect.top });
+      });
+    };
+    window.addEventListener('scroll', follow, { passive: true });
+    window.addEventListener('resize', follow);
+    const viewport = viewportRef.current;
+    viewport?.addEventListener('scroll', follow, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', follow);
+      window.removeEventListener('resize', follow);
+      viewport?.removeEventListener('scroll', follow);
+    };
+  }, [activeIndex]);
 
   // The grid flows column-first with seven rows, so cell N lives in week
   // `floor(N / 7)`. Anchoring each month label to the column its first day
@@ -1324,40 +1415,202 @@ function ContributionGrid({ t, locale }) {
       .filter((mark) => mark.span >= 3);
   }, [cells, locale, weekCount, leadIn]);
 
+  const stats = useMemo(() => summariseContributions(cells), [cells]);
+  const monthTotal = useMemo(() => {
+    if (!focusMonth) return null;
+    const days = cells.filter((day) => day.date.startsWith(focusMonth));
+    const [year, month] = focusMonth.split('-').map(Number);
+    const label = new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'en-US', {
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date(year, month - 1, 1));
+    return { label, count: sumCounts(days), active: days.filter((day) => day.count > 0).length };
+  }, [cells, focusMonth, locale]);
+
+  // Sunday-first to match the grid's rows; only Mon/Wed/Fri get a label so
+  // the column stays as quiet as GitHub's.
+  const weekdayLabels = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'en-US', { weekday: 'short' });
+    return Array.from({ length: 7 }, (_, row) =>
+      row % 2 === 1 ? formatter.format(new Date(Date.UTC(2023, 0, 1 + row, 12))) : ''
+    );
+  }, [locale]);
+
+  const showDay = (index) => {
+    const cell = gridRef.current?.children[index];
+    const day = cells[index];
+    if (!cell || !day) return;
+    const rect = cell.getBoundingClientRect();
+    setActiveIndex(index);
+    setTooltip({
+      x: rect.left + rect.width / 2,
+      y: rect.top,
+      count: day.count,
+      date: formatCellDate(day.date, locale, { weekday: true }),
+    });
+  };
+
+  const clearDay = () => {
+    setActiveIndex(null);
+    setTooltip(null);
+  };
+
+  const handlePointer = (event) => {
+    const index = Number(event.target?.dataset?.index);
+    if (Number.isInteger(index)) {
+      if (index !== activeIndex) showDay(index);
+    } else if (event.type === 'pointerdown') {
+      clearDay();
+    }
+  };
+
+  // Up/down step one day, left/right one week, matching how the grid reads.
+  const handleKey = (event) => {
+    const steps = { ArrowUp: -1, ArrowDown: 1, ArrowLeft: -7, ArrowRight: 7 };
+    if (event.key === 'Escape') {
+      clearDay();
+      return;
+    }
+    if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault();
+      showDay(event.key === 'Home' ? 0 : cells.length - 1);
+      return;
+    }
+    if (!(event.key in steps)) return;
+    event.preventDefault();
+    const from = activeIndex ?? cells.length - 1;
+    showDay(Math.min(cells.length - 1, Math.max(0, from + steps[event.key])));
+  };
+
+  const activeDay = activeIndex != null ? cells[activeIndex] : null;
+  const figures = [
+    { key: 'total', label: t.contributionStats.total, value: total, note: t.contributionStats.window },
+    {
+      key: 'active',
+      label: t.contributionStats.active,
+      value: stats.active,
+      note: t.contributionStats.activeOf(cells.length),
+    },
+    {
+      key: 'streak',
+      label: t.contributionStats.longest,
+      value: t.contributionStats.days(stats.longest),
+      note: t.contributionStats.current(stats.current),
+    },
+    {
+      key: 'best',
+      label: t.contributionStats.best,
+      value: stats.best ? stats.best.count : 0,
+      note: stats.best ? formatCellDate(stats.best.date, locale) : '',
+    },
+  ];
+
   return (
     <section className="dashed contribution" aria-label={t.a11y.contributionGrid}>
-      <div className="calendar-scroll" style={{ '--grid-columns': weekCount }}>
-        <div className="months" aria-hidden="true">
-          {monthLabels.map((mark) => (
-            <span key={mark.key} style={{ gridColumn: `${mark.column} / span ${mark.span}` }}>
-              {mark.label}
-            </span>
-          ))}
-        </div>
-        <div className="grid" aria-hidden="true">
-          {cells.map((day, index) => (
-            <span
-              key={day.date || index}
-              className={`cell level-${day.level}`}
-              // Only the first cell is placed explicitly; the rest auto-flow
-              // down its column and on into the next, so every column below
-              // lines up on the same weekday.
-              style={index === 0 && leadIn ? { gridRowStart: leadIn + 1 } : undefined}
-              data-tooltip={t.dayTooltip(day.count, formatCellDate(day.date, locale))}
-            />
-          ))}
-        </div>
-        <div className="contribution-foot">
-          <span>{t.contribution(total)}</span>
-          <span className="legend">
-            {t.less}
-            {[0, 1, 2, 3, 4].map((level) => (
-              <i key={level} className={`cell level-${level}`} />
+      <dl className="contribution-stats">
+        {figures.map((figure) => (
+          <div key={figure.key} className="contribution-stat">
+            <dt>{figure.label}</dt>
+            <dd>
+              <strong>{figure.value}</strong>
+              <span>{figure.note}</span>
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <div className="calendar-viewport" ref={viewportRef}>
+        <div className="calendar-scroll" style={{ '--grid-columns': weekCount }}>
+          <span aria-hidden="true" />
+          <div className="months">
+            {monthLabels.map((mark) => {
+              const monthKey = `${mark.key.split('-')[0]}-${mark.key.split('-')[1].padStart(2, '0')}`;
+              return (
+                <button
+                  type="button"
+                  key={mark.key}
+                  className={focusMonth === monthKey ? 'is-active' : ''}
+                  style={{ gridColumn: `${mark.column} / span ${mark.span}` }}
+                  aria-pressed={focusMonth === monthKey}
+                  onPointerEnter={() => setFocusMonth(monthKey)}
+                  onPointerLeave={() => setFocusMonth(null)}
+                  onFocus={() => setFocusMonth(monthKey)}
+                  onBlur={() => setFocusMonth(null)}
+                >
+                  {mark.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="weekdays" aria-hidden="true">
+            {weekdayLabels.map((label, row) => (
+              <span key={row}>{label}</span>
             ))}
-            {t.more}
-          </span>
+          </div>
+          <div
+            ref={gridRef}
+            className={`grid${focusMonth ? ' is-filtering' : ''}`}
+            role="application"
+            tabIndex={0}
+            aria-label={t.contributionStats.gridHint}
+            aria-describedby="contribution-live"
+            onPointerMove={handlePointer}
+            onPointerDown={handlePointer}
+            onPointerLeave={(event) => event.pointerType === 'mouse' && clearDay()}
+            onKeyDown={handleKey}
+            onBlur={clearDay}
+          >
+            {cells.map((day, index) => (
+              <span
+                key={day.date || index}
+                data-index={index}
+                className={[
+                  'cell',
+                  `level-${day.level}`,
+                  index === activeIndex ? 'is-active' : '',
+                  focusMonth && day.date.startsWith(focusMonth) ? 'in-month' : '',
+                ].join(' ')}
+                // Only the first cell is placed explicitly; the rest auto-flow
+                // down its column and on into the next, so every column below
+                // lines up on the same weekday.
+                style={index === 0 && leadIn ? { gridRowStart: leadIn + 1 } : undefined}
+              />
+            ))}
+          </div>
         </div>
       </div>
+      <div className="contribution-foot">
+        <span className="contribution-caption" aria-live="polite" id="contribution-live">
+          {activeDay
+            ? t.dayTooltip(activeDay.count, formatCellDate(activeDay.date, locale))
+            : monthTotal
+              ? t.contributionStats.month(monthTotal.label, monthTotal.count, monthTotal.active)
+              : t.contribution(total)}
+        </span>
+        <span className="legend" aria-hidden="true">
+          {t.less}
+          {[0, 1, 2, 3, 4].map((level) => (
+            <i key={level} className={`cell level-${level}`} />
+          ))}
+          {t.more}
+        </span>
+      </div>
+      {tooltip &&
+        createPortal(
+          <div
+            className="contribution-tooltip"
+            role="presentation"
+            style={{
+              // Clamped so the first and last weeks never push it off-screen.
+              left: Math.min(window.innerWidth - 96, Math.max(96, tooltip.x)),
+              top: tooltip.y,
+              '--arrow-shift': `${tooltip.x - Math.min(window.innerWidth - 96, Math.max(96, tooltip.x))}px`,
+            }}
+          >
+            <strong>{t.contributionStats.count(tooltip.count)}</strong>
+            <span>{tooltip.date}</span>
+          </div>,
+          document.body
+        )}
     </section>
   );
 }
@@ -1907,15 +2160,6 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup 
       </div>
     </div>
   );
-}
-
-const achievementSound = new Audio('/media/audio/achievement-completed.wav');
-achievementSound.preload = 'auto';
-
-function playAchievementSound(volume = 0.12) {
-  const sound = achievementSound.cloneNode();
-  sound.volume = Math.min(1, Math.max(0, volume));
-  sound.play().catch(() => {});
 }
 
 export default function App() {
@@ -2494,6 +2738,10 @@ export default function App() {
           duration: 0.5,
           ease,
           stagger: { each: 0.005, from: 'random' },
+          // A leftover `transform: translate(0, 0)` makes every cell its own
+          // stacking context, which is how neighbouring cells used to paint
+          // over the hover tooltip. Leave nothing inline once each cell lands.
+          clearProps: 'transform,translate,rotate,scale,opacity',
         });
 
         // Signature: single continuous "hello"-style pen gesture draws itself
@@ -2685,11 +2933,6 @@ export default function App() {
       // scroll or drag gesture never triggers the ripple; detail === 0 skips
       // keyboard-activated clicks (which have no meaningful pointer position).
       if (event.detail === 0) return;
-      const target = event.target instanceof Element ? event.target : null;
-      const interactiveTarget = target?.closest(
-        'button, a, input, select, textarea, summary, label, [role="button"], [contenteditable="true"]'
-      );
-      if (!interactiveTarget) playAchievementSound(0.22);
       const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       setClickBursts((items) => [...items.slice(-5), { id, x: event.clientX, y: event.clientY }]);
       window.setTimeout(() => {

@@ -61,6 +61,7 @@
 | ADR-058 | — Reserve a mascot header gap instead of overlapping content (2026-08-14) | — |
 | ADR-059 | — Use a responsive left rail and exclude the Playful turnaround (2026-08-14) | — |
 | ADR-060 | — Integrate anonymous analytics and structure without dropping newer remote work (2026-08-30) | — |
+| ADR-061 | — Remove the click sound; rebuild the contribution grid around one portal tooltip (2026-09-23) | — |
 
 # Decisions
 
@@ -1122,3 +1123,14 @@ Context: The requested cleanup and analytics work was prepared from a checkout 6
 Decision: Integrate onto current `origin/main`. Preserve every newer feature and the existing `api/visits.mjs` counter. Add production-only Vercel Web Analytics with automatic history tracking disabled and manual sanitized `/` plus `/project/<slug>` page views. Do not add GA4, Google tags, raw-IP storage, or custom free-tier events. Make `src/main.jsx` entry-only, move the application, mascot, generated signature, and CSS into purpose-named source folders, and sort public files into typed `public/media/` folders. Add asset-reference validation and security headers. Replace the Japanese resume with the exact user-supplied one-page A4 PDF. Disable the marquee mask only while a skill is hovered so the GitHub icon is not clipped.
 
 Consequences: The Vercel dashboard supplies anonymous page/referrer/country/browser/device/OS reporting with no analytics environment variable, while Upstash remains the separate de-duplicated visitor count. The free analytics tier intentionally omits custom click/section events. Source and media paths are cleaner without regressing remote features, and the scheduled contribution workflow now writes to `public/media/data/contributions.json`.
+
+## ADR-061 — Remove the click sound; rebuild the contribution grid around one portal tooltip (2026-09-23)
+
+Status: Accepted. Supersedes the audio part of ADR-030/031.
+
+Context: The user found the page-click achievement sound annoying for visitors and asked for it to go. They also reported that hovering a day in the middle of the contribution grid showed an overlaid, broken tooltip. Reproduced in the browser: the tooltip for Mar 27, 2026 was cut through by the cells to its right. Cause: the cell reveal (`gsap.from` scale/opacity) left `transform: translate(0px, 0px)` inline on all 364 cells, so every cell was its own stacking context and the `::after` tooltip's `z-index: 20` could not rise above later siblings. The CSS-only tooltip could also be clipped by the section's `overflow-x: auto`.
+
+Decision: Delete the WAV and its playback; keep the visual ripple. Replace the 364 pseudo-element tooltips with one tooltip rendered through `createPortal` into `<body>` at the hovered cell's rect, clamped to the viewport, re-anchored (not hidden) on scroll because ScrollSmoother keeps emitting scroll events while it eases. Add `clearProps` to the cell reveal so no inline transform survives. Add a four-figure stats row computed from the drawn cells (total, active days, longest and current streak, busiest day), Mon/Wed/Fri labels, month labels as buttons that dim the rest of the year and show that month's total in the caption, arrow-key navigation with a live caption, and open the phone view scrolled to the most recent weeks.
+
+Consequences: The tooltip can no longer be covered or clipped. All stats are re-derivable from `public/media/data/contributions.json` (verified 2026-09-23: 596 total, 62 active days, 14-day longest streak, 40 on 2026-05-30). Only the calendar scrolls on phones; stats and caption stay fixed.
+

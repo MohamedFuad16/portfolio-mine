@@ -1,12 +1,14 @@
 # State
 
-> Last updated: 2026-08-30 · HEAD: d819a17
+> Last updated: 2026-09-23 · HEAD: fd9008e
 
 ## Current state summary
 
 The workspace contains a Vite React portfolio deployed to Vercel, populated with Mohamed Fuad's bilingual CV content. `src/main.jsx` is entry-only; `src/App.jsx`, `src/components/`, `src/data/`, `src/styles/`, and typed `public/media/` folders separate application concerns without dropping the latest Internship Portal, AI Brain, contribution snapshot, visitor counter, or Daijin mascot features. Upstash backs the existing de-duplicated footer count. Vercel Web Analytics records anonymous `/` and hash-routed project page views, with no GA4 code or Google tag configuration. The Japanese locale serves the exact user-supplied one-page A4 CV. The GitHub skill-marquee hover mask is disabled only while a skill is hovered, preventing the icon overlay/clipping issue while preserving the edge fade at rest. Asset references are validated by `pnpm check:assets`.
 
 ## Recent changes
+
+- 2026-09-23 (click sound removed; contribution grid rebuilt — ADR-061): Pulled 26 commits from `origin/main`, all automated contribution snapshots, fast-forward to `fd9008e`. Removed the page-click achievement sound and its WAV; the ripple stays. Reproduced the reported heatmap hover bug (neighbouring cells painting over the tooltip, caused by GSAP's leftover per-cell transforms) and replaced the CSS tooltips with one portaled tooltip, plus a stats row, weekday labels, month focus, keyboard navigation, and a phone view that opens on recent weeks. Verified in headless Chrome at 1280x900 and 390x844 with real mouse input: tooltip fully above the cell on middle and edge days, no inline styles left on cells, 0 console errors or 4xx/5xx, no horizontal overflow, stats equal to a Python recount of the snapshot. `pnpm check` passes. Moved the dev preview to port 5174 because another project's Vite server holds 5173. Not committed.
 
 - 2026-08-30 (remote-safe portfolio integration; ADR-060): Integrated the requested analytics, Japanese CV, GitHub hover-mask fix, and directory cleanup on top of 62 newer remote commits instead of overwriting them. Preserved Daijin, Internship Portal, AI Brain, the scheduled contribution snapshot, and the existing Upstash visitor API. Added Vercel Web Analytics with sanitized manual virtual page views, moved source/media into purpose-named folders, restored the missing ClaudeShot icon, and added asset-path/security/env documentation. `pnpm check`, dependency graph/diagram regeneration, PDF checksum/metadata verification, and `git diff --check` pass.
 

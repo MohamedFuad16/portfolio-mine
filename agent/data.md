@@ -27,7 +27,6 @@ Static assets:
 - Profile and QR: `public/media/images/`.
 - Project screenshots and ClaudeShot SVG/icon pair: `public/media/projects/`.
 - University/work marks: `public/media/logos/`.
-- Interaction audio: `public/media/audio/achievement-completed.wav`.
 - Daijin atlas pairs: `public/media/mascot/`.
 
 Runtime public data:

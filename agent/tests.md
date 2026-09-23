@@ -13,7 +13,7 @@ Verification workflow:
 - Verify both EN and JA profile/project copy, including the symbol-only Tokai mark and ClaudeShot card.
 - In production with Vercel Web Analytics enabled, verify one page view for `/` and each `/project/<slug>` path, including Back/Escape navigation, and confirm there are no Google Analytics requests.
 - Switch to Japanese and open the resume; verify the localized one-page A4 PDF is served.
-- Confirm a non-interactive page-surface click plays the achievement sound, while buttons, links, form controls, summaries, labels, and role/contenteditable controls remain silent. The visual ripple may still appear on controls that bubble to the page handler.
+- Confirm clicks produce the ripple and no audio request. Hover middle and edge contribution cells in a real browser (the preview pane freezes rAF, so use headless Chrome over CDP) and confirm the tooltip is fully visible above the cell.
 - At a desktop viewport, confirm `.daijin-mascot` sits to the left of the portrait, its reaching paw
   visibly crosses the portrait's left edge, and frame numbers advance without React rerenders.
   Expected section map: Profile→Playful, Skills→Clever, Experience→Working,
