@@ -6,3 +6,6 @@ dist/
 .env*
 !.env.example
 graphify-out/
+.ssr/
+# La Storia Bold is "All Rights Reserved"; only the generated signature paths ship.
+scripts/fonts/

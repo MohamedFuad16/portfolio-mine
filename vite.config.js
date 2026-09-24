@@ -35,6 +35,30 @@ function mockVisitsApi() {
   };
 }
 
+/**
+ * Preloads the latin Figtree file. The app renders its text from JS, so without
+ * this the browser only discovers the font after the bundle runs, and the swap
+ * from the fallback re-wraps the intro paragraph (a 0.13 layout shift in
+ * Lighthouse mobile). The file name is hashed, so it is read from the bundle.
+ */
+function preloadBodyFont() {
+  return {
+    name: 'preload-body-font',
+    apply: 'build',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        const font = Object.keys(ctx.bundle || {}).find((file) => /figtree-latin-wght-normal-[^/]+\.woff2$/.test(file));
+        if (!font) return html;
+        return [{ tag: 'link', attrs: { rel: 'preload', href: `/${font}`, as: 'font', type: 'font/woff2', crossorigin: '' }, injectTo: 'head-prepend' }];
+      },
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), mockVisitsApi()],
+  plugins: [react(), mockVisitsApi(), preloadBodyFont()],
+  // The build-time prerender (scripts/prerender.mjs) runs the server bundle in
+  // plain Node, which cannot import the CSS some packages ship, so bundle them.
+  ssr: { noExternal: true },
 });

@@ -8,9 +8,21 @@ importers:
 
   .:
     dependencies:
+      '@fontsource-variable/figtree':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource-variable/jetbrains-mono':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/instrument-serif':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@gsap/react':
         specifier: ^2.1.2
         version: 2.1.2(gsap@3.15.0)(react@19.2.8)
+      '@scritto/react':
+        specifier: 0.1.0
+        version: 0.1.0(react@19.2.8)
       '@vercel/analytics':
         specifier: ^2.0.1
         version: 2.0.1(react@19.2.8)
@@ -36,6 +48,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^6.0.4
         version: 6.0.4(vite@8.1.5)
+      opentype.js:
+        specifier: 1.3.4
+        version: 1.3.4
       vite:
         specifier: ^8.1.5
         version: 8.1.5
@@ -50,6 +65,15 @@ packages:
 
   '@emnapi/wasi-threads@1.2.2':
     resolution: {integrity: sha512-c95qOXkHdydNKhscBTebqEC1CVAZpyqOfVfBzQ1qgzyl3gfeldUjIggDbIZgDKsHLgnsM+igH7TJ/eAasaVuMA==}
+
+  '@fontsource-variable/figtree@5.3.0':
+    resolution: {integrity: sha512-VRVodD7OiG7apQwE8/2fMjaqpY/a0qRJqL5HtYj8CKIVps+9amaFcdfKmDIf7iqYQx6iPLlArVXAfKeIZmVcNQ==}
+
+  '@fontsource-variable/jetbrains-mono@5.3.0':
+    resolution: {integrity: sha512-F32xpS2NsGYoQi2ADSkKTgpJj7ozajsGgDJ8woTnqjmIB+dxDIqImjl4pXZVEExu8UFZ2ndhmX18EBS/hdz3Lw==}
+
+  '@fontsource/instrument-serif@5.3.0':
+    resolution: {integrity: sha512-mDiaIg0u67sYV59fie92Wz4sM8UiVlbL7fLxnFPCKkX15DMASEnQTREbaP5S5/3DCcsoAOcQ0sV9E4AeY4QqYQ==}
 
   '@gsap/react@2.1.2':
     resolution: {integrity: sha512-JqliybO1837UcgH2hVOM4VO+38APk3ECNrsuSM4MuXp+rbf+/2IG2K1YJiqfTcXQHH7XlA0m3ykniFYstfq0Iw==}
@@ -163,6 +187,14 @@ packages:
 
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
+
+  '@scritto/core@0.1.0':
+    resolution: {integrity: sha512-8itfD3jc+DvoDcMYAcWJHyLXZvBNaorlL091Fp/4Toe4trGErbQOtyptO9Qexyb/qvGO0S1WRWDrGO/2KURnxg==}
+
+  '@scritto/react@0.1.0':
+    resolution: {integrity: sha512-fNeX/ZjXUBtNMo/aQ03t1AG9+5vbitfEDfrLbO5qVCAcus7xq8kWhuv1LNuGGcBLA6pngo5otymCCkZDNRY84Q==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@tybys/wasm-util@0.10.3':
     resolution: {integrity: sha512-F3fo1MYrRJYL3zER0OUOmkutjr1Vp23m7OsSgp7nq4SP6OqX6C/56XFIPAl5bt3zaBRjmW7SGz3u/6LwFpYcOg==}
@@ -320,6 +352,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  opentype.js@1.3.4:
+    resolution: {integrity: sha512-d2JE9RP/6uagpQAVtJoF0pJJA/fgai89Cc50Yp0EJHk+eLp6QQ7gBoblsnubRULNY132I0J1QKMJ+JTbMqz4sw==}
+    engines: {node: '>= 8.0.0'}
+    hasBin: true
+
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -356,6 +393,12 @@ packages:
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
+
+  string.prototype.codepointat@0.2.1:
+    resolution: {integrity: sha512-2cBVCj6I4IOvEnjgO/hWqXjqBGsY+zwPmHl12Srk9IXSZ56Jwwmy+66XO5Iut/oQVR7t5ihYdLB0GMa4alEUcg==}
+
+  tiny-inflate@1.0.3:
+    resolution: {integrity: sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==}
 
   tinyglobby@0.2.17:
     resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
@@ -425,6 +468,12 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@fontsource-variable/figtree@5.3.0': {}
+
+  '@fontsource-variable/jetbrains-mono@5.3.0': {}
+
+  '@fontsource/instrument-serif@5.3.0': {}
+
   '@gsap/react@2.1.2(gsap@3.15.0)(react@19.2.8)':
     dependencies:
       gsap: 3.15.0
@@ -489,6 +538,13 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
+
+  '@scritto/core@0.1.0': {}
+
+  '@scritto/react@0.1.0(react@19.2.8)':
+    dependencies:
+      '@scritto/core': 0.1.0
+      react: 19.2.8
 
   '@tybys/wasm-util@0.10.3':
     dependencies:
@@ -575,6 +631,11 @@ snapshots:
 
   nanoid@3.3.16: {}
 
+  opentype.js@1.3.4:
+    dependencies:
+      string.prototype.codepointat: 0.2.1
+      tiny-inflate: 1.0.3
+
   picocolors@1.1.1: {}
 
   picomatch@4.0.5: {}
@@ -620,6 +681,10 @@ snapshots:
   scheduler@0.27.0: {}
 
   source-map-js@1.2.1: {}
+
+  string.prototype.codepointat@0.2.1: {}
+
+  tiny-inflate@1.0.3: {}
 
   tinyglobby@0.2.17:
     dependencies:

@@ -1,0 +1,5 @@
+# Every crawler is welcome, including AI search and training crawlers.
+User-agent: *
+Allow: /
+
+Sitemap: https://www.mohamedfuad.com/sitemap.xml

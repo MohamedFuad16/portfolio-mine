@@ -1,0 +1,21 @@
+# Mohamed Fuad
+
+> Mohamed Fuad (モハメド・フアド, GitHub MohamedFuad16) is a full-stack developer in Tokyo, Japan, and a third-year Information and Communication Technology student at Tokai University (東海大学), graduating March 2028. He builds AI agent systems end to end, from LLM tool-calling and MCP integrations to production, and is looking for Forward Deployed Engineer or AI Engineer roles. He works in English and Japanese (JLPT N2).
+
+## Profiles
+
+- [Portfolio](https://www.mohamedfuad.com/)
+- [GitHub](https://github.com/MohamedFuad16)
+- [LinkedIn](https://www.linkedin.com/in/mohamed-fuad-6b8483278)
+- [Qiita](https://qiita.com/mfuad16)
+- [CV, English (PDF)](https://www.mohamedfuad.com/resume/Mohamed_Fuad_CV.pdf)
+- [CV, Japanese (PDF)](https://www.mohamedfuad.com/resume/Mohamed_Fuad_CV_JA.pdf)
+
+## Projects
+
+- [Ledger](https://github.com/MohamedFuad16/ledger-financial-report-system): reads a 100-page annual report, finds the few pages that matter, and returns a checked balance sheet.
+- [WebDrop](https://github.com/MohamedFuad16/WebDrop): nearby file sharing in the browser, with proximity checks and direct WebRTC transfers.
+- [Internship Portal](https://github.com/MohamedFuad16/resume-studio-dashboard): a bilingual app for finding internships and tracking every application, on the web and on iOS.
+- CCFT: a leader model plans work as a task graph, and a scheduler runs parallel worker agents through it, with a native macOS app on top.
+- [Tutor-System](https://github.com/MohamedFuad16/Tutor-System): a study workspace for papers and textbooks that tracks where every answer came from.
+- [TokaiHub](https://github.com/MohamedFuad16/TokaiHub): a bilingual Tokai University student portal on Cognito, Lambda and DynamoDB.

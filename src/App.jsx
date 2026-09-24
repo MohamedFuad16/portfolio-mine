@@ -6,19 +6,25 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { ScrollSmoother } from 'gsap/ScrollSmoother';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
-import { SplitText } from 'gsap/SplitText';
 import { CustomEase } from 'gsap/CustomEase';
 import { useGSAP } from '@gsap/react';
-import { BorderBeam } from 'border-beam';
-import { signaturePath, signatureViewBox, signatureStrokeWidth } from './data/signature-path';
+import { signatureGlyphs, signatureViewBox, signatureFontSize } from './data/signature-path';
 import { DaijinMascot } from './components/DaijinMascot';
+import { SilkWave } from './components/SilkWave';
+import { pixelCover, pixelUncover, waitForCalm } from './components/pixelTransition';
+import Scritto from '@scritto/react';
+
+// The photo's border beam is 70 KB of script, so it loads after first paint;
+// until then the same frame renders without the glow.
+const BorderBeam = React.lazy(() => import('border-beam').then((module) => ({ default: module.BorderBeam })));
 import {
   ArrowLeft,
   ArrowUpRight,
   BriefcaseBusiness,
-  Camera,
   Check,
   ChevronDown,
+  ChevronRight,
+  ChevronLeft,
   Code2,
   Database,
   ExternalLink,
@@ -36,6 +42,10 @@ import {
   Server,
   Smartphone,
   Sparkles,
+  CornerDownLeft,
+  X,
+  SearchX,
+  Search,
   Sun,
   Moon,
   Target,
@@ -59,15 +69,20 @@ import {
   SiVercel,
   SiVite,
 } from 'react-icons/si';
+// Self-hosted fonts (fontsource): no third-party request blocking first paint,
+// and unicode-range means only the subsets a page uses are downloaded.
+import '@fontsource-variable/figtree';
+import '@fontsource-variable/jetbrains-mono';
+import '@fontsource/instrument-serif/400.css';
 import './styles/global.css';
 import './styles/theme-light.css';
+import './styles/daijin.css';
 
 gsap.registerPlugin(
   ScrollTrigger,
   ScrollToPlugin,
   ScrollSmoother,
   DrawSVGPlugin,
-  SplitText,
   CustomEase,
   useGSAP
 );
@@ -239,14 +254,18 @@ const copy = {
   en: {
     lang: '日本語',
     building: 'Building AI agent tools',
+    buildingLead: 'Building',
+    roles: ['AI agent tools', 'multi-agent runtimes', 'document AI pipelines', 'native macOS apps', 'bilingual web apps'],
     location: 'Tokyo, Japan',
-    student: 'Information and Communication Technology student',
+    student: 'Tokai University, ICT',
+    graduation: 'Graduating March 2028',
     introParagraphs: [
       <>
         I&apos;m a <b>full-stack developer</b> and a third-year Information and Communication
-        Technology student at Tokai University. I want to be a{' '}
-        <b>Forward Deployed Engineer</b>, sitting with the people who will use the thing and
-        building it there rather than guessing at it from a backlog.
+        Technology student at Tokai University, graduating in March 2028. I want to work as a{' '}
+        <b>Forward Deployed Engineer</b> or <b>AI Engineer</b>, owning a product end to end:
+        designing the architecture, building it, and shipping it to production alongside the
+        people who use it.
       </>,
       <>
         I&apos;m comfortable working with LLMs, agent workflows, tool calling, and secure{' '}
@@ -280,7 +299,7 @@ const copy = {
     },
     command: {
       label: 'Command menu',
-      placeholder: 'Jump to a section, open a project, copy my email…',
+      placeholder: 'Search projects, sections, links…',
       empty: 'Nothing matches that.',
       sections: 'Go to',
       actions: 'Actions',
@@ -292,6 +311,9 @@ const copy = {
       open: 'open',
       close: 'close',
       button: 'Open command menu',
+      search: 'Search',
+      clear: 'Clear search',
+      suggestions: ['AI', 'Swift', 'React', 'résumé'],
       light: 'Switch to light theme',
       dark: 'Switch to dark theme',
     },
@@ -308,6 +330,12 @@ const copy = {
     keyFeatures: 'What it does',
     howItWorks: 'How it works',
     figures: 'By the numbers',
+    glance: 'At a glance',
+    glanceType: 'Type',
+    gallery: (title) => `${title} screenshots`,
+    galleryPrev: 'Previous screenshot',
+    galleryNext: 'Next screenshot',
+    galleryGoTo: (n) => `Show screenshot ${n}`,
     systemMap: 'System map',
     architecture: 'System architecture',
     viewDetails: 'View details',
@@ -351,15 +379,18 @@ const copy = {
   ja: {
     lang: 'English',
     building: 'AIエージェントツールを開発中',
+    buildingLead: '',
+    roles: ['AIエージェントツールを開発中', 'マルチエージェント基盤を開発中', '文書AIパイプラインを開発中', 'macOSネイティブアプリを開発中', '日英対応のWebアプリを開発中'],
     location: '東京都、日本',
     student: '東海大学 情報通信学部',
+    graduation: '2028年3月卒業予定',
     introParagraphs: [
       // Japanese takes no inter-word spaces, but JSX condenses a newline that
       // falls mid-text into one — so these lines must break only where they sit
       // next to a tag (those newlines are dropped) or not at all. Breaking after
       // 「机上の要件から」 rendered 「机上の要件から 推測するのではなく」.
       <>
-        東海大学情報通信学部3年の<b>フルスタック開発者</b>です。使う人のそばで、机上の要件から推測するのではなく、その場で作りながら形にしていく<b>フォワードデプロイドエンジニア</b>になりたいと考えています。
+        東海大学情報通信学部3年の<b>フルスタック開発者</b>で、2028年3月に卒業予定です。<b>フォワードデプロイドエンジニア</b>または<b>AIエンジニア</b>として、アーキテクチャの設計だけでなく、使う人のそばで実装から本番環境への公開まで一貫して作り切る仕事がしたいと考えています。
       </>,
       <>
         LLM、エージェントワークフロー、ツール呼び出し、安全な<Highlight name="MCP" />連携に加え、
@@ -388,7 +419,7 @@ const copy = {
     },
     command: {
       label: 'コマンドメニュー',
-      placeholder: 'セクションへ移動、プロジェクトを開く、メールをコピー…',
+      placeholder: 'プロジェクト、セクション、リンクを検索…',
       empty: '一致する項目がありません。',
       sections: '移動',
       actions: '操作',
@@ -400,6 +431,9 @@ const copy = {
       open: '開く',
       close: '閉じる',
       button: 'コマンドメニューを開く',
+      search: '検索',
+      clear: '検索をクリア',
+      suggestions: ['AI', 'Swift', 'React', '履歴書'],
       light: 'ライトテーマに切り替え',
       dark: 'ダークテーマに切り替え',
     },
@@ -416,6 +450,12 @@ const copy = {
     keyFeatures: '主な機能',
     howItWorks: '仕組み',
     figures: '数字で見る',
+    glance: '概要',
+    glanceType: '種類',
+    gallery: (title) => `${title}のスクリーンショット`,
+    galleryPrev: '前のスクリーンショット',
+    galleryNext: '次のスクリーンショット',
+    galleryGoTo: (n) => `スクリーンショット${n}を表示`,
     systemMap: 'システムの流れ',
     architecture: 'システム構成',
     viewDetails: '詳細を見る',
@@ -456,15 +496,27 @@ const copy = {
   },
 };
 
+// Warm field for transitions that have no project of their own.
+const DEFAULT_PALETTE = ['#fbe9d0', '#f6b26b', '#f07a3a', '#e2431d'];
+
 const projects = [
   {
     title: 'Ledger',
     slug: 'ledger',
-    tags: ['AI', 'Python', 'React', 'TypeScript', 'AWS'],
+    gallery: [
+      { src: '/media/gallery/ledger-1.jpg', caption: { en: 'Overview with the headline results', ja: '結果をまとめた概要画面' } },
+      { src: '/media/gallery/ledger-2.jpg', caption: { en: 'Strategy 3, the page-scoring gate', ja: '戦略3：ページ採点ゲート' } },
+      { src: '/media/gallery/ledger-3.jpg', caption: { en: 'Speed and accuracy benchmarks', ja: '速度と精度のベンチマーク' } },
+      { src: '/media/gallery/ledger-4.jpg', caption: { en: 'The report corpus, built with Firecrawl', ja: 'Firecrawlで構築した報告書コーパス' } },
+    ],
+    palette: ['#e8eef6', '#9fbde8', '#3f7ad6', '#1f4fa3'],
+    // #3f7ad6 from the palette, one step darker so white text on it reaches
+    // 4.7:1 instead of 4.4:1.
+    accents: ['#3771cc', '#9fbde8', '#1f4fa3'],
     badge: 'AI pipeline',
     badgeJa: 'AIパイプライン',
-    image: '/media/projects/ledger-en.jpg',
-    imageJa: '/media/projects/ledger-ja.jpg',
+    image: '/media/projects/ledger-en-card.webp',
+    imageJa: '/media/projects/ledger-ja-card.webp',
     video: '/media/video/ledger.mp4',
     icon: FileSearch,
     live: 'https://assignment.mohamedfuad.com',
@@ -486,18 +538,18 @@ const projects = [
       // 3.7 Flash runs on the 46 reports every strategy processed (whole
       // report without OCR 36.7s and 92.9k tokens, gate 31.0s and 8.9k).
       highlights: [
-        { value: '100%', label: { en: 'exact accuracy, all 966 rows correct', ja: '完全一致率（全966行が正解）' } },
-        { value: '47', label: { en: 'annual reports tested across 10 companies', ja: '10社・47件の年次報告書で検証' } },
-        { value: '31s', label: { en: 'average time per report, end to end', ja: '1件あたりの平均処理時間' } },
-        { value: '90%', label: { en: 'fewer tokens than sending the whole report', ja: '文書全体を渡す場合より少ないトークン' } },
+        { value: '100%', label: { en: 'exact match on 966 rows', ja: '966行すべて完全一致' } },
+        { value: '47', label: { en: 'annual reports, 10 companies', ja: '10社の年次報告書' } },
+        { value: '31s', label: { en: 'per report, end to end', ja: '1件あたりの処理時間' } },
+        { value: '90%', label: { en: 'fewer tokens than the whole PDF', ja: '全文送信よりトークン削減' } },
       ],
       // Same cohort as the highlights: Gemini 3.7 Flash, the 46 reports every
       // method processed, mean per report (re-derived 2026-09-24 from
       // /api/benchmark-runs). One chart per measure; they never share an axis.
       benchmark: {
         caption: {
-          en: 'Mean per report on the 46 annual reports all three methods processed, with the same model (Gemini 3.7 Flash). From Ledger\'s published benchmark runs.',
-          ja: '3つの方式すべてが処理した46件の年次報告書での1件あたり平均（同一モデル Gemini 3.7 Flash）。Ledgerが公開しているベンチマーク実行結果より。',
+          en: 'Mean of the 46 reports every method processed, on Gemini 3.7 Flash. From Ledger\'s published runs.',
+          ja: '全方式が処理した46件の平均（Gemini 3.7 Flash）。Ledgerの公開ベンチマークより。',
         },
         charts: [
           {
@@ -523,34 +575,39 @@ const projects = [
         ],
       },
       overview: {
-        en: 'Annual reports run past a hundred pages, and the balance sheet is a handful of them. Sending the whole PDF to a model is slow, expensive and gives it more places to pick the wrong number. Ledger reads the report locally with Firecrawl\'s pdf-inspector, which decides page by page whether the text layer can be trusted or needs OCR. A scoring gate then ranks every page against the fields it is looking for and sends only the best three to five to the model. The model maps those pages to a fixed 27-row asset schema, and the answer is validated and checked arithmetically before anything is scored. I built it as a benchmark, so it also compares four PDF parsers with and without OCR on the same reports and the same model.',
-        ja: '年次報告書は100ページを超えますが、貸借対照表はそのうちの数ページです。PDF全体をモデルに渡すと遅く、費用がかかり、間違った数字を拾う余地も増えます。LedgerはFirecrawlのpdf-inspectorで報告書をローカルに読み込み、ページごとにテキスト層を信頼できるか、OCRが必要かを判定します。次にスコアリングゲートが全ページを探している項目と照らして順位付けし、上位3〜5ページだけをモデルに送ります。モデルはそのページを27行の固定スキーマに対応付け、回答は採点前に検証と計算チェックを通ります。ベンチマークとして作ったため、同じ報告書と同じモデルで4種類のPDFパーサーをOCRあり・なしで比較することもできます。',
+        en: 'Annual reports run past a hundred pages, but the balance sheet is only a few of them. Ledger finds those pages locally and sends only the best three to five to the model. The answer maps to a fixed 27-row schema and is checked arithmetically before it is scored.',
+        ja: '年次報告書は100ページを超えますが、貸借対照表はそのうちの数ページです。Ledgerはそのページをローカルで見つけ、上位3〜5ページだけをモデルに送ります。回答は27行の固定スキーマに対応付けられ、採点前に計算チェックを通ります。',
       },
       features: [
         {
-          en: 'pdf-inspector keeps native text where it is readable and sends only the broken pages through local OCR at 200 DPI, so a scanned appendix does not slow down the rest of the report.',
-          ja: 'pdf-inspectorは読めるページはそのままのテキストを使い、崩れたページだけを200 DPIのローカルOCRに回します。スキャンされた付録があっても、他のページの処理は遅くなりません。',
+          title: { en: 'OCR only where needed', ja: '必要なページだけOCR' },
+          en: 'Readable pages keep their text. Only broken pages go through local OCR.',
+          ja: '読めるページはそのまま使い、崩れたページだけをローカルOCRに回します。',
         },
         {
-          en: 'The page gate scores every page on schema vocabulary, financial headings, tables and numeric density. On a 132-page 3M report it kept 5 pages, and the model saw about 8,500 tokens instead of the whole document.',
-          ja: 'ページゲートは、スキーマの語彙、財務の見出し、表、数値の密度で全ページを採点します。132ページある3Mの報告書では5ページだけを残し、モデルが読んだのは文書全体ではなく約8,500トークンでした。',
+          title: { en: 'Page scoring gate', ja: 'ページ採点ゲート' },
+          en: 'A 132-page 3M report shrinks to 5 pages and about 8,500 tokens.',
+          ja: '132ページの3Mの報告書が5ページ、約8,500トークンになります。',
         },
         {
-          en: 'Every answer has to match an exact 27-row contract, then passes balance-sheet identity checks. A low-confidence value stays visible and is flagged for review instead of being hidden.',
-          ja: 'すべての回答は27行の厳密な契約に合致する必要があり、その後に貸借対照表の恒等式チェックを通ります。確信度が低い値も隠さずに表示し、レビュー対象として示します。',
+          title: { en: 'Checked answers', ja: '検証済みの回答' },
+          en: 'Every answer must fit 27 rows and balance. Doubtful values are flagged.',
+          ja: '27行の契約と貸借の一致を検証し、疑わしい値は明示します。',
         },
         {
-          en: 'The answer key never reaches the model. Gold values are tied to the exact PDF by SHA-256, and a reviewer approves them beside the searchable source.',
-          ja: '正解データがモデルに渡ることはありません。正解値はSHA-256で特定のPDFに紐づけ、レビュアーが検索可能な原本を見ながら承認します。',
+          title: { en: 'Sealed answer key', ja: '正解データは非公開' },
+          en: 'Gold values are pinned to each PDF by SHA-256 and never reach the model.',
+          ja: '正解値はSHA-256で各PDFに固定され、モデルには渡りません。',
         },
         {
-          en: 'Firecrawl finds official reports for any company and year, and each download is screened and pinned before it joins the benchmark corpus.',
-          ja: 'Firecrawlで任意の企業と年度の公式報告書を探し、ダウンロードしたファイルは検査と固定を経てからベンチマーク用コーパスに加わります。',
+          title: { en: 'Report corpus', ja: '報告書コーパス' },
+          en: 'Firecrawl finds official reports, and each is screened and pinned before use.',
+          ja: 'Firecrawlで公式報告書を探し、検査と固定を経てから使います。',
         },
       ],
       flow: {
-        en: 'A report comes in as an upload or from the corpus. pdf-inspector classifies each page and extracts Markdown, with OCR only where the text layer fails. The gate scores the complete pages and keeps the top three to five in their original order. One model call maps them to the 27-row schema as JSON. The response is normalized, validated against the contract, checked against the accounting identities and, where a verified answer key exists, scored. Progress streams to the browser live, and every run is stored so it can be inspected or compared later.',
-        ja: '報告書はアップロードまたはコーパスから取り込みます。pdf-inspectorが各ページを分類してMarkdownを抽出し、テキスト層が使えないページだけOCRにかけます。ゲートが完全なページを採点し、上位3〜5ページを元の順序のまま残します。モデルを1回呼び出して27行のスキーマにJSONで対応付けます。応答は正規化、契約による検証、会計恒等式のチェックを経て、検証済みの正解がある場合は採点されます。進捗はリアルタイムでブラウザに表示され、すべての実行結果は後から確認・比較できるよう保存されます。',
+        en: 'A report goes in, the best pages are picked, one model call fills 27 rows, and the checks decide whether the result is stored or flagged.',
+        ja: '報告書を取り込み、最適なページを選び、モデル1回で27行を埋め、チェックの結果で保存かレビューかが決まります。',
       },
       architecture: [
         { label: { en: 'Inspect', ja: '解析' }, detail: { en: 'Native text or OCR per page', ja: 'ページごとにテキストかOCR' } },
@@ -605,14 +662,21 @@ const projects = [
   {
     title: 'WebDrop',
     slug: 'webdrop',
-    tags: ['JavaScript', 'Node.js'],
+    gallery: [
+      { src: '/media/gallery/webdrop-1.jpg', caption: { en: 'Onboarding: bump to connect', ja: 'オンボーディング：近づけて接続' } },
+      { src: '/media/gallery/webdrop-2.jpg', caption: { en: 'Settings: name and profile icon', ja: '設定：名前とプロフィールアイコン' } },
+      { src: '/media/gallery/webdrop-3.jpg', caption: { en: 'Settings in Japanese', ja: '日本語の設定画面' } },
+      { src: '/media/gallery/webdrop-4.jpg', caption: { en: 'The nearby radar in dark mode', ja: 'ダークモードの近接レーダー' } },
+    ],
+    palette: ['#eef1fb', '#b4c2ff', '#7fa0ff', '#8f7ae6'],
+    accents: ['#7fa0ff', '#b4c2ff', '#8f7ae6'],
     badge: 'live app',
     badgeJa: '公開中のアプリ',
-    image: '/media/projects/webdrop-en.png',
-    imageJa: '/media/projects/webdrop-ja.png',
+    image: '/media/projects/webdrop-en-card.webp',
+    imageJa: '/media/projects/webdrop-ja-card.webp',
     video: '/media/video/webdrop.mp4',
     icon: Radio,
-    live: 'https://web-drop-lyart.vercel.app/',
+    live: 'https://webdrop.mohamedfuad.com/',
     github: 'https://github.com/MohamedFuad16/WebDrop',
     description:
       'Nearby file sharing in the browser, with proximity checks and direct WebRTC transfers.',
@@ -625,34 +689,39 @@ const projects = [
         ja: 'ブラウザだけで、近くの相手へファイルを送れます。どこかへアップロードする必要はありません。',
       },
       overview: {
-        en: 'I built WebDrop to make nearby file sharing work from a browser. Devices find each other through a small WebSocket signaling service, confirm that they are in the same place with ultrasound, motion, or a QR code, then open a direct WebRTC connection. The server helps with discovery and connection setup, but the file data moves between the devices.',
-        ja: 'WebDropは、ブラウザだけで近くの端末へファイルを送るために作ったPWAです。端末は小さなWebSocketシグナリングサービスを通じて互いを見つけ、超音波、端末の動き、またはQRコードで同じ場所にいることを確認します。その後WebRTCで直接接続するため、サーバーは検出と接続設定を助けますが、ファイル本体は端末間を移動します。',
+        en: 'WebDrop sends files to a nearby device straight from the browser. Devices find each other over WebSocket, prove they are close with ultrasound, motion or a QR code, then connect over WebRTC. The server only sets up the connection, and the file goes device to device.',
+        ja: 'WebDropはブラウザから近くの端末へ直接ファイルを送ります。端末はWebSocketで互いを見つけ、超音波、動き、QRコードで近さを確かめてからWebRTCで接続します。サーバーは接続の準備だけを行い、ファイルは端末間を直接移動します。',
       },
       features: [
         {
-          en: 'Nearby devices appear on an orbit-style radar, so the sender can choose a person instead of entering a code.',
-          ja: '近くの端末を軌道型のレーダーに表示し、コードを入力せず相手を選べます。',
+          title: { en: 'Nearby radar', ja: '近接レーダー' },
+          en: 'Pick a person on an orbit-style radar instead of typing a code.',
+          ja: '軌道型のレーダーから相手を選ぶだけで、コード入力は不要です。',
         },
         {
-          en: 'Pairing checks ultrasound and device motion together. A short-lived QR code takes over when those sensors are not available.',
-          ja: 'ペアリングでは超音波と端末の動きを組み合わせて確認します。センサーを使えない場合は短時間だけ有効なQRコードに切り替えられます。',
+          title: { en: 'Proximity check', ja: '近接確認' },
+          en: 'Ultrasound and motion confirm the pair, with a short-lived QR fallback.',
+          ja: '超音波と動きで確認し、使えないときは短時間のQRコードで代替します。',
         },
         {
-          en: 'Transfers use ordered WebRTC data channels, split files into 256 KB chunks, verify a SHA-256 manifest, and support retry, cancellation, and files up to 500 MB.',
-          ja: '転送には順序付きWebRTCデータチャネルを使います。ファイルを256KB単位に分け、SHA-256マニフェストで確認し、再送、キャンセル、最大500MBのファイルに対応します。',
+          title: { en: 'Verified transfer', ja: '検証付きの転送' },
+          en: '256 KB chunks, a SHA-256 manifest, retry, and files up to 500 MB.',
+          ja: '256KBのチャンク、SHA-256照合、再送、最大500MBに対応します。',
         },
         {
-          en: 'Each browser writes data to the best storage option it supports, including OPFS, IndexedDB, StreamSaver, or an in-memory fallback on iOS.',
-          ja: 'OPFS、IndexedDB、StreamSaver、iOS向けのメモリ保存から、ブラウザが対応している方法を選んで書き込みます。',
+          title: { en: 'Best local storage', ja: '最適な保存先' },
+          en: 'Writes to OPFS, IndexedDB, StreamSaver or memory, whichever the browser supports.',
+          ja: 'OPFS、IndexedDB、StreamSaver、メモリからブラウザが対応する先を選びます。',
         },
         {
-          en: 'The PWA includes English and Japanese UI, an offline shell, and mock peers for testing without the signaling server.',
-          ja: '日英UI、オフラインで開くアプリシェル、シグナリングサーバーなしで試せる疑似端末を用意しています。',
+          title: { en: 'Bilingual PWA', ja: '日英対応のPWA' },
+          en: 'An offline shell, plus mock peers for testing without a server.',
+          ja: 'オフラインで開くシェルと、サーバーなしで試せる疑似端末があります。',
         },
       ],
       flow: {
-        en: 'The sender discovers a nearby device and starts pairing. WebDrop confirms proximity, exchanges SDP and ICE details through WebSocket signaling, then opens the WebRTC data channels. After that, file chunks travel directly to the receiving browser and are written to local storage.',
-        ja: '送信側が近くの端末を見つけてペアリングを始めます。WebDropが近接を確認し、WebSocketシグナリングでSDPとICE情報を交換してから、WebRTCデータチャネルを開きます。その後、ファイルのチャンクは受信側ブラウザへ直接送られ、ローカルストレージに保存されます。',
+        en: 'Find a nearby device, confirm it is close, exchange connection details, then stream chunks straight into the receiver\'s storage.',
+        ja: '近くの端末を見つけて近さを確認し、接続情報を交換してから、チャンクを受信側のストレージへ直接送ります。',
       },
       architecture: [
         { label: { en: 'Discover', ja: '検出' }, detail: { en: 'WebSocket presence', ja: 'WebSocketプレゼンス' } },
@@ -703,60 +772,71 @@ const projects = [
   {
     title: 'Internship Portal',
     slug: 'internship-portal',
-    tags: ['React', 'Swift', 'Node.js'],
+    gallery: [
+      { src: '/media/gallery/internship-portal-1.jpg', caption: { en: 'Sign in, in Japanese', ja: 'ログイン（日本語）' } },
+      { src: '/media/gallery/internship-portal-2.jpg', caption: { en: 'Sign in', ja: 'ログイン' } },
+      { src: '/media/gallery/internship-portal-3.jpg', caption: { en: 'Sign up', ja: '新規登録' } },
+    ],
+    palette: ['#f8ead9', '#f4b183', '#a8c5e8', '#6d93c9'],
+    accents: ['#f4b183', '#a8c5e8', '#6d93c9'],
     badge: 'in progress',
     badgeJa: '開発中',
-    image: '/media/projects/internship-portal-en.jpg',
-    imageJa: '/media/projects/internship-portal-ja.jpg',
+    image: '/media/projects/internship-portal-en-card.webp',
+    imageJa: '/media/projects/internship-portal-ja-card.webp',
     video: '/media/video/internship-portal.mp4',
     icon: Target,
-    live: 'https://editor-omega-two.vercel.app',
+    live: 'https://portal.mohamedfuad.com',
     github: 'https://github.com/MohamedFuad16/resume-studio-dashboard',
     description:
       'A bilingual app for finding internships and keeping every application in one list, on the web and on iOS.',
     descriptionJa:
       'インターンを探し、応募をひとつのリストで管理できる日英対応のWeb・iOSアプリ。',
-    tech: ['React', 'SwiftUI', 'Firestore', 'Express', 'Azure'],
+    tech: ['React', 'SwiftUI', 'Firestore', 'Express', 'AWS'],
     detail: {
       tagline: {
         en: 'A place to search for internships and keep every application in one list, on the web and on iOS.',
         ja: 'インターンを探して、応募をひとつのリストで管理できる場所。WebとiOSの両方で使えます。',
       },
       overview: {
-        en: 'Two things sit at the center of the Internship Portal. You search the postings and it scores how well each one matches your profile, and you keep every application in one list that follows it through to a decision. Deadlines go on a calendar, and the résumé you send is written in the same app. It runs as a React web app and a SwiftUI iOS app out of one repository, both fully bilingual, with a shared contracts layer that pins the routes, data shapes and ranking rules so the two clients stay in step. Your own data never reaches my server: the clients read and write Firestore directly under owner-only rules, and the server holds only the shared catalog of postings and a Gmail queue.',
-        ja: 'インターンポータルの中心は2つです。求人を検索するとプロフィールとの適合度が採点され、応募は結果が出るまでひとつのリストで管理できます。締切はカレンダーに並び、提出するレジュメも同じアプリで作れます。ひとつのリポジトリからReactのWebアプリとSwiftUIのiOSアプリを提供し、どちらも日英に完全対応しています。共通のコントラクト層がAPIルート、データ構造、並び順のルールを固定し、2つのクライアントの実装を揃えています。自分のデータがサーバーに届くことはありません。クライアントは所有者限定ルールのもとでFirestoreを直接読み書きし、サーバーは共有の求人カタログとGmailのキューだけを持ちます。',
+        en: 'Search internships with a match score for each, and track every application in one list until a decision. It ships as a React web app and a SwiftUI iOS app from one repository, both in English and Japanese. Your own data stays in Firestore under owner-only rules and never reaches my server.',
+        ja: 'インターンを適合スコア付きで検索し、応募は結果が出るまでひとつのリストで管理できます。ひとつのリポジトリからReactのWebアプリとSwiftUIのiOSアプリを提供し、どちらも日英に対応しています。自分のデータは所有者限定ルールのFirestoreに保存され、私のサーバーには届きません。',
       },
       features: [
         {
-          en: 'Search the internship postings and see a match score for each one, worked out from your profile.',
-          ja: 'インターン求人を検索でき、それぞれにプロフィールから算出した適合スコアが表示されます。',
+          title: { en: 'Match scores', ja: '適合スコア' },
+          en: 'Every posting is scored against your profile.',
+          ja: 'すべての求人をプロフィールと照らして採点します。',
         },
         {
-          en: 'Every application sits in one tracker and moves through saved, applying, applied, interview, and rejected, so nothing gets lost between browser tabs.',
-          ja: '応募はすべてひとつのトラッカーに集まり、「保存・応募準備・応募済み・面接・不採用」と状態が進むので、タブの間で取りこぼすことがありません。',
+          title: { en: 'One tracker', ja: 'ひとつのトラッカー' },
+          en: 'Saved, applying, applied, interview and rejected, all in one list.',
+          ja: '保存から面接、不採用まで、ひとつのリストで管理します。',
         },
         {
-          en: 'Gmail ingest reads incoming mail and queues what it finds instead of writing it straight in. To flag something it has to quote the email, and the quote is checked against the message, so it is not guessing from a company name.',
-          ja: 'Gmail取り込みは受信メールを読み、そのまま書き込まずにキューへ積みます。検出するにはメール本文を引用する必要があり、その引用は元のメッセージと照合されるため、企業名からの推測にはなりません。',
+          title: { en: 'Gmail ingest', ja: 'Gmail取り込み' },
+          en: 'An application is queued only when a quote from the email proves it.',
+          ja: 'メール本文の引用で裏付けられた応募だけをキューに積みます。',
         },
         {
-          en: 'The iOS app keeps the tracker on hand away from a desk. It refreshes in the background, syncs Gmail, and sends a notification with the company logo when it spots a new application.',
-          ja: 'iOSアプリは机を離れてもトラッカーを手元に置けます。バックグラウンドで更新してGmailを同期し、新しい応募を見つけると企業ロゴ付きの通知を送ります。',
+          title: { en: 'iOS app', ja: 'iOSアプリ' },
+          en: 'Background sync, and a notification with the company logo.',
+          ja: 'バックグラウンドで同期し、企業ロゴ付きの通知を送ります。',
         },
         {
-          en: 'The résumé you send is written and previewed in the app, with English templates alongside the two standard Japanese formats.',
-          ja: '提出するレジュメはアプリ内で作成してプレビューできます。英語のテンプレートに加え、履歴書のマス目形式と職務経歴書のレイアウトを用意しています。',
+          title: { en: 'Company research', ja: '企業リサーチ' },
+          en: 'Live research over official company and hiring pages.',
+          ja: '企業の公式ページや採用ページをもとにその場で調べます。',
         },
       ],
       flow: {
-        en: 'A signed-in client reads and writes its own Firestore documents directly, so applications, trackers and profiles never pass through my infrastructure. Anything shared comes from an Express server on Azure Container Apps: the catalog the search runs against, the compile endpoint that returns a finished PDF, and the Gmail queue that each client drains into its own tracker.',
-        ja: 'サインイン済みのクライアントは自分のFirestoreドキュメントを直接読み書きするため、応募情報、トラッカー、プロフィールが私のインフラを通ることはありません。共有されるものはAzure Container Apps上のExpressサーバーから届きます。検索の対象となる求人カタログ、完成したPDFを返すコンパイル用エンドポイント、そして各クライアントが自分のトラッカーへ取り込むGmailのキューです。',
+        en: 'Clients write personal data straight to Firestore. The catalog, company research and the Gmail queue come from an Express server on AWS EC2 in Tokyo.',
+        ja: 'クライアントは個人データをFirestoreへ直接書き込みます。求人カタログ、企業リサーチ、GmailのキューはAWS EC2（東京）上のExpressサーバーが提供します。',
       },
       architecture: [
         { label: { en: 'Find', ja: '探す' }, detail: { en: 'Search the shared catalog', ja: '共有カタログを検索' } },
         { label: { en: 'Track', ja: '管理' }, detail: { en: 'Saved through to interview', ja: '保存から面接まで' } },
         { label: { en: 'Your data', ja: '自分のデータ' }, detail: { en: 'Firestore, owner-only', ja: 'Firestore・所有者限定' } },
-        { label: { en: 'Shared server', ja: '共有サーバー' }, detail: { en: 'Express on Azure', ja: 'Azure上のExpress' } },
+        { label: { en: 'Shared server', ja: '共有サーバー' }, detail: { en: 'Express on AWS EC2', ja: 'AWS EC2上のExpress' } },
       ],
       stack: [
         {
@@ -779,9 +859,9 @@ const projects = [
           },
         },
         {
-          title: { en: 'Express on Azure', ja: 'Azure上のExpress' },
-          sub: { en: 'Catalog, compile, Gmail queue', ja: 'カタログ・コンパイル・Gmail' },
-          edge: { en: 'compile', ja: 'コンパイル' },
+          title: { en: 'Express on AWS EC2', ja: 'AWS EC2上のExpress' },
+          sub: { en: 'Catalog, research, Gmail queue', ja: 'カタログ・リサーチ・Gmail' },
+          edge: { en: 'snapshot', ja: 'スナップショット' },
           branch: {
             title: { en: 'Gmail ingest', ja: 'Gmail取り込み' },
             edge: { en: 'queued', ja: 'キュー' },
@@ -789,8 +869,8 @@ const projects = [
         },
         {
           kind: 'store',
-          title: { en: 'Tectonic to PDF', ja: 'TectonicでPDF化' },
-          sub: { en: 'EN and JA LaTeX templates', ja: '日英LaTeXテンプレート' },
+          title: { en: 'SQLite catalog', ja: 'SQLiteカタログ' },
+          sub: { en: 'Copied to durable storage', ja: '永続ストレージへ保存' },
         },
       ],
     },
@@ -798,10 +878,20 @@ const projects = [
   {
     title: 'CCFT',
     slug: 'ccft',
-    tags: ['AI', 'Swift'],
+    gallery: [
+      { src: '/media/gallery/ccft-1.jpg', caption: { en: 'A new thread', ja: '新しいスレッド' } },
+      { src: '/media/gallery/ccft-2.jpg', caption: { en: 'Planning a task graph with Haiku 4.5', ja: 'Haiku 4.5でタスクグラフを計画' } },
+      { src: '/media/gallery/ccft-3.jpg', caption: { en: 'Model picker', ja: 'モデル選択' } },
+      { src: '/media/gallery/ccft-4.jpg', caption: { en: 'Agent roles', ja: 'エージェントの役割' } },
+      { src: '/media/gallery/ccft-5.jpg', caption: { en: 'General settings', ja: '一般設定' } },
+      { src: '/media/gallery/ccft-6.jpg', caption: { en: 'About', ja: 'アプリについて' } },
+    ],
+    // Teal, so it no longer reads as a second Ledger (both were blue).
+    palette: ['#0f2a26', '#0e7a69', '#1fb39a', '#9fe3d3'],
+    accents: ['#1fb39a', '#9fe3d3', '#0e7a69'],
     badge: 'multi-agent runtime',
     badgeJa: 'マルチエージェント実行基盤',
-    image: '/media/projects/ccft.jpg',
+    image: '/media/projects/ccft-card.webp',
     video: '/media/video/ccft.mp4',
     icon: Network,
     private: true,
@@ -818,40 +908,45 @@ const projects = [
       // Figures from the engine's own status write-up (CCFT-OVERVIEW.md,
       // 19 Sep 2026) and its guardrail table, not estimates.
       highlights: [
-        { value: '20', label: { en: 'guardrail rules on every tool call', ja: 'すべてのツール呼び出しに適用するガードレール' } },
-        { value: '11', label: { en: 'failure cases tested, each with a control', ja: '対照付きで検証した障害ケース' } },
-        { value: '133', label: { en: 'tests in the macOS app', ja: 'macOSアプリのテスト数' } },
-        { value: '2.8k', label: { en: 'tokens in a typical worker brief', ja: 'ワーカー1件あたりの指示トークン' } },
+        { value: '20', label: { en: 'guardrail rules', ja: 'ガードレールのルール' } },
+        { value: '11', label: { en: 'failure cases tested', ja: '検証した障害ケース' } },
+        { value: '133', label: { en: 'macOS app tests', ja: 'macOSアプリのテスト' } },
+        { value: '2.8k', label: { en: 'tokens per worker brief', ja: 'ワーカー指示のトークン' } },
       ],
       overview: {
-        en: 'I wanted parallel sub-agents I could actually trust with a real repository. In CCFT you talk to one model, the leader, and it never does the work itself. It writes the job as a task graph, where each node has a role, the files it may touch, what it depends on and how it will be checked. A runtime scheduler then sends every node whose dependencies are done out as a wave of workers running at the same time, within what each account can carry. Workers only see a compiled brief for their own task, answer in a typed contract, and a node is accepted only after its checks pass. Hooks enforce each role on every tool call. The native SwiftUI app shows the conversation, the task checklist and every worker side by side.',
-        ja: '実際のリポジトリを安心して任せられる並列サブエージェントが欲しくて作りました。CCFTではリーダーとなる一つのモデルと会話し、リーダー自身は作業をしません。仕事をタスクグラフとして書き出し、各ノードに役割、触れてよいファイル、依存関係、検証方法を持たせます。ランタイムスケジューラは依存が完了したノードをまとめて一つのウェーブとし、各アカウントが処理できる範囲でワーカーを同時に走らせます。ワーカーは自分のタスク用にまとめられた指示だけを受け取り、型付きの契約で回答し、ノードはチェックを通って初めて受理されます。役割はすべてのツール呼び出しでフックが強制します。ネイティブのSwiftUIアプリでは、会話、タスクのチェックリスト、各ワーカーを並べて確認できます。',
+        en: 'You talk to one leader model, and it never does the work itself. It plans the job as a task graph, and a scheduler runs every ready node as a wave of parallel workers. A node counts as done only after its checks pass.',
+        ja: 'リーダーとなる一つのモデルと会話し、リーダー自身は作業をしません。仕事をタスクグラフとして計画し、スケジューラが実行可能なノードを並列ワーカーのウェーブとして走らせます。ノードはチェックを通って初めて完了になります。',
       },
       features: [
         {
-          en: 'The graph is validated before anything runs. Two nodes that would write the same file at once are refused, and a node with nothing checkable is sent back with the exact field to add.',
-          ja: '実行前にグラフを検証します。同じファイルを同時に書き込む2つのノードは拒否され、検証できる項目がないノードは追加すべき項目を示して差し戻されます。',
+          title: { en: 'Validated graph', ja: '実行前の検証' },
+          en: 'Clashing writes and uncheckable nodes are refused before anything runs.',
+          ja: '同時書き込みや検証できないノードは、実行前に拒否します。',
         },
         {
-          en: 'The scheduler reserves capacity per account before each dispatch, so a wave never asks a connection for more than its quota allows, and a dead run gives its reservation back.',
-          ja: 'スケジューラは送信前にアカウントごとに枠を確保するため、ウェーブが接続先のクォータを超えることはなく、停止した実行は確保した枠を返します。',
+          title: { en: 'Quota-aware scheduler', ja: 'クォータを守るスケジューラ' },
+          en: 'Capacity is reserved per account before each dispatch.',
+          ja: '送信の前に、アカウントごとに枠を確保します。',
         },
         {
-          en: 'A failed report ends the attempt and takes one of three routes: retry with the failure in the handoff, replan the graph, or continue. Every refusal names the node, the field and the command to run next.',
-          ja: '失敗した報告はその試行を終了させ、失敗内容を引き継いだ再試行、グラフの再計画、続行のいずれかに進みます。拒否には必ず対象ノード、項目、次に実行するコマンドが示されます。',
+          title: { en: 'Clear failure routes', ja: '失敗時の道筋' },
+          en: 'A failure retries, replans or continues, and names the next command.',
+          ja: '失敗は再試行、再計画、続行に分かれ、次のコマンドを示します。',
         },
         {
-          en: 'Hooks enforce roles on every call. The leader cannot write product code, workers cannot write outside their allowed paths, and no model can edit CCFT\'s own control files.',
-          ja: 'フックがすべての呼び出しで役割を強制します。リーダーはプロダクトコードを書けず、ワーカーは許可されたパスの外に書き込めず、どのモデルもCCFT自身の制御ファイルを編集できません。',
+          title: { en: 'Role fences', ja: '役割の制限' },
+          en: 'Hooks stop the leader writing code and workers leaving their paths.',
+          ja: 'リーダーのコード記述やワーカーの範囲外への書き込みをフックが止めます。',
         },
         {
-          en: 'Workers can come from different accounts and models, such as Claude, Codex, GLM or Grok, and the app shows each connection\'s quota before it is offered work.',
-          ja: 'ワーカーにはClaude、Codex、GLM、Grokなど異なるアカウントとモデルを使えます。アプリは作業を割り当てる前に各接続のクォータを表示します。',
+          title: { en: 'Mixed models', ja: '複数のモデル' },
+          en: 'Workers can be Claude, Codex, GLM or Grok, each with its quota shown.',
+          ja: 'Claude、Codex、GLM、Grokをワーカーに使え、それぞれのクォータを表示します。',
         },
       ],
       flow: {
-        en: 'You describe the job in the app. The leader registers a task graph and asks the controller what to do next. The controller answers with the ready nodes, the worker type for each and the exact calls to make, and the leader makes only those calls. Each worker starts from its compiled brief plus the accepted reports of the nodes it depends on, and returns a JSON contract. CCFT validates it and runs the node\'s checks. Accepted nodes unlock the next wave, failed ones are retried or replanned, and when the last node is accepted the leader answers you.',
-        ja: 'アプリで仕事を伝えると、リーダーがタスクグラフを登録し、次に何をすべきかをコントローラーに尋ねます。コントローラーは実行可能なノード、それぞれのワーカー種別、実行すべき呼び出しを返し、リーダーはその呼び出しだけを行います。各ワーカーはまとめられた指示と依存ノードの受理済み報告から作業を始め、JSONの契約で結果を返します。CCFTがそれを検証してノードのチェックを実行します。受理されたノードは次のウェーブを解放し、失敗したノードは再試行または再計画され、最後のノードが受理されるとリーダーが回答します。',
+        en: 'The leader registers a graph, the controller hands out ready nodes, workers answer in JSON contracts, and accepted nodes unlock the next wave.',
+        ja: 'リーダーがグラフを登録し、コントローラーが実行可能なノードを配り、ワーカーはJSONの契約で答え、受理されたノードが次のウェーブを解放します。',
       },
       architecture: [
         { label: { en: 'Leader', ja: 'リーダー' }, detail: { en: 'Plans a task graph', ja: 'タスクグラフを計画' } },
@@ -901,11 +996,21 @@ const projects = [
   {
     title: 'Tutor-System',
     slug: 'tutor-system',
-    tags: ['AI', 'React', 'TypeScript'],
+    gallery: [
+      { src: '/media/gallery/tutor-system-1.jpg', caption: { en: 'Study: upload a document', ja: '学習：資料をアップロード' } },
+      { src: '/media/gallery/tutor-system-2.jpg', caption: { en: 'Tutor chat', ja: 'チューターとのチャット' } },
+      { src: '/media/gallery/tutor-system-3.jpg', caption: { en: 'Cognitive analytics', ja: '学習分析' } },
+      { src: '/media/gallery/tutor-system-4.jpg', caption: { en: 'Revision library', ja: '復習ライブラリ' } },
+      { src: '/media/gallery/tutor-system-5.jpg', caption: { en: 'App settings', ja: 'アプリ設定' } },
+    ],
+    palette: ['#2a1a10', '#ff7a1a', '#ffb066', '#fbe3c8'],
+    // The palette's cream (#fbe3c8) vanishes on the light page, so the third
+    // accent is a deeper step of the same ember hue.
+    accents: ['#ff7a1a', '#ffb066', '#c94f0e'],
     badge: 'long-term project',
     badgeJa: '長期プロジェクト',
-    image: '/media/projects/tutor-en.png',
-    imageJa: '/media/projects/tutor-ja.png',
+    image: '/media/projects/tutor-en-card.webp',
+    imageJa: '/media/projects/tutor-ja-card.webp',
     video: '/media/video/tutor-system.mp4',
     icon: Sparkles,
     live: 'https://tutor-system-architecture.vercel.app/',
@@ -921,34 +1026,39 @@ const projects = [
         ja: 'PDFについて質問すると、根拠になったページと一緒に答えが返ってきます。',
       },
       overview: {
-        en: 'I built Tutor for studying papers and textbooks without losing track of where an answer came from. A learner can upload PDFs, ask questions by text or voice, and turn useful sessions into revision material. The app stores books, evidence, concepts, corrections, and model runs as local records, so its memory can be inspected instead of being hidden inside a chat model.',
-        ja: 'Tutorは、回答の根拠を見失わずに論文や教科書を学ぶためのワークスペースです。PDFを取り込み、テキストまたは音声で質問し、役立った対話を復習教材に変えられます。書籍、根拠、概念、訂正、モデル実行履歴をローカルの記録として保存するため、学習メモリをチャットモデルの中に隠さず確認できます。',
+        en: 'Tutor is a study workspace for papers and textbooks. Ask about a PDF by text or voice, and every answer keeps the page it came from. Books, evidence and corrections are stored as local records you can inspect.',
+        ja: 'Tutorは論文や教科書のための学習ワークスペースです。PDFについてテキストか音声で質問でき、回答には根拠のページが付きます。書籍、根拠、訂正は、中身を確認できるローカルの記録として保存されます。',
       },
       features: [
         {
-          en: 'Before answering, Tutor builds a context packet from the current PDF page, selected text, earlier messages, retrieved evidence, and the learner state.',
-          ja: '回答前に、現在のPDFページ、選択した文章、過去の対話、検索した根拠、学習者の状態からコンテキストを組み立てます。',
+          title: { en: 'Context packet', ja: 'コンテキスト構築' },
+          en: 'Each answer starts from the page, the selection, the history and your learner state.',
+          ja: 'ページ、選択範囲、履歴、学習状態から回答を組み立てます。',
         },
         {
-          en: 'Chat responses stream into the study view with citations, Markdown, diagrams, math, code, and optional text-to-speech.',
-          ja: '引用、Markdown、図、数式、コードを含む回答を学習画面へストリーミングし、必要に応じて読み上げます。',
+          title: { en: 'Rich answers', ja: '読みやすい回答' },
+          en: 'Streamed with citations, diagrams, math and code, with optional speech.',
+          ja: '引用、図、数式、コード付きでストリーミングし、読み上げもできます。',
         },
         {
-          en: 'Voice mode uses Deepgram through a local broker, while the same tutor context keeps the spoken and typed sessions connected.',
-          ja: '音声モードはローカルブローカー経由でDeepgramを使い、テキストと音声の対話で同じ学習コンテキストを共有します。',
+          title: { en: 'Voice mode', ja: '音声モード' },
+          en: 'Deepgram through a local broker, sharing context with the chat.',
+          ja: 'ローカル経由のDeepgramを使い、チャットと同じ文脈を共有します。',
         },
         {
-          en: 'Quick explanations come back straight away, while slower retrieval and tool work run as background jobs tied to the request, so you can see afterwards what they did.',
-          ja: 'すぐに返せる説明はその場で返し、検索やツール処理はリクエストに紐づくバックグラウンドジョブとして動くので、後から何をしたのかを確認できます。',
+          title: { en: 'Background jobs', ja: 'バックグラウンド処理' },
+          en: 'Quick answers come first. Slow retrieval runs later and stays traceable.',
+          ja: 'まずすぐに答え、重い検索は後で実行して履歴を残します。',
         },
         {
-          en: 'Durable learner data stays in user-scoped SQLite and files. Dexie keeps the lighter browser-side cache and the interface state.',
-          ja: '学習データはユーザー単位のSQLiteとファイルに保存し、Dexieはブラウザ側の軽いキャッシュと画面状態を管理します。',
+          title: { en: 'Local records', ja: 'ローカルの記録' },
+          en: 'SQLite and files per user, with Dexie as a light browser cache.',
+          ja: 'ユーザー単位のSQLiteとファイルに保存し、Dexieは軽いキャッシュです。',
         },
       ],
       flow: {
-        en: 'The learner opens a local profile, adds PDFs to a book, and asks a question by chat or voice. Tutor gathers the relevant page, earlier discussion, evidence, and learner state before sending the request to the tutor that answers straight away. Slow jobs continue in the background, and the useful results are saved as evidence, artifacts, or revision material for that learner.',
-        ja: '学習者がローカルプロフィールを開き、PDFを書籍に追加して、チャットまたは音声で質問します。Tutorは関連ページ、過去の対話、根拠、学習状態を集めて、すぐに応答するチューターへ渡します。時間のかかる処理はバックグラウンドで続き、結果はその学習者の根拠、成果物、復習教材として保存されます。',
+        en: 'A question gathers its page, history and evidence, the tutor answers straight away, and slow work finishes in the background.',
+        ja: '質問から関連ページ、履歴、根拠を集め、チューターがすぐに答え、重い処理はバックグラウンドで続きます。',
       },
       architecture: [
         { label: { en: 'Study input', ja: '学習入力' }, detail: { en: 'PDF, text, or voice', ja: 'PDF・文章・音声' } },
@@ -992,351 +1102,108 @@ const projects = [
   {
     title: 'TokaiHub',
     slug: 'tokaihub',
-    tags: ['React', 'AWS'],
+    gallery: [
+      { src: '/media/gallery/tokaihub-1.jpg', caption: { en: "Home with today's classes", ja: 'ホームと今日の授業' } },
+      { src: '/media/gallery/tokaihub-2.jpg', caption: { en: 'Weekly schedule', ja: '週間スケジュール' } },
+      { src: '/media/gallery/tokaihub-3.jpg', caption: { en: 'Classes', ja: '授業一覧' } },
+    ],
+    palette: ['#fbe7a0', '#f9d64a', '#f4a3b4', '#b9e0a5'],
+    accents: ['#f9d64a', '#f4a3b4', '#b9e0a5'],
     badge: 'student PWA',
     badgeJa: '学生向けPWA',
-    image: '/media/projects/tokaihub-en.png',
-    imageJa: '/media/projects/tokaihub-ja.png',
+    image: '/media/projects/tokaihub-en-card.webp',
+    imageJa: '/media/projects/tokaihub-ja-card.webp',
     video: '/media/video/tokaihub.mp4',
     icon: Smartphone,
     live: 'https://tokaihub.mohamedfuad.com/',
     github: 'https://github.com/MohamedFuad16/TokaiHub',
     description:
-      'A bilingual Tokai University student portal backed by Cognito, Lambda, and DynamoDB.',
+      'A bilingual Tokai University student app that reads the TIPS portal: timetable, syllabi, grades and credits.',
     descriptionJa:
-      'Cognito、Lambda、DynamoDBで動く東海大学の学生ポータル。日本語と英語に対応しています。',
-    tech: ['React', 'Tailwind', 'Amplify', 'Cognito', 'Vite'],
+      '東海大学のTIPSポータルを読み込み、時間割、シラバス、成績、単位をまとめる日英対応の学生アプリ。',
+    tech: ['React', 'TypeScript', 'Tailwind', 'Playwright', 'Passkeys'],
     detail: {
       tagline: {
         en: 'One place on a phone for the university things a student checks every week.',
-        ja: 'スマートフォンから、毎週確認する大学の手続きをまとめて開ける場所です。',
+        ja: 'スマートフォンから、毎週確認する大学の情報をまとめて開ける場所です。',
       },
       overview: {
-        en: 'I built TokaiHub around the routines students repeat every week: checking a schedule, finding course information, managing enrollment, and updating a profile. It runs as an installable React PWA in English and Japanese. Authentication and the student data live on AWS, while the interface stays focused on quick mobile use.',
-        ja: 'TokaiHubは、時間割の確認、授業情報の検索、履修管理、プロフィール更新など、学生が毎週行う操作を一つにまとめたReact PWAです。英語と日本語に対応し、インストールして使えます。認証と学生データはAWSで管理し、画面はスマートフォンですばやく操作できるように設計しています。',
+        en: 'TokaiHub puts timetable, syllabi, grades, attendance and notices on one phone screen. TIPS has no API, so a small bridge signs in like a browser and turns its pages into JSON. The hosted app unlocks only with the owner\'s passkey.',
+        ja: 'TokaiHubは、時間割、シラバス、成績、出席、お知らせをスマートフォンの一画面にまとめます。TIPSにはAPIがないため、小さなブリッジがブラウザと同じようにログインし、ページをJSONに変換します。公開版はオーナーのパスキーでのみ開きます。',
       },
       features: [
         {
-          en: 'Signing in happens on a form inside the app rather than on a Cognito-hosted page. Student IDs are the real usernames, and an email address works as an alias for them.',
-          ja: 'Cognitoのホスト画面へ移動せず、アプリ内のフォームでログインできます。内部では学籍番号をユーザー名に使い、メールアドレスでもログインできます。',
+          title: { en: 'Timetable', ja: '時間割' },
+          en: "Today's classes and the week, for the active term.",
+          ja: '今日の授業と今学期の週間時間割を表示します。',
         },
         {
-          en: 'Registration sends a verification code through Cognito and SES, then completes the confirmation step inside the onboarding flow.',
-          ja: '登録時はCognitoとSESから確認コードを送り、オンボーディング画面の中で認証を完了します。',
+          title: { en: 'Course pages', ja: '授業ページ' },
+          en: 'Full syllabus, files and one grading panel per course.',
+          ja: 'シラバス全文、添付ファイル、授業ごとの評価パネルを表示します。',
         },
         {
-          en: 'Lambda functions handle schedules, dashboard summaries, course lookup, enrollment, and profile updates.',
-          ja: '時間割、ダッシュボード集計、授業検索、履修、プロフィール更新をLambda関数で処理します。',
+          title: { en: 'Credits to graduate', ja: '卒業までの単位' },
+          en: 'Credits earned, credits still needed, and a planner.',
+          ja: '取得単位と残りの必要単位を示し、履修計画に使えます。',
         },
         {
-          en: 'DynamoDB stores student profiles, the course catalog, enrollment records, and schedule data in a single-table model.',
-          ja: '学生プロフィール、授業一覧、履修記録、時間割をDynamoDBのシングルテーブル設計で保存します。',
+          title: { en: 'Passkey unlock', ja: 'パスキーで解除' },
+          en: 'The hosted app only answers the owner\'s device.',
+          ja: '公開版はオーナーの端末にだけ応答します。',
         },
         {
-          en: 'Onboarding collects campus, course and GPA. The rest of the app is available in English and Japanese, in a light or a dark theme.',
-          ja: 'オンボーディングでキャンパス、コース、GPAを登録します。アプリ全体が日英表示に対応し、ライトとダークのテーマを選べます。',
+          title: { en: 'Two languages, two themes', ja: '日英と2つのテーマ' },
+          en: 'English or Japanese, in a light or a dark theme.',
+          ja: '日本語と英語、ライトとダークのテーマを選べます。',
         },
       ],
       flow: {
-        en: 'The React PWA signs the student in through Cognito and sends authenticated requests to Lambda. Each function handles one part of the portal, such as schedules or enrollment, and reads or writes the matching records in DynamoDB. Cognito lifecycle triggers also prepare the student profile after registration.',
-        ja: 'React PWAがCognitoで学生を認証し、認証済みのリクエストをLambdaへ送ります。各Lambda関数が時間割や履修などの処理を担当し、DynamoDBの対象レコードを読み書きします。登録後の学生プロフィール作成にはCognitoのライフサイクルトリガーも使います。',
+        en: 'The PWA asks the bridge, the bridge reads TIPS in headless Chromium, and the parsed pages come back as typed JSON.',
+        ja: 'PWAがブリッジに問い合わせ、ブリッジがヘッドレスChromiumでTIPSを読み、解析したページを型付きJSONで返します。',
       },
       architecture: [
         { label: { en: 'React PWA', ja: 'React PWA' }, detail: { en: 'Bilingual mobile UI', ja: '日英モバイルUI' } },
-        { label: { en: 'Cognito', ja: 'Cognito' }, detail: { en: 'Identity and OTP', ja: '認証とOTP' } },
-        { label: { en: 'Lambda API', ja: 'Lambda API' }, detail: { en: 'Portal workflows', ja: 'ポータル処理' } },
-        { label: { en: 'DynamoDB', ja: 'DynamoDB' }, detail: { en: 'Student and course data', ja: '学生・授業データ' } },
+        { label: { en: 'Bridge', ja: 'ブリッジ' }, detail: { en: 'Express, passkey unlock', ja: 'Express・パスキー解除' } },
+        { label: { en: 'TIPS session', ja: 'TIPSセッション' }, detail: { en: 'Playwright Chromium', ja: 'Playwright Chromium' } },
+        { label: { en: 'Parsers', ja: 'パーサー' }, detail: { en: 'HTML to typed JSON', ja: 'HTMLを型付きJSONへ' } },
       ],
       stack: [
         {
           kind: 'terminal',
           title: { en: 'Student opens PWA', ja: '学生がPWAを開く' },
           sub: { en: 'React + Tailwind, EN / JA', ja: 'React + Tailwind / 日英' },
-          edge: { en: 'sign in', ja: 'サインイン' },
+          edge: { en: 'request', ja: 'リクエスト' },
         },
         {
           kind: 'decision',
-          title: { en: 'Signed in?', ja: '認証済み？' },
+          title: { en: 'Owner device?', ja: 'オーナーの端末？' },
           edge: { en: 'yes', ja: 'はい' },
           branch: {
-            title: { en: 'Cognito email OTP', ja: 'Cognitoメール認証' },
+            title: { en: 'Passkey unlock', ja: 'パスキーで解除' },
             edge: { en: 'no', ja: 'いいえ' },
           },
         },
         {
-          title: { en: 'Lambda API', ja: 'Lambda API' },
-          sub: { en: 'Schedule, courses, profile', ja: '時間割・授業・プロフィール' },
-          edge: { en: 'query', ja: 'クエリ' },
+          title: { en: 'Bridge server', ja: 'ブリッジサーバー' },
+          sub: { en: 'Express, one TIPS request at a time', ja: 'Express・TIPSへ1件ずつ' },
+          edge: { en: 'read', ja: '読み込み' },
+        },
+        {
+          title: { en: 'TIPS in Chromium', ja: 'ChromiumでTIPS' },
+          sub: { en: 'Signed-in session, cheerio parsers', ja: 'ログイン済みセッション・cheerio' },
+          edge: { en: 'cache', ja: 'キャッシュ' },
         },
         {
           kind: 'store',
-          title: { en: 'DynamoDB', ja: 'DynamoDB' },
-          sub: { en: 'Single-table student data', ja: 'シングルテーブルの学生データ' },
-        },
-      ],
-    },
-  },
-  {
-    title: 'ClaudeShot',
-    slug: 'claudeshot',
-    tags: ['Swift'],
-    badge: 'macOS utility',
-    badgeJa: 'macOSユーティリティ',
-    image: '/media/projects/claudeshot.svg',
-    icon: Camera,
-    github: 'https://github.com/MohamedFuad16/ClaudeShot',
-    description:
-      'A native macOS shortcut that captures the frontmost window and pastes it into Claude.',
-    descriptionJa:
-      '最前面のウィンドウを撮影し、そのままClaudeへ貼り付けるmacOSネイティブツール。',
-    tech: ['SwiftUI', 'ScreenCaptureKit', 'AppKit', 'Carbon', 'macOS'],
-    detail: {
-      tagline: {
-        en: 'Press one shortcut to move the window in front of you straight into a Claude conversation.',
-        ja: 'ショートカット一つで、目の前のウィンドウをClaudeの会話へ送れます。',
-      },
-      overview: {
-        en: 'I built ClaudeShot to remove the small interruptions between seeing something on screen and asking Claude about it. Shift + Command + 1 captures only the frontmost window, places the PNG on the clipboard, opens Claude, and pastes it into the active conversation. It stays in the menu bar and uses macOS frameworks throughout, so there is no upload service or extra account to manage.',
-        ja: 'ClaudeShotは、画面で見つけた内容をClaudeへ相談するまでの細かな手間をなくすために作りました。Shift + Command + 1を押すと最前面のウィンドウだけを撮影し、PNGをクリップボードへ保存してClaudeを開き、現在の会話へ貼り付けます。メニューバーに常駐し、macOS標準フレームワークだけで動くため、別のアップロードサービスやアカウントは不要です。',
-      },
-      features: [
-        {
-          en: 'The global Shift + Command + 1 shortcut works from any app without bringing ClaudeShot to the front.',
-          ja: 'Shift + Command + 1のグローバルショートカットは、どのアプリを使っていても動作します。',
-        },
-        {
-          en: 'ScreenCaptureKit targets the frontmost window, so the screenshot excludes the desktop and unrelated windows.',
-          ja: 'ScreenCaptureKitで最前面のウィンドウだけを対象にし、デスクトップや無関係な画面を除外します。',
-        },
-        {
-          en: 'The capture is copied as a PNG, then AppKit activates Claude and sends the paste command automatically.',
-          ja: '撮影した画像をPNGとしてコピーし、AppKitでClaudeを前面に出して自動的に貼り付けます。',
-        },
-        {
-          en: 'A short flash and a settling animation confirm the capture without opening a separate window.',
-          ja: '短いフラッシュと収束アニメーションで、別ウィンドウを開かずに撮影完了を伝えます。',
-        },
-        {
-          en: 'The menus are in English and Japanese, it can start at login, and the capture sound can be changed or switched off.',
-          ja: 'メニューは日英に対応し、ログイン時の自動起動に対応し、撮影音は変更もオフもできます。',
-        },
-      ],
-      flow: {
-        en: 'Carbon listens for the global shortcut. ClaudeShot then asks ScreenCaptureKit for the frontmost window, renders it as a PNG, and writes the image to the macOS pasteboard. AppKit activates Claude and sends Command + V, leaving the screenshot ready for the next prompt.',
-        ja: 'Carbonがグローバルショートカットを受け取ると、ScreenCaptureKitで最前面のウィンドウを取得し、PNGとしてmacOSのペーストボードへ書き込みます。その後AppKitでClaudeを起動してCommand + Vを送り、次のプロンプトに画像を使える状態にします。',
-      },
-      architecture: [
-        { label: { en: 'Shortcut', ja: 'ショートカット' }, detail: { en: 'Carbon hotkey', ja: 'Carbonホットキー' } },
-        { label: { en: 'Capture', ja: '撮影' }, detail: { en: 'ScreenCaptureKit', ja: 'ScreenCaptureKit' } },
-        { label: { en: 'Clipboard', ja: 'クリップボード' }, detail: { en: 'PNG pasteboard item', ja: 'PNGペーストボード' } },
-        { label: { en: 'Claude', ja: 'Claude' }, detail: { en: 'Activate and paste', ja: '起動して貼り付け' } },
-      ],
-      stack: [
-        {
-          kind: 'terminal',
-          title: { en: 'Global hotkey', ja: 'グローバルホットキー' },
-          sub: { en: 'Carbon event handler', ja: 'Carbonイベント' },
-          edge: { en: 'trigger', ja: '起動' },
-          branch: {
-            title: { en: 'Menu bar item', ja: 'メニューバー項目' },
-            edge: { en: 'or', ja: 'または' },
-          },
-        },
-        {
-          title: { en: 'Capture region', ja: '範囲をキャプチャ' },
-          sub: { en: 'ScreenCaptureKit', ja: 'ScreenCaptureKit' },
-          edge: { en: 'PNG', ja: 'PNG' },
-        },
-        {
-          kind: 'store',
-          title: { en: 'Clipboard', ja: 'クリップボード' },
-          sub: { en: 'NSPasteboard item', ja: 'NSPasteboard項目' },
-          edge: { en: 'activate', ja: 'アクティブ化' },
-        },
-        {
-          kind: 'terminal',
-          title: { en: 'Claude', ja: 'Claude' },
-          sub: { en: 'Paste and send', ja: '貼り付けて送信' },
+          title: { en: 'Encrypted cache', ja: '暗号化キャッシュ' },
+          sub: { en: 'Screens paint cached data first', ja: 'キャッシュを先に表示' },
         },
       ],
     },
   },
 ];
 
-// Filter chips, in the order they appear above the cards. Only tags that at
-// least one project carries are shown, so a chip can never lead to nothing.
-const PROJECT_TAGS = ['AI', 'React', 'TypeScript', 'JavaScript', 'Python', 'Swift', 'Node.js', 'AWS'].filter(
-  (tag) => projects.some((project) => project.tags?.includes(tag))
-);
-// Skill pills whose label names a filter differently.
-const SKILL_TAG = { NodeJS: 'Node.js' };
-const skillTag = (label) => {
-  const tag = SKILL_TAG[label] || label;
-  return PROJECT_TAGS.includes(tag) ? tag : null;
-};
-
-// Cmd/Ctrl+K menu. Every entry does something a visitor can already do
-// somewhere on the page; this only makes it reachable from the keyboard.
-function CommandMenu({ open, onClose, items, t }) {
-  const [query, setQuery] = useState('');
-  const [cursor, setCursor] = useState(0);
-  const inputRef = useRef(null);
-  const listRef = useRef(null);
-  const returnFocusRef = useRef(null);
-
-  useEffect(() => {
-    if (!open) return undefined;
-    returnFocusRef.current = document.activeElement;
-    setQuery('');
-    setCursor(0);
-    const frame = requestAnimationFrame(() => inputRef.current?.focus());
-    return () => {
-      cancelAnimationFrame(frame);
-      returnFocusRef.current?.focus?.({ preventScroll: true });
-    };
-  }, [open]);
-
-  const needle = query.trim().toLowerCase();
-  const matches = needle
-    ? items.filter((item) => `${item.label} ${item.group} ${item.keywords || ''}`.toLowerCase().includes(needle))
-    : items;
-
-  useEffect(() => {
-    listRef.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
-  }, [cursor, needle]);
-
-  if (!open) return null;
-
-  const run = (item) => {
-    onClose();
-    // Let the dialog unmount (and focus return) before the action scrolls or navigates.
-    requestAnimationFrame(() => item.run());
-  };
-
-  const onKeyDown = (event) => {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      onClose();
-    } else if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      setCursor((index) => Math.min(matches.length - 1, index + 1));
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      setCursor((index) => Math.max(0, index - 1));
-    } else if (event.key === 'Enter' && matches[cursor]) {
-      event.preventDefault();
-      run(matches[cursor]);
-    } else if (event.key === 'Tab') {
-      // The input is the only focusable element, so focus stays in the dialog.
-      event.preventDefault();
-    }
-  };
-
-  let lastGroup = null;
-  return (
-    <div className="command-backdrop" onPointerDown={(event) => event.target === event.currentTarget && onClose()}>
-      <div className="command-menu" role="dialog" aria-modal="true" aria-label={t.command.label} onKeyDown={onKeyDown}>
-        <input
-          ref={inputRef}
-          className="command-input"
-          type="text"
-          value={query}
-          placeholder={t.command.placeholder}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setCursor(0);
-          }}
-          role="combobox"
-          aria-expanded="true"
-          aria-controls="command-list"
-          aria-activedescendant={matches[cursor] ? `command-${matches[cursor].id}` : undefined}
-        />
-        <ul className="command-list" id="command-list" role="listbox" ref={listRef}>
-          {matches.length === 0 && <li className="command-empty">{t.command.empty}</li>}
-          {matches.map((item, index) => {
-            const heading = item.group !== lastGroup ? item.group : null;
-            lastGroup = item.group;
-            const Icon = item.icon;
-            return (
-              <React.Fragment key={item.id}>
-                {heading && (
-                  <li className="command-group" role="presentation">
-                    {heading}
-                  </li>
-                )}
-                <li
-                  id={`command-${item.id}`}
-                  role="option"
-                  aria-selected={index === cursor}
-                  className={index === cursor ? 'on' : ''}
-                  onPointerMove={() => setCursor(index)}
-                  onClick={() => run(item)}
-                >
-                  {Icon && <Icon size={15} aria-hidden="true" />}
-                  <span>{item.label}</span>
-                  {item.hint && <kbd>{item.hint}</kbd>}
-                </li>
-              </React.Fragment>
-            );
-          })}
-        </ul>
-        <p className="command-foot" aria-hidden="true">
-          <span><kbd>↑</kbd><kbd>↓</kbd> {t.command.move}</span>
-          <span><kbd>↵</kbd> {t.command.open}</span>
-          <span><kbd>esc</kbd> {t.command.close}</span>
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// One drawing for both states: in dark mode the rays fold in and a mask
-// slides across the disc to leave a crescent; in light mode it reverses.
-// Driven entirely by CSS off <html data-theme>, which public/theme-init.js
-// sets before first paint.
-function SunMoonIcon() {
-  return (
-    <svg className="sun-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-      <mask id="sun-moon-mask">
-        <rect width="24" height="24" fill="#fff" />
-        <circle className="sun-moon-cut" cx="24" cy="10" r="6" fill="#000" />
-      </mask>
-      <circle className="sun-moon-core" cx="12" cy="12" r="5" fill="currentColor" mask="url(#sun-moon-mask)" />
-      <g className="sun-moon-rays" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <line x1="12" y1="1.5" x2="12" y2="3.5" />
-        <line x1="12" y1="20.5" x2="12" y2="22.5" />
-        <line x1="1.5" y1="12" x2="3.5" y2="12" />
-        <line x1="20.5" y1="12" x2="22.5" y2="12" />
-        <line x1="4.6" y1="4.6" x2="6" y2="6" />
-        <line x1="18" y1="18" x2="19.4" y2="19.4" />
-        <line x1="4.6" y1="19.4" x2="6" y2="18" />
-        <line x1="18" y1="6" x2="19.4" y2="4.6" />
-      </g>
-    </svg>
-  );
-}
-
-function ProjectFilters({ active, onChange, t }) {
-  return (
-    <div className="project-filters" role="group" aria-label={t.filterLabel}>
-      {[null, ...PROJECT_TAGS].map((tag) => {
-        const count = tag ? projects.filter((project) => project.tags?.includes(tag)).length : projects.length;
-        return (
-          <button
-            key={tag || 'all'}
-            type="button"
-            className={active === tag ? 'on' : ''}
-            aria-pressed={active === tag}
-            onClick={() => onChange(tag)}
-          >
-            {tag || t.filterAll}
-            <span>{count}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 // Number pop-in, after transitions.dev's transition of the same name. Their
 // measured parameters: 500ms, cubic-bezier(0.34, 1.45, 0.64, 1), 70ms stagger
@@ -1474,12 +1341,47 @@ function useVisitorCount() {
 }
 
 /** Live prefers-reduced-motion flag, so decorative loops can stand down. */
+// The page ships build-time HTML (scripts/prerender.mjs): English, dark, home
+// route. React's first client render has to produce that same markup, so any
+// state read from the browser starts from those defaults while hydrating (and
+// on the server), then App corrects it in a layout effect before paint.
+const IS_SERVER = typeof window === 'undefined';
+const PRERENDERED = !IS_SERVER && Boolean(document.getElementById('root')?.firstElementChild);
+let hydratingPrerender = PRERENDERED;
+const fromBrowser = (read, fallback) => (IS_SERVER || hydratingPrerender ? fallback : read());
+
+function readLocale() {
+  try {
+    const saved = window.localStorage.getItem('portfolio-locale');
+    if (saved === 'en' || saved === 'ja') return saved;
+  } catch {
+    /* storage unavailable */
+  }
+  return navigator.language?.toLowerCase().startsWith('ja') ? 'ja' : 'en';
+}
+
+// public/theme-init.js has already set <html data-theme> before this bundle
+// ran (saved choice, else the system setting), so there is no dark-then-light
+// flash on first paint.
+const readTheme = () => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+
+// Nothing saved yet means the visitor never chose, so keep following the
+// system if it changes while the page is open.
+function readThemeChosen() {
+  try {
+    return Boolean(window.localStorage.getItem('portfolio-theme'));
+  } catch {
+    return false;
+  }
+}
+
 function useReducedMotion() {
-  const [reduced, setReduced] = useState(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const [reduced, setReduced] = useState(() =>
+    fromBrowser(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, false)
   );
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(query.matches);
     const onChange = (event) => setReduced(event.matches);
     query.addEventListener('change', onChange);
     return () => query.removeEventListener('change', onChange);
@@ -1487,14 +1389,320 @@ function useReducedMotion() {
   return reduced;
 }
 
-function SectionTitle({ children, mascot }) {
+
+// The hero line rolls through what Mohamed builds; only the characters that
+// differ move (Scritto). Its own component so the 2.8s tick re-renders one
+// line, not the whole page (the App-level version cost ~33ms per tick and
+// stuttered the project transition). Held still under reduced motion.
+function RollingRole({ roles, reducedMotion }) {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    if (reducedMotion) return undefined;
+    const timer = window.setInterval(() => setIndex((value) => value + 1), 2800);
+    return () => window.clearInterval(timer);
+  }, [reducedMotion]);
+  return <Scritto className="building-roll" value={roles[index % roles.length]} transition={{ duration: 520 }} />;
+}
+
+// Cmd/Ctrl+K search, after the REMODY palette: it animates in and out, a
+// highlight glides between results instead of jumping, the active result's
+// icon tile turns ember, and results are grouped with counts. Every entry does
+// something a visitor can already do somewhere on the page. Plain CSS and one
+// measured highlight, so it adds no animation library to the bundle.
+const COMMAND_EXIT_MS = 220;
+
+function CommandMenu({ items, suggestions, t }) {
+  // Owns its open state, so opening re-renders only the palette and not the
+  // whole page (which used to eat the entrance animation's first frames).
+  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  // 'enter' paints the hidden start state first; two frames later 'shown'
+  // runs the transition, so the entrance can never be skipped.
+  const [phase, setPhase] = useState('enter');
+  const [query, setQuery] = useState('');
+  const [cursor, setCursor] = useState(0);
+  const [highlight, setHighlight] = useState(null);
+  const inputRef = useRef(null);
+  const listRef = useRef(null);
+  const returnFocusRef = useRef(null);
+  const onClose = () => setOpen(false);
+
+  useEffect(() => {
+    const onKey = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setOpen((value) => !value);
+      }
+    };
+    const onRequest = () => setOpen(true);
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('command:open', onRequest);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('command:open', onRequest);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      returnFocusRef.current = document.activeElement;
+      setQuery('');
+      setCursor(0);
+      setMounted(true);
+      setPhase('enter');
+      return undefined;
+    }
+    if (!mounted) return undefined;
+    setPhase('leave');
+    returnFocusRef.current?.focus?.({ preventScroll: true });
+    const timer = window.setTimeout(() => setMounted(false), COMMAND_EXIT_MS);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  // Once the dialog is in the DOM in its hidden 'enter' state, force the
+  // browser to lay that state out, then switch to 'shown' on the next frame,
+  // so the transition always has a painted starting point.
+  const backdropRef = useRef(null);
+  React.useLayoutEffect(() => {
+    if (!open || !mounted || phase !== 'enter' || !backdropRef.current) return undefined;
+    backdropRef.current.getBoundingClientRect();
+    const frame = requestAnimationFrame(() => setPhase('shown'));
+    return () => cancelAnimationFrame(frame);
+  }, [open, mounted, phase]);
+
+  // Focus once the dialog is actually in the DOM.
+  useEffect(() => {
+    if (open && mounted) inputRef.current?.focus();
+  }, [open, mounted]);
+
+  const needle = query.trim().toLowerCase();
+  const matches = needle
+    ? items.filter((item) =>
+        `${item.label} ${item.sub || ''} ${item.group} ${item.keywords || ''}`.toLowerCase().includes(needle)
+      )
+    : items;
+  const counts = matches.reduce((all, item) => ({ ...all, [item.group]: (all[item.group] || 0) + 1 }), {});
+
+  // Measure the active row and glide the highlight to it.
+  React.useLayoutEffect(() => {
+    const row = listRef.current?.querySelector('[aria-selected="true"]');
+    if (!row) {
+      setHighlight(null);
+      return;
+    }
+    setHighlight({ top: row.offsetTop, height: row.offsetHeight });
+    row.scrollIntoView({ block: 'nearest' });
+  }, [cursor, needle, mounted]);
+
+  if (!mounted) return null;
+
+  const run = (item) => {
+    onClose();
+    // Let the dialog close (and focus return) before the action scrolls or navigates.
+    window.setTimeout(() => item.run(), COMMAND_EXIT_MS);
+  };
+
+  const onKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      // Only this layer closes; the project overlay underneath stays open.
+      event.preventDefault();
+      event.stopPropagation();
+      onClose();
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setCursor((index) => (matches.length ? (index + 1) % matches.length : 0));
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setCursor((index) => (matches.length ? (index - 1 + matches.length) % matches.length : 0));
+    } else if (event.key === 'Enter' && matches[cursor]) {
+      event.preventDefault();
+      run(matches[cursor]);
+    } else if (event.key === 'Tab') {
+      // The input is the only focusable element, so focus stays in the dialog.
+      event.preventDefault();
+    }
+  };
+
+  let lastGroup = null;
   return (
-    <h2 className="section-title" data-daijin-title={mascot}>
+    <div
+      ref={backdropRef}
+      className={`command-backdrop is-${phase}`}
+      onPointerDown={(event) => event.target === event.currentTarget && onClose()}
+    >
+      <div className="command-menu" role="dialog" aria-modal="true" aria-label={t.command.label} onKeyDown={onKeyDown}>
+        <div className="command-field">
+          <Search size={18} aria-hidden="true" />
+          <input
+            ref={inputRef}
+            className="command-input"
+            type="text"
+            value={query}
+            placeholder={t.command.placeholder}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setCursor(0);
+            }}
+            role="combobox"
+            aria-label={t.command.label}
+            aria-expanded="true"
+            aria-controls="command-list"
+            aria-autocomplete="list"
+            aria-activedescendant={matches[cursor] ? `command-${matches[cursor].id}` : undefined}
+            spellCheck={false}
+          />
+          {query && (
+            <button
+              type="button"
+              className="command-clear"
+              aria-label={t.command.clear}
+              onClick={() => {
+                setQuery('');
+                inputRef.current?.focus();
+              }}
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+        {!needle && suggestions.length > 0 && (
+          <p className="command-suggest">
+            {suggestions.map((word) => (
+              <button type="button" key={word} onClick={() => setQuery(word)}>
+                {word}
+              </button>
+            ))}
+          </p>
+        )}
+        <ul className="command-list" id="command-list" role="listbox" ref={listRef}>
+          {highlight && (
+            <li
+              className="command-highlight"
+              role="presentation"
+              style={{ transform: `translateY(${highlight.top}px)`, height: highlight.height }}
+            />
+          )}
+          {matches.length === 0 && (
+            <li className="command-empty" role="option" aria-disabled="true" aria-selected="false">
+              <SearchX size={18} aria-hidden="true" />
+              {t.command.empty}
+            </li>
+          )}
+          {matches.map((item, index) => {
+            const heading = item.group !== lastGroup ? item.group : null;
+            lastGroup = item.group;
+            const Icon = item.icon;
+            const active = index === cursor;
+            return (
+              <React.Fragment key={item.id}>
+                {heading && (
+                  <li className="command-group" role="presentation">
+                    {heading}
+                    <span>{counts[heading]}</span>
+                  </li>
+                )}
+                <li
+                  id={`command-${item.id}`}
+                  role="option"
+                  aria-selected={active}
+                  className={active ? 'on' : ''}
+                  onPointerMove={() => cursor !== index && setCursor(index)}
+                  onClick={() => run(item)}
+                >
+                  <span className="command-icon">{Icon && <Icon size={15} aria-hidden="true" />}</span>
+                  <span className="command-text">
+                    <span className="command-title">{item.label}</span>
+                    {item.sub && <span className="command-sub">{item.sub}</span>}
+                  </span>
+                  {active && <CornerDownLeft size={14} className="command-enter" aria-hidden="true" />}
+                </li>
+              </React.Fragment>
+            );
+          })}
+        </ul>
+        <p className="command-foot" aria-hidden="true">
+          <span><kbd>↑</kbd><kbd>↓</kbd> {t.command.move}</span>
+          <span><kbd>↵</kbd> {t.command.open}</span>
+          <span><kbd>esc</kbd> {t.command.close}</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Theme switch: a track with a sliding knob, the sun/moon morph riding in
+// the knob. role="switch" so screen readers announce it as on/off.
+function ThemeSwitch({ theme, onToggle, label }) {
+  const light = theme === 'light';
+  return (
+    <button
+      type="button"
+      className={`theme-switch${light ? ' is-light' : ''}`}
+      role="switch"
+      aria-checked={light}
+      aria-label={label}
+      title={label}
+      onClick={onToggle}
+    >
+      <span className="theme-switch-track" aria-hidden="true">
+        <i className="theme-star" />
+        <i className="theme-star" />
+        <i className="theme-star" />
+      </span>
+      <span className="theme-switch-knob" aria-hidden="true">
+        <SunMoonIcon />
+      </span>
+    </button>
+  );
+}
+
+function SunMoonIcon() {
+  return (
+    <svg className="sun-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+      <mask id="sun-moon-mask">
+        <rect width="24" height="24" fill="#fff" />
+        <circle className="sun-moon-cut" cx="24" cy="10" r="6" fill="#000" />
+      </mask>
+      <circle className="sun-moon-core" cx="12" cy="12" r="5" fill="currentColor" mask="url(#sun-moon-mask)" />
+      <g className="sun-moon-rays" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <line x1="12" y1="1.5" x2="12" y2="3.5" />
+        <line x1="12" y1="20.5" x2="12" y2="22.5" />
+        <line x1="1.5" y1="12" x2="3.5" y2="12" />
+        <line x1="20.5" y1="12" x2="22.5" y2="12" />
+        <line x1="4.6" y1="4.6" x2="6" y2="6" />
+        <line x1="18" y1="18" x2="19.4" y2="19.4" />
+        <line x1="4.6" y1="19.4" x2="6" y2="18" />
+        <line x1="18" y1="6" x2="19.4" y2="4.6" />
+      </g>
+    </svg>
+  );
+}
+
+
+
+function EmailLink({ label }) {
+  return (
+    <a href="mailto:mohamed.fuad.jp@gmail.com" className="contact-email">
+      <Mail size={14} />
+      {label}
+    </a>
+  );
+}
+
+function SectionTitle({ children }) {
+  return (
+    <h2 className="section-title">
       {children}
     </h2>
   );
 }
 
+// Spell UI's Signature, ported without motion or opentype.js: the glyph
+// outlines are generated ahead of time (scripts/make-signature.mjs) and GSAP
+// draws them. Each glyph gets a thin outline that traces in, and a thick stroke
+// inside a mask that reveals the filled letter behind it, one glyph after the
+// next. Markup is the finished state, so reduced motion shows it as is.
 function Signature() {
   return (
     <div className="signature-wrap">
@@ -1505,8 +1713,32 @@ function Signature() {
         role="img"
         aria-label="Mohamed Fuad signature"
       >
-        <path className="sig-name" d={signaturePath} strokeWidth={signatureStrokeWidth} />
-        <path className="sig-trace" d={signaturePath} strokeWidth={signatureStrokeWidth} />
+        {/* Spell's mask stroke is 0.22 x font size, sized for a 16px label. At
+            this size it left the wide M loop and F bar partly unrevealed. */}
+        <defs>
+          <mask id="sig-reveal" maskUnits="userSpaceOnUse">
+            {signatureGlyphs.map((d, index) => (
+              <path
+                key={index}
+                className="sig-reveal"
+                d={d}
+                stroke="#fff"
+                strokeWidth={signatureFontSize * 0.45}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            ))}
+          </mask>
+        </defs>
+        {signatureGlyphs.map((d, index) => (
+          <path key={index} className="sig-outline" d={d} />
+        ))}
+        <g className="sig-fill" mask="url(#sig-reveal)">
+          {signatureGlyphs.map((d, index) => (
+            <path key={index} d={d} />
+          ))}
+        </g>
       </svg>
     </div>
   );
@@ -1563,27 +1795,14 @@ function Highlight({ name, children }) {
   );
 }
 
-function SkillPill({ skill, onPick, copy }) {
+function SkillPill({ skill, copy }) {
   const Icon = skill.Icon;
-  const tag = skillTag(skill.label);
-  const body = (
-    <>
+  return (
+    <li className="skill" aria-hidden={copy || undefined}>
       <span className="skill-mark">
         <Icon style={{ color: skill.color }} aria-hidden="true" />
       </span>
       <span>{skill.label}</span>
-    </>
-  );
-  // A skill that some project uses doubles as a shortcut to those projects.
-  return (
-    <li className="skill" aria-hidden={copy || undefined}>
-      {tag ? (
-        <button type="button" className="skill-link" onClick={() => onPick(tag)} tabIndex={copy ? -1 : undefined}>
-          {body}
-        </button>
-      ) : (
-        body
-      )}
     </li>
   );
 }
@@ -1929,7 +2148,11 @@ function ContributionGrid({ t, locale }) {
           <div key={figure.key} className="contribution-stat">
             <dt>{figure.label}</dt>
             <dd>
-              <strong>{figure.value}</strong>
+              {/* Rolls from the placeholder figures to the real ones once the
+                  snapshot lands; only the digits that change move. */}
+              <strong>
+                <Scritto value={String(figure.value)} transition={{ duration: 700 }} />
+              </strong>
               <span>{figure.note}</span>
             </dd>
           </div>
@@ -2093,6 +2316,7 @@ function ExperienceItem({ item, locale, t }) {
               <img
                 src={item.logo}
                 alt=""
+                loading="lazy"
                 onError={(event) => {
                   event.currentTarget.style.display = 'none';
                   event.currentTarget.parentElement?.classList.add('logo-fallback');
@@ -2154,7 +2378,7 @@ function badgeLabel(project, locale) {
   return locale === 'ja' && project.badgeJa ? project.badgeJa : project.badge;
 }
 
-function ProjectCard({ project, t, locale, onOpen, hidden }) {
+function ProjectCard({ project, t, locale, onOpen }) {
   const Icon = project.icon;
   const image = locale === 'ja' && project.imageJa ? project.imageJa : project.image;
   const open = (event) => onOpen(project.slug, event.currentTarget);
@@ -2179,7 +2403,7 @@ function ProjectCard({ project, t, locale, onOpen, hidden }) {
     setPlaying(false);
   };
   return (
-    <article className={`project project-${project.slug} dashed`} hidden={hidden}>
+    <article className={`project project-${project.slug} dashed`}>
       <button
         type="button"
         className={`project-shot${playing ? ' is-playing' : ''}`}
@@ -2190,7 +2414,7 @@ function ProjectCard({ project, t, locale, onOpen, hidden }) {
         onBlur={stop}
         aria-label={`${project.title}: ${t.viewDetails}`}
       >
-        <img src={image} alt={t.a11y.preview(project.title)} />
+        <img src={image} alt={t.a11y.preview(project.title)} loading="lazy" decoding="async" />
         {project.video && (
           <video
             ref={videoRef}
@@ -2299,12 +2523,12 @@ function BenchmarkBars({ benchmark, locale }) {
   );
 }
 
-function ProjectArchitecture({ steps, locale }) {
+function ProjectArchitecture({ steps, locale, tones }) {
   const pick = (value) => (locale === 'ja' ? value.ja : value.en);
   return (
     <ol className="pd-map" style={{ '--map-columns': steps.length }}>
       {steps.map((step, index) => (
-        <li className="pd-map-step" key={step.label.en}>
+        <li className="pd-map-step" key={step.label.en} style={toneStyle(tones, index)}>
           <span className="pd-map-number">{String(index + 1).padStart(2, '0')}</span>
           <strong>{pick(step.label)}</strong>
           <small>{pick(step.detail)}</small>
@@ -2359,20 +2583,16 @@ const FLOW_COMPACT = {
   branchLabelAbove: true,
 };
 
-// Excalidraw's own default swatches, mapped one per stage role so the
-// diagram reads as a family the same way the user's reference does (each
-// step's own color carrying through its box outline and subtitle).
-const FLOW_TONE = {
-  terminal: '#2f9e44', // green — entry / exit points
-  process: '#1971c2', // blue — the default "does work" step
-  decision: '#e8590c', // orange — a branch point
-  store: '#9c36b5', // violet — where data comes to rest
-};
+// Each stage role takes one of the project's own accents, so the chart is
+// in the same colours as the rest of its page. Shapes still carry the role
+// (pill, box, diamond, cylinder) when a palette has only close hues.
+const FLOW_ROLE_TONE = { terminal: 0, process: 1, decision: 2, store: 0 };
 
-function FlowBox({ x, y, w, h, kind, title, sub, geo }) {
+function FlowBox({ x, y, w, h, kind, title, sub, geo, tones }) {
   const cx = x + w / 2;
   const gap = geo.subSize + 3;
-  const tone = FLOW_TONE[kind] || FLOW_TONE.process;
+  const { bg, ink } = tones[(FLOW_ROLE_TONE[kind] ?? 1) % tones.length];
+  const tone = { '--fc-tone': bg, '--fc-ink': ink };
   const mid = y + h / 2;
   // A rectangle is the same width at every height, so a two-line label can sit
   // slightly low inside it. A diamond cannot: it is only full width at its
@@ -2402,7 +2622,7 @@ function FlowBox({ x, y, w, h, kind, title, sub, geo }) {
     const mx = x + w / 2;
     const my = y + h / 2;
     return (
-      <g style={{ '--fc-tone': tone }}>
+      <g style={tone}>
         <path
           className="fc-shape"
           d={`M ${mx} ${y - 8} L ${x + w} ${my} L ${mx} ${y + h + 8} L ${x} ${my} Z`}
@@ -2415,7 +2635,7 @@ function FlowBox({ x, y, w, h, kind, title, sub, geo }) {
   if (kind === 'store') {
     const ry = 7;
     return (
-      <g style={{ '--fc-tone': tone }}>
+      <g style={tone}>
         <path
           className="fc-shape"
           d={`M ${x} ${y + ry} a ${w / 2} ${ry} 0 0 1 ${w} 0 v ${h - ry * 2} a ${w / 2} ${ry} 0 0 1 ${-w} 0 Z`}
@@ -2427,7 +2647,7 @@ function FlowBox({ x, y, w, h, kind, title, sub, geo }) {
   }
 
   return (
-    <g style={{ '--fc-tone': tone }}>
+    <g style={tone}>
       <rect
         className="fc-shape"
         x={x}
@@ -2478,7 +2698,7 @@ function useCompactFlow() {
   return compact;
 }
 
-function ProjectFlowChart({ stages, locale, label }) {
+function ProjectFlowChart({ stages, locale, label, tones }) {
   const pick = (value) => (value ? (locale === 'ja' ? value.ja : value.en) : null);
   const geo = useCompactFlow() ? FLOW_COMPACT : FLOW_WIDE;
   const { width, laneX, boxW, boxH, gapY, branchGap, branchW, branchH, padY } = geo;
@@ -2560,6 +2780,7 @@ function ProjectFlowChart({ stages, locale, label }) {
                   )}
                   <FlowBox
                     geo={geo}
+                    tones={tones}
                     x={branchX}
                     y={y + (boxH - branchH) / 2}
                     w={branchW}
@@ -2571,6 +2792,7 @@ function ProjectFlowChart({ stages, locale, label }) {
               )}
               <FlowBox
                 geo={geo}
+                tones={tones}
                 x={laneX}
                 y={y}
                 w={boxW}
@@ -2587,11 +2809,165 @@ function ProjectFlowChart({ stages, locale, label }) {
   );
 }
 
-function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup }) {
+// Screenshot carousel for the detail page: slides crossfade with a slow
+// zoom, auto-advance every 4.2s (paused on hover, focus, or reduced motion),
+// and answer to arrows, dots, keys and swipes. Only the first slide loads
+// eagerly.
+const GALLERY_MS = 4200;
+
+function ProjectGallery({ slides, locale, title, reducedMotion, t }) {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const startX = useRef(null);
+  const count = slides.length;
+  const go = (step) => setIndex((current) => (current + step + count) % count);
+
+  useEffect(() => {
+    if (reducedMotion || paused || count < 2) return undefined;
+    const timer = window.setTimeout(() => go(1), GALLERY_MS);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, paused, reducedMotion, count]);
+
+  const pick = (value) => (locale === 'ja' ? value.ja : value.en);
+  return (
+    <div
+      className={`pd-gallery${paused ? ' is-paused' : ''}`}
+      role="region"
+      aria-roledescription="carousel"
+      aria-label={t.gallery(title)}
+      onPointerEnter={(event) => event.pointerType === 'mouse' && setPaused(true)}
+      onPointerLeave={(event) => event.pointerType === 'mouse' && setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+      onKeyDown={(event) => {
+        if (event.key === 'ArrowRight') go(1);
+        if (event.key === 'ArrowLeft') go(-1);
+      }}
+    >
+      <div
+        className="pd-gallery-frame"
+        onPointerDown={(event) => {
+          startX.current = event.clientX;
+        }}
+        onPointerUp={(event) => {
+          if (startX.current === null) return;
+          const dx = event.clientX - startX.current;
+          startX.current = null;
+          if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+        }}
+      >
+        {slides.map((slide, i) => (
+          <figure key={slide.src} className={i === index ? 'is-active' : ''} aria-hidden={i !== index}>
+            <img
+              src={slide.src}
+              alt={pick(slide.caption)}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              draggable="false"
+            />
+          </figure>
+        ))}
+        {count > 1 && (
+          <>
+            <button type="button" className="pd-gallery-nav is-prev" onClick={() => go(-1)} aria-label={t.galleryPrev}>
+              <ChevronLeft size={18} />
+            </button>
+            <button type="button" className="pd-gallery-nav is-next" onClick={() => go(1)} aria-label={t.galleryNext}>
+              <ChevronRight size={18} />
+            </button>
+          </>
+        )}
+      </div>
+      <div className="pd-gallery-foot">
+        <p className="pd-gallery-caption" aria-live="polite">
+          <span>
+            {String(index + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}
+          </span>
+          {pick(slides[index].caption)}
+        </p>
+        {count > 1 && (
+          <div className="pd-gallery-dots">
+            {slides.map((slide, i) => (
+              <button
+                type="button"
+                key={slide.src}
+                className={i === index ? 'is-active' : ''}
+                aria-label={t.galleryGoTo(i + 1)}
+                aria-current={i === index}
+                onClick={() => setIndex(i)}
+              >
+                <i style={{ animationDuration: `${GALLERY_MS}ms` }} />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// The detail page's lower half is coloured with the project's own accents.
+// Each accent carries the ink (near-black or white) with the higher WCAG
+// contrast on it, so a pale yellow and a deep blue both hold readable text.
+function relativeLuminance(hex) {
+  const channels = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const [r, g, b] = channels.map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+const TONE_DARK_INK = '#16130f';
+
+function projectTones(project) {
+  const accents = project.accents || DEFAULT_PALETTE.slice(1);
+  return accents.map((bg) => {
+    const l = relativeLuminance(bg);
+    const onDark = (l + 0.05) / (relativeLuminance(TONE_DARK_INK) + 0.05);
+    const onWhite = 1.05 / (l + 0.05);
+    return { bg, ink: onDark >= onWhite ? TONE_DARK_INK : '#ffffff' };
+  });
+}
+
+/** CSS custom properties for the i-th tone, cycling through the accents. */
+function toneStyle(tones, i) {
+  const tone = tones[i % tones.length];
+  return { '--tone': tone.bg, '--tone-ink': tone.ink };
+}
+
+// Figures as solid colour tiles: one big number and one short label each.
+// Values roll in with Scritto once the page has settled.
+function FigureTiles({ figures, locale, reducedMotion, tones }) {
+  const [shown, setShown] = useState(reducedMotion);
+  useEffect(() => {
+    if (reducedMotion) return undefined;
+    const timer = window.setTimeout(() => setShown(true), 260);
+    return () => window.clearTimeout(timer);
+  }, [reducedMotion]);
+  const pick = (value) => (locale === 'ja' ? value.ja : value.en);
+  return (
+    <ol className="pd-kpis">
+      {figures.map((figure, i) => {
+        // Before the roll, show the same shape with zeros so the width holds.
+        const start = figure.value.replace(/\d/g, '0');
+        return (
+          <li key={figure.label.en} style={toneStyle(tones, i)}>
+            <strong>
+              <Scritto value={shown ? figure.value : start} transition={{ duration: 900 }} />
+            </strong>
+            <span>{pick(figure.label)}</span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup, reducedMotion }) {
   const Icon = project.icon;
   const d = project.detail;
   const pick = (obj) => (locale === 'ja' ? obj.ja : obj.en);
   const image = locale === 'ja' && project.imageJa ? project.imageJa : project.image;
+  const tones = projectTones(project);
   return (
     <div
       className="project-detail"
@@ -2608,139 +2984,165 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup 
           dangerouslySetInnerHTML={{ __html: originMarkup }}
         />
       )}
-      <div className="project-detail-inner">
-        <button type="button" className="pd-back pd-animate" onClick={onClose}>
-          <ArrowLeft size={16} />
-          {t.back}
-        </button>
+      <div className="project-detail-inner" style={toneStyle(tones, 0)}>
+        <div className="pd-topbar">
+          <button type="button" className="pd-back pd-animate" onClick={onClose}>
+            <ArrowLeft size={16} />
+            {t.back}
+          </button>
+          <div className="pd-actions">
+            {project.live && (
+              <a href={project.live} target="_blank" rel="noopener noreferrer">
+                <ExternalLink size={15} />
+                {t.live}
+              </a>
+            )}
+            {project.github ? (
+              <a href={project.github} target="_blank" rel="noopener noreferrer">
+                <BrandIcon name="github" />
+                GitHub
+              </a>
+            ) : (
+              <span className="repo-private">
+                <Lock size={14} />
+                {t.privateRepo}
+              </span>
+            )}
+          </div>
+        </div>
 
-        <header className="pd-hero">
-          <div className="pd-shot pd-animate">
-            <img src={image} alt={t.a11y.preview(project.title)} />
-            <span>{badgeLabel(project, locale)}</span>
-          </div>
-          <div className="pd-headline pd-animate">
-            <h1>
-              <span>{project.title}</span>
-              <Icon size={22} />
-            </h1>
-            <p className="pd-tagline">{pick(d.tagline)}</p>
-            <div className="pd-actions">
-              {project.live && (
-                <a href={project.live} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink size={15} />
-                  {t.live}
-                </a>
-              )}
-              {project.github ? (
-                <a href={project.github} target="_blank" rel="noopener noreferrer">
-                  <BrandIcon name="github" />
-                  GitHub
-                </a>
-              ) : (
-                <span className="repo-private">
-                  <Lock size={14} />
-                  {t.privateRepo}
-                </span>
-              )}
-            </div>
-          </div>
+        <header className="pd-hero pd-headline pd-animate">
+          <p className="pd-eyebrow">
+            <Icon size={15} />
+            {badgeLabel(project, locale)}
+          </p>
+          <h1>{project.title}</h1>
+          <p className="pd-tagline">{pick(d.tagline)}</p>
         </header>
+
+        <div className="pd-shot pd-animate">
+          {project.gallery?.length ? (
+            <ProjectGallery
+              slides={project.gallery}
+              locale={locale}
+              title={project.title}
+              reducedMotion={reducedMotion}
+              t={t}
+            />
+          ) : (
+            <img src={image} alt={t.a11y.preview(project.title)} loading="lazy" decoding="async" />
+          )}
+        </div>
 
         {d.highlights && (
           <section className="pd-block pd-animate pd-reveal">
             <h2 className="pd-h">{t.figures}</h2>
-            <ol className="pd-figures">
-              {d.highlights.map((figure) => (
-                <li key={figure.label.en}>
-                  <strong>{figure.value}</strong>
-                  <span>{pick(figure.label)}</span>
-                </li>
-              ))}
-            </ol>
+            <FigureTiles figures={d.highlights} locale={locale} reducedMotion={reducedMotion} tones={tones} />
             {d.benchmark && <BenchmarkBars benchmark={d.benchmark} locale={locale} />}
           </section>
         )}
 
-        <section className="pd-block pd-animate pd-reveal">
-          <h2 className="pd-h">{t.overview}</h2>
-          <p className="pd-overview">{pick(d.overview)}</p>
-          {d.status && <p className="pd-status">{pick(d.status)}</p>}
+        <section className="pd-block pd-split pd-animate pd-reveal">
+          <div className="pd-intro">
+            <h2 className="pd-h">{t.overview}</h2>
+            <p className="pd-overview">{pick(d.overview)}</p>
+            {d.status && <p className="pd-status">{pick(d.status)}</p>}
+          </div>
+          <aside className="pd-glance" aria-label={t.glance}>
+            <dl>
+              <div>
+                <dt>{t.glanceType}</dt>
+                <dd>
+                  <span className="pd-type">
+                    <Icon size={14} aria-hidden="true" />
+                    {badgeLabel(project, locale)}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>{t.techHeading}</dt>
+                <dd className="pd-chips">
+                  {project.tech.map((tech, i) => (
+                    <span key={tech} style={toneStyle(tones, i)}>
+                      {tech}
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            </dl>
+          </aside>
         </section>
 
         <section className="pd-block pd-animate pd-reveal">
           <h2 className="pd-h">{t.keyFeatures}</h2>
-          <ul className="pd-features">
+          <ol className="pd-features">
             {d.features.map((f, i) => (
-              <li key={i}>{pick(f)}</li>
+              <li key={f.en} style={toneStyle(tones, i)}>
+                <span className="pd-feature-index" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                {f.title && <h3>{pick(f.title)}</h3>}
+                <p>{pick(f)}</p>
+              </li>
             ))}
-          </ul>
+          </ol>
         </section>
 
-        {d.flow && (
+        {(d.flow || d.architecture || d.stack) && (
           <section className="pd-block pd-animate pd-reveal">
             <h2 className="pd-h">{t.howItWorks}</h2>
-            <p className="pd-overview">{pick(d.flow)}</p>
+            {d.flow && <p className="pd-flow-lead">{pick(d.flow)}</p>}
+            {d.architecture && (
+              <div className="pd-sub">
+                <h3 className="pd-h3">{t.systemMap}</h3>
+                <ProjectArchitecture steps={d.architecture} locale={locale} tones={tones} />
+              </div>
+            )}
+            {d.stack && (
+              <div className="pd-sub">
+                <h3 className="pd-h3">{t.architecture}</h3>
+                <ProjectFlowChart stages={d.stack} locale={locale} label={t.architecture} tones={tones} />
+              </div>
+            )}
           </section>
         )}
-
-        {d.architecture && (
-          <section className="pd-block pd-animate pd-reveal">
-            <h2 className="pd-h">{t.systemMap}</h2>
-            <ProjectArchitecture steps={d.architecture} locale={locale} />
-          </section>
-        )}
-
-        {d.stack && (
-          <section className="pd-block pd-animate pd-reveal">
-            <h2 className="pd-h">{t.architecture}</h2>
-            <ProjectFlowChart stages={d.stack} locale={locale} label={t.architecture} />
-          </section>
-        )}
-
-        <section className="pd-block pd-animate pd-reveal">
-          <h2 className="pd-h">{t.techHeading}</h2>
-          <div className="tags">
-            {project.tech.map((tech) => (
-              <span key={tech}>{tech}</span>
-            ))}
-          </div>
-        </section>
       </div>
     </div>
   );
 }
 
 export default function App() {
-  const [locale, setLocale] = useState(() => {
-    const saved = window.localStorage.getItem('portfolio-locale');
-    if (saved === 'en' || saved === 'ja') return saved;
-    return navigator.language?.toLowerCase().startsWith('ja') ? 'ja' : 'en';
-  });
+  const [locale, setLocale] = useState(() => fromBrowser(readLocale, 'en'));
   const [burst, setBurst] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
-  const [clickBursts, setClickBursts] = useState([]);
-  const [route, setRoute] = useState(() => window.location.hash);
+  const [photoPrimed, setPhotoPrimed] = useState(false);
+  const [route, setRoute] = useState(() => fromBrowser(() => window.location.hash, ''));
   const [shownProject, setShownProject] = useState(null);
-  const [mascotScene, setMascotScene] = useState({ clip: 'playful', scene: 'profile' });
-  const [projectTag, setProjectTag] = useState(null);
-  // public/theme-init.js has already set <html data-theme> before this
-  // bundle ran (saved choice, else the system setting), so start from that
-  // and there is no dark-then-light flash on first paint.
-  const [theme, setTheme] = useState(() =>
-    document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
-  );
-  // Nothing saved yet means the visitor never chose, so keep following the
-  // system if it changes while the page is open.
-  const [themeChosen, setThemeChosen] = useState(() => {
-    try {
-      return Boolean(window.localStorage.getItem('portfolio-theme'));
-    } catch {
-      return false;
-    }
-  });
-  const [commandOpen, setCommandOpen] = useState(false);
+  const [daijinWave, setDaijinWave] = useState(0);
+  const [theme, setTheme] = useState(() => fromBrowser(readTheme, 'dark'));
+  const [themeChosen, setThemeChosen] = useState(() => fromBrowser(readThemeChosen, false));
+  // True for the hydration commit only. Effects that write the language or
+  // theme back to the page or storage skip it, because that commit still holds
+  // the prerender defaults rather than the visitor's own values.
+  const bootRef = useRef(hydratingPrerender);
+  // Both depend on the browser, so they start in the prerendered state: the
+  // lazy beam cannot be server-rendered (React error 419 on hydration), and
+  // the shortcut label depends on the platform.
+  const [beamReady, setBeamReady] = useState(false);
+  const [isApple, setIsApple] = useState(() => fromBrowser(() => /Mac|iPhone|iPad/.test(navigator.platform), false));
+  useEffect(() => {
+    setBeamReady(true);
+    setIsApple(/Mac|iPhone|iPad/.test(navigator.platform));
+  }, []);
+  React.useLayoutEffect(() => {
+    if (!bootRef.current) return;
+    hydratingPrerender = false;
+    setLocale(readLocale());
+    setRoute(window.location.hash);
+    setTheme(readTheme());
+    setThemeChosen(readThemeChosen());
+  }, []);
   const reducedMotion = useReducedMotion();
   const visitorCount = useVisitorCount();
   const mainRef = useRef(null);
@@ -2760,8 +3162,27 @@ export default function App() {
 
   const t = copy[locale];
   const activeProject = projects.find((p) => route === `#/project/${p.slug}`) || null;
-  const openProject = (slug, trigger) => {
-    const mobile = window.matchMedia('(max-width: 640px)').matches;
+  const openProject = (slug, trigger, { direct = false } = {}) => {
+    // The pixel transition covers the page, the detail view mounts under it,
+    // then the cells clear. It replaces the mobile card-clone expand, so the
+    // direct path below only runs for reduced motion or from inside it.
+    if (!direct && !reducedMotion) {
+      const project = projects.find((item) => item.slug === slug);
+      const rect = trigger?.getBoundingClientRect?.();
+      const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+      const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+      // Decode the detail hero screenshot while the cells are covering, so the
+      // decode is not the frame that stutters during the uncover.
+      const hero = new Image();
+      hero.src = locale === 'ja' && project?.imageJa ? project.imageJa : project?.image || '';
+      const decoded = hero.decode ? hero.decode().catch(() => {}) : Promise.resolve();
+      Promise.all([pixelCover({ x, y, palette: project?.palette || DEFAULT_PALETTE }), decoded]).then(() => {
+        openProject(slug, trigger, { direct: true });
+        waitForCalm().then(pixelUncover);
+      });
+      return;
+    }
+    const mobile = !direct && window.matchMedia('(max-width: 640px)').matches;
     const card = mobile ? trigger?.closest('.project') : null;
     detailReturnFocusRef.current = trigger || null;
     if (card) {
@@ -2819,7 +3240,15 @@ export default function App() {
   // "Back to projects" button. Only step back through an entry this app pushed
   // itself; otherwise clear the hash, which lands on the project list either
   // way (ADR-042).
-  const closeProject = () => {
+  const closeProject = ({ direct = false } = {}) => {
+    if (!direct && !reducedMotion) {
+      const project = projects.find((item) => route === `#/project/${item.slug}`);
+      pixelCover({ x: 40, y: 40, palette: project?.palette || DEFAULT_PALETTE }).then(() => {
+        closeProject({ direct: true });
+        waitForCalm().then(pixelUncover);
+      });
+      return;
+    }
     if (pushedDetailRef.current) {
       pushedDetailRef.current = false;
       window.history.back();
@@ -2838,6 +3267,7 @@ export default function App() {
     locale === 'ja' ? '/resume/Mohamed_Fuad_CV_JA.pdf' : '/resume/Mohamed_Fuad_CV.pdf';
 
   useEffect(() => {
+    if (bootRef.current) return;
     window.localStorage.setItem('portfolio-locale', locale);
     // `index.html` ships `lang="en"`, so without this a Japanese visitor gets a
     // fully translated page that still declares itself English — screen readers
@@ -2846,7 +3276,7 @@ export default function App() {
   }, [locale]);
 
   useEffect(() => {
-    if (!import.meta.env.PROD) return;
+    if (!import.meta.env.PROD || bootRef.current) return;
     const path = activeProject ? `/project/${activeProject.slug}` : '/';
     pageview({ route: path, path });
   }, [route, activeProject]);
@@ -3183,25 +3613,12 @@ export default function App() {
         // Hero: animate whole containers (not staggered children) with
         // clearProps so no inline transform can ever stick and misalign
         // flex rows (the earlier "OR pushed up" bug).
-        gsap
-          .timeline({ defaults: { ease, clearProps: 'transform,opacity' } })
-          .from('.profile', { y: 24, opacity: 0, scale: 0.97, duration: 0.65 })
-          .from('.intro', { y: 20, opacity: 0, duration: 0.55 }, '-=0.35')
-          .from('.actions', { y: 16, opacity: 0, duration: 0.5 }, '-=0.3');
-
-        // Name flourish: characters rise in, then the split reverts so the
-        // DOM goes back to plain text (safe for React re-renders).
-        const split = new SplitText('.name-text', { type: 'chars' });
-        gsap.from(split.chars, {
-          y: 16,
-          opacity: 0,
-          rotation: 6,
-          duration: 0.5,
-          stagger: 0.035,
-          delay: 0.2,
-          ease: 'back.out(1.6)',
-          onComplete: () => split.revert(),
-        });
+        // Movement only, no fade: text that starts at opacity 0 cannot count as
+        // painted until the animation ends, which made the intro paragraph the
+        // page's slowest paint (Lighthouse LCP) on phones.
+        // The hero entrance and the name flourish are CSS animations now
+        // (global.css, "Hero entrance"), so they start with the prerendered
+        // paint instead of waiting for this bundle.
 
         // Skill icons drift gently, like icons floating along a pipeline.
         gsap.utils.toArray('.skill-mark').forEach((el) => {
@@ -3312,43 +3729,27 @@ export default function App() {
           clearProps: 'transform,translate,rotate,scale,opacity',
         });
 
-        // Signature: single continuous "hello"-style pen gesture draws itself
-        // in on scroll, then a glowing highlight keeps tracing the handwriting
-        // forever — a soft light travelling along the whole stroke, back and
-        // forth. (No pin — the pin spacer left a big blank gap on desktop.)
-        gsap.set('.signature .sig-name', { drawSVG: 0 });
-        gsap.set('.signature .sig-trace', { drawSVG: '0% 15%', opacity: 1 });
-
-        // Draw the name once as it scrolls in, then leave it dimmed.
-        gsap.to('.signature .sig-name', {
-          drawSVG: '100%',
-          opacity: 0.42,
-          duration: 2.6,
-          ease: 'power1.inOut',
-          scrollTrigger: { trigger: '.signature-wrap', start: 'top 88%' },
+        // Signature: the Spell UI timing. Each glyph traces for 1.5s with
+        // easeInOut, starting 0.2s after the previous one, once, on enter.
+        const signatureTimeline = gsap.timeline({
+          paused: true,
+          defaults: { duration: 1.5, ease: 'power1.inOut' },
         });
-
-        // Perpetual tracing highlight — created paused and only allowed to run
-        // while the signature is on screen. A filtered path that re-rasterises
-        // every frame is the main jank cost on weaker (Android) GPUs, so we
-        // never spend it off-screen.
-        const traceLoop = gsap.fromTo(
-          '.signature .sig-trace',
-          { drawSVG: '0% 15%' },
-          {
-            drawSVG: '85% 100%',
-            duration: 2.9,
-            ease: 'sine.inOut',
-            repeat: -1,
-            yoyo: true,
-            paused: true,
-          }
-        );
+        // Hidden until its turn, like Spell's opacity step: a round cap on a
+        // zero-length dash would otherwise leave a dot at every glyph start.
+        ['.signature .sig-outline', '.signature .sig-reveal'].forEach((selector) => {
+          gsap.utils.toArray(selector).forEach((path, index) => {
+            signatureTimeline
+              .set(path, { opacity: 1 }, index * 0.2)
+              .fromTo(path, { drawSVG: 0 }, { drawSVG: '100%', immediateRender: true }, index * 0.2);
+          });
+        });
+        gsap.set('.signature .sig-outline, .signature .sig-reveal', { opacity: 0 });
         ScrollTrigger.create({
           trigger: '.signature-wrap',
-          start: 'top bottom',
-          end: 'bottom top',
-          onToggle: (self) => (self.isActive ? traceLoop.play() : traceLoop.pause()),
+          start: 'top 88%',
+          once: true,
+          onEnter: () => signatureTimeline.play(),
         });
 
         // Waveform divider grows outward, then keeps breathing like a
@@ -3383,152 +3784,12 @@ export default function App() {
           ease,
         });
 
-        const mascotScenes = [
-          { trigger: '.profile', partner: '.avatar-shell', clip: 'playful', scene: 'profile' },
-          {
-            trigger: '[data-daijin-title="skills"]',
-            partner: '[data-daijin-title="skills"]',
-            clip: 'clever',
-            scene: 'skills',
-          },
-          {
-            trigger: '[data-daijin-title="work"]',
-            partner: '[data-daijin-title="work"]',
-            clip: 'working',
-            scene: 'work',
-          },
-          {
-            trigger: '.contribution',
-            partner: '.contribution',
-            clip: 'thinking',
-            scene: 'contributions',
-          },
-          {
-            trigger: '[data-daijin-title="projects"]',
-            partner: '[data-daijin-title="projects"]',
-            clip: 'curious',
-            scene: 'projects',
-          },
-          {
-            trigger: '[data-daijin-title="thoughts"]',
-            partner: '[data-daijin-title="thoughts"]',
-            clip: 'listening',
-            scene: 'writing',
-          },
-          {
-            trigger: '.contact-card',
-            partner: '.contact-card h3',
-            clip: 'happy',
-            scene: 'contact',
-          },
-        ];
-        const showMascotScene = (scene) => {
-          const next = { clip: scene.clip, scene: scene.scene };
-          setMascotScene((current) =>
-            current.clip === next.clip && current.scene === next.scene ? current : next
-          );
-          const partner = mainRef.current?.querySelector(scene.partner);
-          if (partner && scene.scene !== 'profile') {
-            gsap.killTweensOf(partner);
-            gsap.fromTo(
-              partner,
-              { x: -8, rotation: -1.4 },
-              {
-                x: 0,
-                rotation: 0,
-                duration: 0.9,
-                ease: 'elastic.out(1, 0.42)',
-                clearProps: 'transform',
-              }
-            );
-          }
-        };
-        let mascotSceneStarts = [];
-        let mascotSceneIndex = -1;
-        const measureMascotScenes = () => {
-          mascotSceneStarts = mascotScenes.map((scene) => smoother.offset(scene.trigger, 'top 150px'));
-        };
-        const syncMascotScene = (scrollPosition) => {
-          let nextIndex = 0;
-          mascotSceneStarts.forEach((start, index) => {
-            if (scrollPosition >= start) nextIndex = index;
-          });
-          if (nextIndex === mascotSceneIndex) return;
-          mascotSceneIndex = nextIndex;
-          showMascotScene(mascotScenes[nextIndex]);
-        };
-        measureMascotScenes();
+        // Daijin lives in the contact card now and waves when it scrolls in.
         ScrollTrigger.create({
-          trigger: mainRef.current,
-          start: 'top top',
-          end: 'bottom bottom',
-          onRefresh: (self) => {
-            measureMascotScenes();
-            syncMascotScene(self.scroll());
-          },
-          onUpdate: (self) => syncMascotScene(self.scroll()),
+          trigger: '.contact-card',
+          start: 'top 80%',
+          onEnter: () => setDaijinWave((count) => count + 1),
         });
-
-        // Daijin is fixed outside the smoothed content, so it is placed every
-        // tick from live geometry rather than CSS guesses: beside the photo in
-        // the profile scene (positioned so the playful clip's outstretched paw,
-        // measured at 93% across and 45% down its frame, lands just inside the
-        // photo's left edge), on the left rail otherwise. It eases toward the
-        // target instead of jumping, and keeps tracking the photo while the page
-        // scrolls.
-        const mascotPosition = { x: null, y: null };
-        const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-        let knockArmed = true;
-        const PAW_X = 478 / 512;
-        const PAW_Y = 230 / 512;
-        const followMascot = () => {
-          const mascot = document.querySelector('.daijin-mascot');
-          if (!mascot) {
-            mascotPosition.x = null;
-            return;
-          }
-          const size = mascot.offsetWidth;
-          const width = window.innerWidth;
-          let targetX;
-          let targetY;
-          const photo = mascot.dataset.scene === 'profile' && mainRef.current?.querySelector('.avatar-shell');
-          if (photo) {
-            const rect = photo.getBoundingClientRect();
-            targetX = rect.left + 10 - size * PAW_X;
-            targetY = rect.top + rect.height * 0.4 - size * PAW_Y;
-          } else {
-            const compact = width <= 1000;
-            targetX = Math.max(compact ? 32 : 12, width / 2 - (compact ? 428 : 468));
-            targetY = compact ? 124 : 108;
-          }
-          if (mascotPosition.x === null) {
-            mascotPosition.x = targetX;
-            mascotPosition.y = targetY;
-          }
-          const ease = 1 - Math.pow(1 - 0.12, gsap.ticker.deltaRatio());
-          mascotPosition.x += (targetX - mascotPosition.x) * ease;
-          mascotPosition.y += (targetY - mascotPosition.y) * ease;
-          mascot.style.transform = `translate3d(${mascotPosition.x.toFixed(2)}px, ${mascotPosition.y.toFixed(2)}px, 0)`;
-
-          // The photo reacts to the paw itself, not to a timer: the knock fires
-          // on the frame where the playful reach is at full stretch (frame 20),
-          // so image decoding can never put the two out of step. It re-arms
-          // once the paw is back down.
-          const frame = Number(mascot.dataset.frame);
-          if (photo && mascot.dataset.clip === 'playful') {
-            if (frame <= 12) knockArmed = true;
-            if (knockArmed && frame >= 20 && !reducedMotionQuery.matches) {
-              knockArmed = false;
-              gsap.killTweensOf(photo);
-              gsap
-                .timeline()
-                .to(photo, { rotation: 7, x: 6, y: -3, duration: 0.16, ease: 'power2.out', transformOrigin: '80% 90%' })
-                .to(photo, { rotation: -2, x: -1, y: 0, duration: 0.35, ease: 'power1.inOut' })
-                .to(photo, { rotation: 0, x: 0, duration: 1.1, ease: 'elastic.out(1, 0.35)', clearProps: 'transform' });
-            }
-          }
-        };
-        gsap.ticker.add(followMascot);
 
         // Smooth-scroll the hero's "#projects" link instead of jumping.
         const buildingLink = mainRef.current?.querySelector('.building');
@@ -3547,7 +3808,6 @@ export default function App() {
         window.addEventListener('load', onLoad);
 
         return () => {
-          gsap.ticker.remove(followMascot);
           buildingLink?.removeEventListener('click', smoothScroll);
           window.removeEventListener('load', onLoad);
         };
@@ -3557,32 +3817,12 @@ export default function App() {
     { scope: mainRef }
   );
 
-  useEffect(() => {
-    const handleTap = (event) => {
-      // Fire on real taps/clicks only. Using 'click' (not 'pointerdown') means a
-      // scroll or drag gesture never triggers the ripple; detail === 0 skips
-      // keyboard-activated clicks (which have no meaningful pointer position).
-      if (event.detail === 0) return;
-      const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-      setClickBursts((items) => [...items.slice(-5), { id, x: event.clientX, y: event.clientY }]);
-      window.setTimeout(() => {
-        setClickBursts((items) => items.filter((item) => item.id !== id));
-      }, 1050);
-    };
 
-    window.addEventListener('click', handleTap);
-    return () => window.removeEventListener('click', handleTap);
-  }, []);
-
-  // Hidden cards change the page height, so every ScrollTrigger below the
-  // project list has to re-measure.
-  useEffect(() => {
-    ScrollTrigger.refresh();
-  }, [projectTag]);
 
   useEffect(() => {
+    if (bootRef.current) return;
     document.documentElement.dataset.theme = theme;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#f6f6f7' : '#0f1011');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#f5f0e8' : '#0e0c0b');
   }, [theme]);
 
   useEffect(() => {
@@ -3603,17 +3843,6 @@ export default function App() {
       /* storage unavailable */
     }
   };
-
-  useEffect(() => {
-    const onKey = (event) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault();
-        setCommandOpen((value) => !value);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
 
   const scrollToSection = (selector) => {
     const target = document.querySelector(selector);
@@ -3645,13 +3874,14 @@ export default function App() {
         // Closing steps history back and plays the close animation; scroll
         // once the page underneath is live again.
         closeProject();
-        window.setTimeout(() => scrollToSection(selector), 650);
+        window.setTimeout(() => scrollToSection(selector), reducedMotion ? 650 : 1300);
       },
     })),
     ...projects.map((project) => ({
       id: `project-${project.slug}`,
       group: t.projects,
       label: project.title,
+      sub: locale === 'ja' ? project.descriptionJa : project.description,
       keywords: project.tech.join(' '),
       icon: project.icon,
       run: () => openProject(project.slug, null),
@@ -3702,25 +3932,6 @@ export default function App() {
     },
   ];
 
-  const pickTag = (tag) => {
-    setProjectTag(tag);
-    const target = document.getElementById('projects');
-    const smoother = ScrollSmoother.get();
-    if (smoother && target) smoother.scrollTo(target, true, 'top 140px');
-    else target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  // While the visitor stays at the top, Daijin keeps playing: the reach
-  // replays every few seconds instead of happening once.
-  useEffect(() => {
-    if (reducedMotion || mascotScene.scene !== 'profile') return undefined;
-    const timer = window.setTimeout(() => {
-      setMascotScene((current) =>
-        current.scene === 'profile' ? { ...current, playKey: (current.playKey || 0) + 1 } : current
-      );
-    }, 5200);
-    return () => window.clearTimeout(timer);
-  }, [mascotScene, reducedMotion]);
 
   const handleNameAction = (event) => {
     event.stopPropagation();
@@ -3729,18 +3940,48 @@ export default function App() {
     window.setTimeout(() => setBurst(false), 850);
   };
 
+  const avatarCard = (
+    <div className={`avatar ${showQr ? 'is-flipped' : ''}`}>
+      <div className="avatar-card">
+        <div className="avatar-face avatar-front">
+          <img
+            className="profile-photo"
+            onPointerEnter={() => setPhotoPrimed(true)}
+            onFocus={() => setPhotoPrimed(true)}
+            onTouchStart={() => setPhotoPrimed(true)}
+            src="/media/images/profile-440.webp"
+            width="440"
+            height="330"
+            alt="Mohamed Fuad"
+            title={t.a11y.viewPhoto}
+            onClick={() => {
+              setPhotoPrimed(true);
+              setPhotoOpen(true);
+            }}
+          />
+        </div>
+        <div className="avatar-face avatar-back">
+          <img src="/media/images/linkedin-qr.png" alt={t.a11y.linkedinQr} loading="lazy" />
+        </div>
+      </div>
+    </div>
+  );
+
+  // Declared after every effect that checks bootRef, so those skip the
+  // hydration commit and run normally on the corrected re-render. A home-route
+  // visit has no route change to trigger the pageview effect, so count it here.
+  useEffect(() => {
+    if (!bootRef.current) return;
+    bootRef.current = false;
+    document.documentElement.removeAttribute('data-hold-prerender');
+    if (import.meta.env.PROD && !window.location.hash.startsWith('#/project/')) {
+      pageview({ route: '/', path: '/' });
+    }
+  }, []);
+
   return (
     <>
-      <CommandMenu open={commandOpen} onClose={() => setCommandOpen(false)} items={commandItems} t={t} />
-      <div className="page-click-effects" aria-hidden="true">
-        {clickBursts.map((item) => (
-          <span className="click-burst" key={item.id} style={{ left: item.x, top: item.y }}>
-            {Array.from({ length: 3 }).map((_, index) => (
-              <i key={index} />
-            ))}
-          </span>
-        ))}
-      </div>
+      <CommandMenu items={commandItems} suggestions={t.command.suggestions} t={t} />
       <div
         className="avatar-lightbox"
         ref={lightboxRef}
@@ -3751,7 +3992,9 @@ export default function App() {
       >
         <img
           ref={lightboxImgRef}
-          src="/media/images/profile.jpg"
+          // Full-size photo only once someone reaches for it: hover, focus or
+          // touch on the avatar primes it ahead of the open animation.
+          src={photoPrimed ? '/media/images/profile.jpg' : undefined}
           alt={t.a11y.enlargedPhoto}
           onClick={(event) => event.stopPropagation()}
         />
@@ -3764,20 +4007,50 @@ export default function App() {
           onClose={closeProject}
           viewRef={detailRef}
           originMarkup={detailOriginMarkupRef.current}
-        />
-      )}
-      {!shownProject && (
-        <DaijinMascot
-          clip={mascotScene.clip}
-          scene={mascotScene.scene}
-          playKey={mascotScene.playKey}
-          loop={false}
           reducedMotion={reducedMotion}
         />
       )}
       <div id="smooth-wrapper" ref={smoothWrapperRef}>
         <div id="smooth-content" ref={smoothContentRef}>
           <main ref={mainRef}>
+      {/* Page controls in one row, all the same height, clear of the hero. */}
+      <div className="page-controls">
+        <span className="locale-switch" role="group" aria-label={t.a11y.language}>
+          <button
+            type="button"
+            className={locale === 'en' ? 'on' : ''}
+            aria-pressed={locale === 'en'}
+            onClick={() => setLocale('en')}
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            className={locale === 'ja' ? 'on' : ''}
+            aria-pressed={locale === 'ja'}
+            onClick={() => setLocale('ja')}
+          >
+            日本語
+          </button>
+        </span>
+        <ThemeSwitch
+          theme={theme}
+          onToggle={toggleTheme}
+          label={theme === 'light' ? t.command.dark : t.command.light}
+        />
+        <button
+          type="button"
+          className="command-trigger"
+          onClick={() => window.dispatchEvent(new Event('command:open'))}
+          aria-label={t.command.button}
+          aria-keyshortcuts="Meta+K Control+K"
+        >
+          <Search size={13} aria-hidden="true" />
+          <span>{t.command.search}</span>
+          <kbd>{isApple ? '⌘K' : 'Ctrl K'}</kbd>
+        </button>
+      </div>
+
       <section className="profile">
         {/* The beam traces the photo's edge; the QR toggle is a sibling of the
             beam, not a child, so BorderBeam keeps its own clipping and the
@@ -3785,6 +4058,8 @@ export default function App() {
         <div
           className="avatar-shell"
         >
+        {beamReady ? (
+        <React.Suspense fallback={<div className="avatar-beam">{avatarCard}</div>}>
         <BorderBeam
           className="avatar-beam"
           size="md"
@@ -3797,23 +4072,12 @@ export default function App() {
           duration={2.8}
           active={!reducedMotion}
         >
-        <div className={`avatar ${showQr ? 'is-flipped' : ''}`}>
-          <div className="avatar-card">
-            <div className="avatar-face avatar-front">
-              <img
-                className="profile-photo"
-                src="/media/images/profile.jpg"
-                alt="Mohamed Fuad"
-                title={t.a11y.viewPhoto}
-                onClick={() => setPhotoOpen(true)}
-              />
-            </div>
-            <div className="avatar-face avatar-back">
-              <img src="/media/images/linkedin-qr.png" alt={t.a11y.linkedinQr} />
-            </div>
-          </div>
-        </div>
+        {avatarCard}
         </BorderBeam>
+        </React.Suspense>
+        ) : (
+          <div className="avatar-beam">{avatarCard}</div>
+        )}
         <button
           className="qr-toggle-btn"
           type="button"
@@ -3828,7 +4092,21 @@ export default function App() {
         </div>
         <div className="identity">
           <h1>
-            <span className="name-text">Mohamed Fuad</span>
+            {/* Split into letters in the markup itself, so the entrance can
+                run in CSS from the first (prerendered) paint. The label keeps
+                it one name for screen readers, as the split-text aria pattern does. */}
+            <span className="name-text" aria-label="Mohamed Fuad">
+              {['Mohamed', 'Fuad'].map((word, w) => (
+                <React.Fragment key={word}>
+                  {w > 0 && ' '}
+                  {[...word].map((char, c) => (
+                    <span key={c} className="name-char" aria-hidden="true" style={{ '--i': w * 8 + c }}>
+                      {char}
+                    </span>
+                  ))}
+                </React.Fragment>
+              ))}
+            </span>
             <button className={`name-action ${burst ? 'bursting' : ''}`} type="button" onClick={handleNameAction}>
               <Rocket size={19} fill="currentColor" />
               <i />
@@ -3837,48 +4115,9 @@ export default function App() {
             </button>
           </h1>
           <a className="building" href="#projects">
-            <span className="building-text">{t.building}</span>
+            <span className="building-lead">{t.buildingLead}</span>
+            <RollingRole roles={t.roles} reducedMotion={reducedMotion} />
           </a>
-          <p className="handle">
-            @MohamedFuad16
-            <span className="locale-switch" role="group" aria-label={t.a11y.language}>
-              <button
-                type="button"
-                className={locale === 'en' ? 'on' : ''}
-                aria-pressed={locale === 'en'}
-                onClick={() => setLocale('en')}
-              >
-                EN
-              </button>
-              <button
-                type="button"
-                className={locale === 'ja' ? 'on' : ''}
-                aria-pressed={locale === 'ja'}
-                onClick={() => setLocale('ja')}
-              >
-                日本語
-              </button>
-            </span>
-            <button
-              type="button"
-              className="theme-toggle"
-              onClick={toggleTheme}
-              aria-label={theme === 'light' ? t.command.dark : t.command.light}
-              title={theme === 'light' ? t.command.dark : t.command.light}
-            >
-              <SunMoonIcon />
-            </button>
-            <button
-              type="button"
-              className="command-trigger"
-              onClick={() => setCommandOpen(true)}
-              aria-label={t.command.button}
-              aria-keyshortcuts="Meta+K Control+K"
-            >
-              <kbd>{/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'}</kbd>
-              <kbd>K</kbd>
-            </button>
-          </p>
           <p className="meta">
             <span className="meta-location">
               <MapPin size={14} />
@@ -3891,8 +4130,9 @@ export default function App() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img src="/media/logos/tokai-university.svg" alt="Tokai University" />
+              <img src="/media/logos/tokai-university.svg" alt="" />
               <span>{t.student}</span>
+              <span className="university-grad">{t.graduation}</span>
             </a>
           </p>
         </div>
@@ -3925,8 +4165,12 @@ export default function App() {
         </a>
       </nav>
 
-      <SectionTitle mascot="skills">{t.skills}</SectionTitle>
-      <div className="skills-marquees" aria-label={t.a11y.skillsCarousel}>
+      <div className="silk-band" aria-hidden="true">
+        <SilkWave reducedMotion={reducedMotion} />
+      </div>
+
+      <SectionTitle>{t.skills}</SectionTitle>
+      <div className="skills-marquees" id="skills" aria-label={t.a11y.skillsCarousel}>
         {skillRows.map((row, rowIndex) => (
           <div className="skills-marquee" data-direction={rowIndex === 0 ? 'left' : 'right'} key={rowIndex}>
             <ul className="skills">
@@ -3934,7 +4178,6 @@ export default function App() {
                 <SkillPill
                   key={`${skill.label}-${rowIndex}-${index}`}
                   skill={skill}
-                  onPick={pickTag}
                   // The row repeats three times for the seamless loop; only the
                   // first copy is reachable by keyboard and screen readers.
                   copy={index >= row.length}
@@ -3945,8 +4188,8 @@ export default function App() {
         ))}
       </div>
 
-      <SectionTitle mascot="work">{t.work}</SectionTitle>
-      <section className="dashed timeline">
+      <SectionTitle>{t.work}</SectionTitle>
+      <section className="dashed timeline" id="experience">
         <div className="line" />
         {experience.map((item) => (
           <ExperienceItem key={item.company} item={item} locale={locale} t={t} />
@@ -3955,8 +4198,7 @@ export default function App() {
 
       <ContributionGrid t={t} locale={locale} />
 
-      <SectionTitle mascot="projects">{t.projects}</SectionTitle>
-      <ProjectFilters active={projectTag} onChange={setProjectTag} t={t} />
+      <SectionTitle>{t.projects}</SectionTitle>
       <section className="projects" id="projects">
         {projects.map((project) => (
           <ProjectCard
@@ -3965,7 +4207,6 @@ export default function App() {
             t={t}
             locale={locale}
             onOpen={openProject}
-            hidden={Boolean(projectTag) && !project.tags?.includes(projectTag)}
           />
         ))}
       </section>
@@ -3977,8 +4218,8 @@ export default function App() {
         </a>
       </div>
 
-      <SectionTitle mascot="thoughts">{t.thoughtsTitle}</SectionTitle>
-      <section className="dashed blog-content">
+      <SectionTitle>{t.thoughtsTitle}</SectionTitle>
+      <section className="dashed blog-content" id="writing">
         <p>
           {t.thoughts}{' '}
           <a className="qiita-link" href={QIITA_PROFILE} target="_blank" rel="noopener noreferrer">
@@ -3990,13 +4231,14 @@ export default function App() {
       </section>
 
       <section className="dashed contact-card" id="contact">
+        {/* Daijin waves when the card scrolls in, and again on hover. */}
+        <div className="daijin-spot" onPointerEnter={() => setDaijinWave((count) => count + 1)}>
+          <DaijinMascot mode="ambient" playKey={daijinWave} reducedMotion={reducedMotion} />
+        </div>
         <h3>{t.connectTitle}</h3>
         <p>{t.connectText}</p>
         <nav className="contact-links" aria-label={t.a11y.moreContactLinks}>
-          <a href="mailto:mohamed.fuad.jp@gmail.com">
-            <Mail size={14} />
-            {t.email}
-          </a>
+          <EmailLink label={t.email} />
           <a href="https://github.com/MohamedFuad16" target="_blank" rel="noopener noreferrer">
             <BrandIcon name="github" />
             GitHub
@@ -4018,7 +4260,8 @@ export default function App() {
 
       <WaveDivider />
 
-      <footer>
+      <footer className="site-footer">
+        <p className="footer-meta">
         <Terminal size={14} />
         Mohamed Fuad
         <span>•</span>
@@ -4042,6 +4285,28 @@ export default function App() {
             </span>
           </>
         )}
+        </p>
+        {/* Travellers walking toward a light on the horizon, generated by
+            scripts/make-footer-art.py in a dark and a light edition whose sky
+            is the page colour, so the page opens into the landscape. Only the
+            edition for the current theme is displayed, and lazy images that
+            are not displayed are never fetched. */}
+        <div className="footer-art" aria-hidden="true">
+          {['dark', 'light'].map((edition) => (
+            <img
+              key={edition}
+              className={`footer-art-${edition}`}
+              src={`/media/images/footer-${edition}-1200.webp`}
+              srcSet={`/media/images/footer-${edition}-1200.webp 1200w, /media/images/footer-${edition}-2400.webp 2400w`}
+              sizes="100vw"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              width="2400"
+              height="900"
+            />
+          ))}
+        </div>
       </footer>
           </main>
         </div>

@@ -1,0 +1,93 @@
+/* Daijin ambient mode. Size and placement stay with .daijin-spot in
+   global.css; this file only adds the secondary motion around the sprite.
+   The sprite itself is drawn on the canvas by DaijinMascot.jsx.
+
+   Motion runs on the compositor (transform/opacity only) so it costs no
+   main-thread time. Bob and shadow share one duration and easing so the
+   shadow shrinks exactly when the body rises. */
+
+.daijin-mascot--ambient {
+  --daijin-shadow: rgba(0, 0, 0, 0.42);
+  position: relative;
+}
+
+:root[data-theme="light"] .daijin-mascot--ambient {
+  --daijin-shadow: rgba(52, 40, 28, 0.2);
+}
+
+.daijin-mascot--ambient .daijin-mascot__body {
+  position: absolute;
+  inset: 0;
+  display: block;
+  animation: daijin-bob 5.2s ease-in-out infinite;
+}
+
+/* Breathing: a 1.5% rise from the feet, a little wider on the inhale. */
+.daijin-mascot--ambient canvas {
+  transform-origin: var(--daijin-feet-x, 50%) var(--daijin-feet-y, 88%);
+  animation: daijin-breathe 3.6s ease-in-out infinite;
+}
+
+.daijin-mascot__shadow {
+  position: absolute;
+  left: calc(var(--daijin-feet-x, 50%) - 21%);
+  top: calc(var(--daijin-feet-y, 88%) - 3.5%);
+  width: 42%;
+  height: 7%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--daijin-shadow), transparent);
+  pointer-events: none;
+  animation: daijin-shadow 5.2s ease-in-out infinite;
+}
+
+.daijin-mascot--ambient.is-asleep .daijin-mascot__body,
+.daijin-mascot--ambient.is-asleep canvas,
+.daijin-mascot--ambient.is-asleep .daijin-mascot__shadow {
+  animation-play-state: paused;
+}
+
+.daijin-mascot--ambient.is-still .daijin-mascot__body,
+.daijin-mascot--ambient.is-still canvas,
+.daijin-mascot--ambient.is-still .daijin-mascot__shadow {
+  animation: none;
+}
+
+@keyframes daijin-breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.006, 1.015);
+  }
+}
+
+@keyframes daijin-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.9%);
+  }
+}
+
+@keyframes daijin-shadow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.93);
+    opacity: 0.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .daijin-mascot--ambient .daijin-mascot__body,
+  .daijin-mascot--ambient canvas,
+  .daijin-mascot__shadow {
+    animation: none;
+  }
+}
