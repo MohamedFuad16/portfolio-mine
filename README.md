@@ -1,12 +1,14 @@
 <div align="center">
 
-# Mohamed Fuad — Portfolio
+<img src="public/mf-logo.svg" width="72" alt="MF monogram" />
 
-**A fast, bilingual (EN / 日本語) personal portfolio built as a static Vite + React single page.**
+# Mohamed Fuad · Portfolio
 
-[![Live Site](https://img.shields.io/badge/Live-portfolio--mine.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://portfolio-mine-two-ruddy.vercel.app)
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
+**The bilingual (EN / 日本語) personal site of Mohamed Fuad, a full-stack developer in Tokyo, built as a static Vite + React single page.**
+
+[![Live Site](https://img.shields.io/badge/Live-www.mohamedfuad.com-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://www.mohamedfuad.com)
+[![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
 [![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=for-the-badge&logo=greensock&logoColor=white)](https://gsap.com/)
 
 </div>
@@ -15,85 +17,84 @@
 
 ## Overview
 
-A dark, compact, dashed-border personal site that presents who I am, my work
-experience, my skills, and my projects — with a heavy focus on motion, polish,
-and a clean mobile-first responsive layout. The UI is a static Vite SPA with a
-small Vercel Function for the existing Upstash visitor counter and Vercel Web
-Analytics for anonymous traffic reporting.
+A compact personal site that presents who I am, my work experience, my skills
+and my projects, with a lot of attention on motion and a mobile-first layout.
+The UI is a static Vite SPA with one small Vercel Function for the Upstash
+visitor counter, and Vercel Web Analytics for anonymous traffic reporting.
 
-**Live:** <https://portfolio-mine-two-ruddy.vercel.app>
+**Live:** <https://www.mohamedfuad.com>
 
 ## Features
 
-- **Bilingual EN / 日本語** — one-tap segmented `EN | 日本語` locale switch that
-  defaults to the browser language and remembers your choice. All copy, work
-  details, tooltips, and even project screenshots have Japanese variants.
-- **GSAP motion system** — coordinated hero entrance, section-title slide-ins,
-  scroll-driven parallax inside project cards, timeline node pops, a live
-  equalizer wave divider, and a `ScrollSmoother` smooth-scroll shell. All motion
-  is gated behind `prefers-reduced-motion`.
-- **Hand-drawn signature** — a single-stroke "Mohamed Fuad" monoline signature
-  drawn on scroll via GSAP `DrawSVG`, with a perpetual highlight that traces the
-  handwriting.
-- **Live GitHub contribution grid** — a real contribution heatmap pulled from my
-  GitHub activity, with edge-aware hover tooltips (date + contribution count,
-  localized).
-- **Traffic analytics** — Vercel Web Analytics records the home page and each
-  virtual project page for page, referrer, approximate-location, browser, OS,
-  and device reports. Upstash keeps the existing de-duplicated visitor counter.
-- **Two-sided flip card** — profile photo that flips to reveal a LinkedIn QR code.
-- **Expandable work history** — timeline rows with official company logos that
-  expand to bilingual role details.
-- **Tactile feedback** — a water-ripple + soft chime on tap (real taps only —
-  scrolling and dragging don't trigger it).
-- **Locale-aware résumé download** — serves the Japanese 履歴書・職務経歴書 or
-  the English CV based on the active locale.
-- **Project detail pages** — clicking a project opens a dedicated, hash-routed
-  detail page (Overview · Key Features · How It Works · tech stack) that animates
-  in and out with GSAP and is fully bilingual.
-- **Dev notes** — the "Thoughts in words" section links out to my
+- **Bilingual EN / 日本語**: a segmented `EN | 日本語` switch that defaults to
+  the browser language and remembers your choice. All copy, work details,
+  tooltips and project screenshots have Japanese versions.
+- **Dark and light themes**: a sun and moon toggle, with the theme set before
+  first paint by `public/theme-init.js`.
+- **Command menu**: Cmd+K or Ctrl+K jumps to a section, opens a project, copies
+  my email, opens the CV or switches theme.
+- **Project detail pages**: each project opens a hash-routed page
+  (`#/project/<slug>`) with an overview, key features, how it works and the
+  stack. Projects can be filtered by technology, and a short clip plays on hover.
+- **GSAP motion**: hero entrance, section-title slide-ins, parallax inside
+  project cards, timeline node pops and a `ScrollSmoother` shell. Decorative
+  motion stands down under `prefers-reduced-motion`.
+- **Hand-drawn signature**: a single-stroke "Mohamed Fuad" signature drawn on
+  scroll with GSAP `DrawSVG`.
+- **GitHub contribution grid**: a contribution heatmap from my GitHub activity
+  that shows which public repositories each day went to. A scheduled workflow
+  refreshes the snapshot every 6 hours.
+- **Flip card**: the profile photo flips to show a LinkedIn QR code.
+- **Work history**: timeline rows with company logos and tenure that expand to
+  bilingual role details.
+- **Locale-aware CV download**: the Japanese 履歴書・職務経歴書 or the English CV,
+  based on the active locale.
+- **Readable by search engines and AI crawlers**: JSON-LD Person data, Open
+  Graph tags, `robots.txt`, `sitemap.xml` and `llms.txt`.
+- **Dev notes**: the "Thoughts in words" section links to my
   [Qiita profile](https://qiita.com/mfuad16).
-- **Responsive & OLED-friendly** — verified with no horizontal overflow at
-  320 / 375 / 768 / 1280 / 1920 px in both locales.
 
 ## Featured Projects
 
 | Project | What it is | Links |
 | ------- | ---------- | ----- |
-| **Internship Portal** | Bilingual internship tracker, résumé editor, and LaTeX→PDF compiler on web + iOS | [Live](https://editor-omega-two.vercel.app) · [Repo](https://github.com/MohamedFuad16/resume-studio-dashboard) |
-| **AI Brain Platform** | Local-first engineering memory: versioned Markdown indexed for RAG, with an exam loop that measures it | [Live](https://brain.mohamedfuad.com) · private repo |
-| **WebDrop** | AirDrop-style browser file sharing with bump pairing, ultrasonic handshake, and WebRTC streams | [Live](https://web-drop-lyart.vercel.app/) · [Repo](https://github.com/MohamedFuad16/WebDrop) |
-| **Tutor-System** | AI learning app with tutor tools, realtime voice tutoring, and source-aware PDF chat | [Live](https://tutor-system-architecture.vercel.app/) · [Repo](https://github.com/MohamedFuad16/Tutor-System) |
-| **TokaiHub** | Mobile-first bilingual student portal PWA with AWS Cognito auth | [Live](https://tokaihub.mohamedfuad.com/) · [Repo](https://github.com/MohamedFuad16/TokaiHub) |
-| **ClaudeShot** | Native macOS utility that captures the frontmost window straight into Claude | [Repo](https://github.com/MohamedFuad16/ClaudeShot) |
+| **Ledger** | Reads a 100-page annual report, finds the few pages that matter, and returns a checked balance sheet | [Live](https://assignment.mohamedfuad.com) · [Repo](https://github.com/MohamedFuad16/ledger-financial-report-system) |
+| **WebDrop** | Nearby file sharing in the browser, with proximity checks and direct WebRTC transfers | [Live](https://webdrop.mohamedfuad.com) · [Repo](https://github.com/MohamedFuad16/WebDrop) |
+| **Internship Portal** | A bilingual app for finding internships and keeping every application in one list, on the web and on iOS | [Live](https://portal.mohamedfuad.com) · [Repo](https://github.com/MohamedFuad16/resume-studio-dashboard) |
+| **CCFT** | A leader model plans the work as a task graph, and a scheduler runs parallel worker agents through it, with a native macOS app on top | Private repo |
+| **Tutor-System** | A study workspace for papers and textbooks that keeps track of where every answer came from | [Live](https://tutor-system-architecture.vercel.app/) · [Repo](https://github.com/MohamedFuad16/Tutor-System) |
+| **TokaiHub** | A bilingual student app for Tokai University that reads the university's TIPS portal | [Live](https://tokaihub.mohamedfuad.com/) · [Repo](https://github.com/MohamedFuad16/TokaiHub) |
+| **ClaudeShot** | A native macOS shortcut that captures the frontmost window and pastes it into Claude | [Repo](https://github.com/MohamedFuad16/ClaudeShot) |
 
 ## Tech Stack
 
-- **React 19** + **Vite** (static SPA, no backend)
+- **React 19** + **Vite 8** (static SPA)
 - **GSAP** (`ScrollTrigger`, `ScrollSmoother`, `DrawSVG`, `SplitText`, `ScrollToPlugin`) + `@gsap/react`
-- **lucide-react** and **react-icons** for iconography
-- **border-beam** and **thinking-orbs** for the avatar beam and the agent motif
+- **lucide-react** and **react-icons** for icons
+- **border-beam** for the avatar beam
 - **Vercel Web Analytics** for anonymous, cookie-free page-view reporting
 - **Upstash Redis** for the de-duplicated visitor counter
-- Hand-written CSS visual system (dark, dashed-border, compact)
+- Hand-written CSS visual system
 
 ## Project Structure
 
 ```
 api/visits.mjs                  # Vercel Function for the Upstash-backed counter
 src/main.jsx                    # React + Vercel Analytics entry point
-src/App.jsx                     # Portfolio data, views, routing, and motion
+src/App.jsx                     # Portfolio data, views, routing and motion
 src/components/DaijinMascot.jsx # Canvas mascot component
 src/data/signature-path.js      # Generated single-stroke signature data
-src/styles/global.css           # Dark dashed-border visual system
-public/media/                   # Typed audio/data/images/logos/mascot/project assets
+src/styles/global.css           # Visual system
+public/media/                   # Data, images, logos, mascot, project and video assets
 public/resume/                  # CV PDFs (EN / JA)
+public/theme-init.js            # Sets the theme before first paint
 scripts/check-assets.mjs        # Verifies public and nested SVG asset references
+scripts/fetch-contributions.mjs # Refreshes the contribution snapshot
 ```
 
 ## Getting Started
 
-> This tree does **not** track `node_modules` / `dist` — install after cloning.
+> This tree does **not** track `node_modules` / `dist`; install after cloning.
 > Vite 8 needs **Node ^20.19 or >=22.12** (see `.nvmrc` / `engines`); older
 > Node fails the build with a `styleText` import error from rolldown.
 
@@ -114,10 +115,12 @@ backs the footer's visitor counter. Set these in the Vercel project:
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST endpoint |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token |
 | `VISITS_SALT` | Optional. Salt for the visitor de-duplication hash |
+| `GH_TIME_ZONE` | Time zone for `scripts/fetch-contributions.mjs` (default in `.env.example`: `Asia/Tokyo`) |
 
-Without them the endpoint returns 503 and the footer omits the counter, so the
-site works unchanged. Visitors are de-duplicated server-side by a truncated
-salted hash of IP + user-agent with a 30-day expiry; no address is stored.
+Without the Upstash variables the endpoint returns 503 and the footer omits the
+counter, so the site works unchanged. Visitors are de-duplicated server-side by
+a truncated salted hash of IP + user-agent with a 30-day expiry; no address is
+stored.
 
 Vercel Web Analytics needs no environment variable or external analytics
 account. In the Vercel project, open **Analytics**, select **Enable**, and
@@ -127,8 +130,16 @@ aggregates and do not expose raw IP addresses or identify anonymous people.
 
 ## Deployment
 
-The site is deployed to **Vercel**, which builds the Vite application, serves
-`api/visits.mjs`, and hosts the Web Analytics dashboard.
+The site is deployed to **Vercel** at <https://www.mohamedfuad.com>. Vercel
+builds the Vite application, serves `api/visits.mjs`, and hosts the Web
+Analytics dashboard.
+
+## Contact
+
+- Site: <https://www.mohamedfuad.com>
+- LinkedIn: <https://www.linkedin.com/in/mohamed-fuad-6b8483278>
+- Qiita: <https://qiita.com/mfuad16>
+- Email: <mohamed.fuad.jp@gmail.com>
 
 ---
 
