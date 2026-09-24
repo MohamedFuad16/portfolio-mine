@@ -34,13 +34,19 @@ visitor counter, and Vercel Web Analytics for anonymous traffic reporting.
 - **Command menu**: Cmd+K or Ctrl+K jumps to a section, opens a project, copies
   my email, opens the CV or switches theme.
 - **Project detail pages**: each project opens a hash-routed page
-  (`#/project/<slug>`) with an overview, key features, how it works and the
-  stack. Projects can be filtered by technology, and a short clip plays on hover.
-- **GSAP motion**: hero entrance, section-title slide-ins, parallax inside
-  project cards, timeline node pops and a `ScrollSmoother` shell. Decorative
-  motion stands down under `prefers-reduced-motion`.
-- **Hand-drawn signature**: a single-stroke "Mohamed Fuad" signature drawn on
-  scroll with GSAP `DrawSVG`.
+  (`#/project/<slug>`) behind a pixel transition in the project's colours,
+  with a screenshot carousel, key figures, features, a system map and a flow
+  chart. A short clip plays when you hover a project card.
+- **Motion**: a CSS hero entrance that plays from the first paint, GSAP
+  section-title slide-ins, parallax inside project cards and a
+  `ScrollSmoother` shell. Decorative motion stands down under
+  `prefers-reduced-motion`.
+- **Signature**: "Mohamed Fuad" in La Storia (after Spell UI's Signature),
+  traced and filled letter by letter with GSAP `DrawSVG`. The outlines are
+  generated once by `scripts/make-signature.mjs`, so no font ships.
+- **Prerendered**: `pnpm build` renders the page to HTML and the app hydrates
+  it, with CSS inlined and the bundle loaded after first paint (Lighthouse
+  mobile 98, desktop 100).
 - **GitHub contribution grid**: a contribution heatmap from my GitHub activity
   that shows which public repositories each day went to. A scheduled workflow
   refreshes the snapshot every 6 hours.
@@ -64,12 +70,13 @@ visitor counter, and Vercel Web Analytics for anonymous traffic reporting.
 | **CCFT** | A leader model plans the work as a task graph, and a scheduler runs parallel worker agents through it, with a native macOS app on top | Private repo |
 | **Tutor-System** | A study workspace for papers and textbooks that keeps track of where every answer came from | [Live](https://tutor-system-architecture.vercel.app/) · [Repo](https://github.com/MohamedFuad16/Tutor-System) |
 | **TokaiHub** | A bilingual student app for Tokai University that reads the university's TIPS portal | [Live](https://tokaihub.mohamedfuad.com/) · [Repo](https://github.com/MohamedFuad16/TokaiHub) |
-| **ClaudeShot** | A native macOS shortcut that captures the frontmost window and pastes it into Claude | [Repo](https://github.com/MohamedFuad16/ClaudeShot) |
 
 ## Tech Stack
 
-- **React 19** + **Vite 8** (static SPA)
-- **GSAP** (`ScrollTrigger`, `ScrollSmoother`, `DrawSVG`, `SplitText`, `ScrollToPlugin`) + `@gsap/react`
+- **React 19** + **Vite 8**, prerendered at build (`scripts/build.mjs`, `scripts/prerender.mjs`)
+- **GSAP** (`ScrollTrigger`, `ScrollSmoother`, `DrawSVG`, `ScrollToPlugin`) + `@gsap/react`
+- **Scritto** for the rolling role line and figures
+- Self-hosted Figtree, Instrument Serif and JetBrains Mono (Fontsource)
 - **lucide-react** and **react-icons** for icons
 - **border-beam** for the avatar beam
 - **Vercel Web Analytics** for anonymous, cookie-free page-view reporting
