@@ -3233,11 +3233,13 @@ small.red {
   inset: 0;
   margin: 0;
   opacity: 0;
+  pointer-events: none; /* hidden slides stack above earlier ones; keep them from taking clicks */
   transition: opacity 700ms ease;
 }
 
 .pd-gallery-frame figure.is-active {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .pd-gallery-frame img {
@@ -3297,6 +3299,30 @@ small.red {
 .pd-gallery-play:focus-visible .pd-gallery-play-icon {
   background: rgba(22, 19, 15, 0.88);
   transform: translate(-50%, -50%) scale(1.06);
+}
+
+.pd-gallery-sound {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(22, 19, 15, 0.78);
+  color: #f4efe8;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.pd-gallery-sound:hover,
+.pd-gallery-sound:focus-visible {
+  background: rgba(22, 19, 15, 0.92);
 }
 
 .pd-gallery-frame figure.is-video video {

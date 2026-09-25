@@ -52,6 +52,7 @@ import {
   Target,
   Terminal,
   Users,
+  VolumeX,
 } from 'lucide-react';
 import { FaCss3Alt, FaHtml5, FaLinkedin } from 'react-icons/fa';
 import {
@@ -338,6 +339,7 @@ const copy = {
     galleryNext: 'Next screenshot',
     galleryGoTo: (n) => `Show screenshot ${n}`,
     galleryPlay: 'Play the launch video',
+    gallerySound: 'Sound on',
     systemMap: 'System map',
     architecture: 'System architecture',
     viewDetails: 'View details',
@@ -459,6 +461,7 @@ const copy = {
     galleryNext: '次のスクリーンショット',
     galleryGoTo: (n) => `スクリーンショット${n}を表示`,
     galleryPlay: '紹介動画を再生',
+    gallerySound: '音を出す',
     systemMap: 'システムの流れ',
     architecture: 'システム構成',
     viewDetails: '詳細を見る',
@@ -2831,23 +2834,74 @@ function ProjectFlowChart({ stages, locale, label, tones }) {
 const GALLERY_MS = 4200;
 
 // A slide is a screenshot ({ src }) or a launch video ({ kind: 'video', video, poster },
-// one file per language). The video shows only its poster until pressed, so the page
-// downloads no video data up front; while it plays, the carousel stops advancing.
+// one file per language). The video plays on its own when its slide is showing; with
+// reduced motion it shows its poster and a play button instead. While it plays, the
+// carousel stops advancing and moves on when the video ends.
 const slideKey = (slide) => (slide.kind === 'video' ? `video:${slide.video.en}` : slide.src);
 const slideDwell = (slide) => (slide.kind === 'video' ? GALLERY_MS * 2 : GALLERY_MS);
+
+// Browsers allow autoplay with sound only after the visitor has interacted with the
+// site, so try with sound first and fall back to muted with a button to turn it on.
+function GalleryVideo({ src, poster, soundLabel, onEnded }) {
+  const ref = useRef(null);
+  const [muted, setMuted] = useState(false);
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video) return;
+    video.muted = false;
+    video.play().catch(() => {
+      if (ref.current !== video) return;
+      video.muted = true;
+      setMuted(true);
+      video.play().catch(() => {});
+    });
+  }, [src]);
+
+  return (
+    <>
+      <video
+        ref={ref}
+        src={src}
+        poster={poster}
+        controls
+        playsInline
+        preload="auto"
+        onVolumeChange={(event) => setMuted(event.currentTarget.muted)}
+        onEnded={onEnded}
+      />
+      {muted && (
+        <button
+          type="button"
+          className="pd-gallery-sound"
+          onClick={() => {
+            const video = ref.current;
+            if (!video) return;
+            video.muted = false;
+            video.play().catch(() => {});
+          }}
+        >
+          <VolumeX size={16} aria-hidden="true" />
+          {soundLabel}
+        </button>
+      )}
+    </>
+  );
+}
 
 function ProjectGallery({ slides, locale, title, reducedMotion, t }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [playing, setPlaying] = useState(false);
+  const [started, setStarted] = useState(false);
   const startX = useRef(null);
   const count = slides.length;
   const go = (step) => setIndex((current) => (current + step + count) % count);
+  const playing = slides[index].kind === 'video' && (started || !reducedMotion);
 
-  // Leaving the video slide or switching language unmounts the player, which stops
-  // the sound and any download in progress.
+  // Leaving the video slide unmounts the player, which stops the sound and any
+  // download in progress.
   useEffect(() => {
-    setPlaying(false);
+    setStarted(false);
   }, [index, locale]);
 
   useEffect(() => {
@@ -2896,23 +2950,18 @@ function ProjectGallery({ slides, locale, title, reducedMotion, t }) {
           >
             {slide.kind === 'video' ? (
               playing && i === index ? (
-                <video
+                <GalleryVideo
+                  key={locale}
                   src={pick(slide.video)}
                   poster={pick(slide.poster)}
-                  autoPlay
-                  controls
-                  playsInline
-                  preload="auto"
-                  onEnded={() => {
-                    setPlaying(false);
-                    go(1);
-                  }}
+                  soundLabel={t.gallerySound}
+                  onEnded={() => go(1)}
                 />
               ) : (
                 <button
                   type="button"
                   className="pd-gallery-play"
-                  onClick={() => setPlaying(true)}
+                  onClick={() => setStarted(true)}
                   aria-label={`${t.galleryPlay}: ${pick(slide.caption)}`}
                   tabIndex={i === index ? 0 : -1}
                 >
