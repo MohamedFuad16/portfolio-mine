@@ -36,6 +36,7 @@ import {
   Network,
   MapPin,
   Plane,
+  Play,
   QrCode,
   Rocket,
   Radio,
@@ -336,6 +337,7 @@ const copy = {
     galleryPrev: 'Previous screenshot',
     galleryNext: 'Next screenshot',
     galleryGoTo: (n) => `Show screenshot ${n}`,
+    galleryPlay: 'Play the launch video',
     systemMap: 'System map',
     architecture: 'System architecture',
     viewDetails: 'View details',
@@ -456,6 +458,7 @@ const copy = {
     galleryPrev: '前のスクリーンショット',
     galleryNext: '次のスクリーンショット',
     galleryGoTo: (n) => `スクリーンショット${n}を表示`,
+    galleryPlay: '紹介動画を再生',
     systemMap: 'システムの流れ',
     architecture: 'システム構成',
     viewDetails: '詳細を見る',
@@ -663,6 +666,12 @@ const projects = [
     title: 'WebDrop',
     slug: 'webdrop',
     gallery: [
+      {
+        kind: 'video',
+        video: { en: '/media/launch/webdrop-en.mp4', ja: '/media/launch/webdrop-ja.mp4' },
+        poster: { en: '/media/launch/webdrop-en-poster.webp', ja: '/media/launch/webdrop-ja-poster.webp' },
+        caption: { en: 'Launch video (57 s, sound on)', ja: '紹介動画（57秒・音あり）' },
+      },
       { src: '/media/gallery/webdrop-1.jpg', caption: { en: 'Onboarding: bump to connect', ja: 'オンボーディング：近づけて接続' } },
       { src: '/media/gallery/webdrop-2.jpg', caption: { en: 'Settings: name and profile icon', ja: '設定：名前とプロフィールアイコン' } },
       { src: '/media/gallery/webdrop-3.jpg', caption: { en: 'Settings in Japanese', ja: '日本語の設定画面' } },
@@ -1103,6 +1112,12 @@ const projects = [
     title: 'TokaiHub',
     slug: 'tokaihub',
     gallery: [
+      {
+        kind: 'video',
+        video: { en: '/media/launch/tokaihub-en.mp4', ja: '/media/launch/tokaihub-ja.mp4' },
+        poster: { en: '/media/launch/tokaihub-en-poster.webp', ja: '/media/launch/tokaihub-ja-poster.webp' },
+        caption: { en: 'Launch video (57 s, sound on)', ja: '紹介動画（57秒・音あり）' },
+      },
       { src: '/media/gallery/tokaihub-1.jpg', caption: { en: "Home with today's classes", ja: 'ホームと今日の授業' } },
       { src: '/media/gallery/tokaihub-2.jpg', caption: { en: 'Weekly schedule', ja: '週間スケジュール' } },
       { src: '/media/gallery/tokaihub-3.jpg', caption: { en: 'Classes', ja: '授業一覧' } },
@@ -2815,24 +2830,37 @@ function ProjectFlowChart({ stages, locale, label, tones }) {
 // eagerly.
 const GALLERY_MS = 4200;
 
+// A slide is a screenshot ({ src }) or a launch video ({ kind: 'video', video, poster },
+// one file per language). The video shows only its poster until pressed, so the page
+// downloads no video data up front; while it plays, the carousel stops advancing.
+const slideKey = (slide) => (slide.kind === 'video' ? `video:${slide.video.en}` : slide.src);
+const slideDwell = (slide) => (slide.kind === 'video' ? GALLERY_MS * 2 : GALLERY_MS);
+
 function ProjectGallery({ slides, locale, title, reducedMotion, t }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [playing, setPlaying] = useState(false);
   const startX = useRef(null);
   const count = slides.length;
   const go = (step) => setIndex((current) => (current + step + count) % count);
 
+  // Leaving the video slide or switching language unmounts the player, which stops
+  // the sound and any download in progress.
   useEffect(() => {
-    if (reducedMotion || paused || count < 2) return undefined;
-    const timer = window.setTimeout(() => go(1), GALLERY_MS);
+    setPlaying(false);
+  }, [index, locale]);
+
+  useEffect(() => {
+    if (reducedMotion || paused || playing || count < 2) return undefined;
+    const timer = window.setTimeout(() => go(1), slideDwell(slides[index]));
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, paused, reducedMotion, count]);
+  }, [index, paused, playing, reducedMotion, count]);
 
   const pick = (value) => (locale === 'ja' ? value.ja : value.en);
   return (
     <div
-      className={`pd-gallery${paused ? ' is-paused' : ''}`}
+      className={`pd-gallery${paused || playing ? ' is-paused' : ''}`}
       role="region"
       aria-roledescription="carousel"
       aria-label={t.gallery(title)}
@@ -2841,6 +2869,8 @@ function ProjectGallery({ slides, locale, title, reducedMotion, t }) {
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
       onKeyDown={(event) => {
+        // Arrow keys on the video seek it; they must not also change the slide.
+        if (event.target.tagName === 'VIDEO') return;
         if (event.key === 'ArrowRight') go(1);
         if (event.key === 'ArrowLeft') go(-1);
       }}
@@ -2848,7 +2878,8 @@ function ProjectGallery({ slides, locale, title, reducedMotion, t }) {
       <div
         className="pd-gallery-frame"
         onPointerDown={(event) => {
-          startX.current = event.clientX;
+          // Dragging the video's timeline is not a swipe.
+          startX.current = event.target.closest('video') ? null : event.clientX;
         }}
         onPointerUp={(event) => {
           if (startX.current === null) return;
@@ -2858,14 +2889,54 @@ function ProjectGallery({ slides, locale, title, reducedMotion, t }) {
         }}
       >
         {slides.map((slide, i) => (
-          <figure key={slide.src} className={i === index ? 'is-active' : ''} aria-hidden={i !== index}>
-            <img
-              src={slide.src}
-              alt={pick(slide.caption)}
-              loading={i === 0 ? 'eager' : 'lazy'}
-              decoding="async"
-              draggable="false"
-            />
+          <figure
+            key={slideKey(slide)}
+            className={`${i === index ? 'is-active' : ''}${slide.kind === 'video' ? ' is-video' : ''}`}
+            aria-hidden={i !== index}
+          >
+            {slide.kind === 'video' ? (
+              playing && i === index ? (
+                <video
+                  src={pick(slide.video)}
+                  poster={pick(slide.poster)}
+                  autoPlay
+                  controls
+                  playsInline
+                  preload="auto"
+                  onEnded={() => {
+                    setPlaying(false);
+                    go(1);
+                  }}
+                />
+              ) : (
+                <button
+                  type="button"
+                  className="pd-gallery-play"
+                  onClick={() => setPlaying(true)}
+                  aria-label={`${t.galleryPlay}: ${pick(slide.caption)}`}
+                  tabIndex={i === index ? 0 : -1}
+                >
+                  <img
+                    src={pick(slide.poster)}
+                    alt=""
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    draggable="false"
+                  />
+                  <span className="pd-gallery-play-icon" aria-hidden="true">
+                    <Play size={26} fill="currentColor" />
+                  </span>
+                </button>
+              )
+            ) : (
+              <img
+                src={slide.src}
+                alt={pick(slide.caption)}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                draggable="false"
+              />
+            )}
           </figure>
         ))}
         {count > 1 && (
@@ -2891,13 +2962,13 @@ function ProjectGallery({ slides, locale, title, reducedMotion, t }) {
             {slides.map((slide, i) => (
               <button
                 type="button"
-                key={slide.src}
+                key={slideKey(slide)}
                 className={i === index ? 'is-active' : ''}
                 aria-label={t.galleryGoTo(i + 1)}
                 aria-current={i === index}
                 onClick={() => setIndex(i)}
               >
-                <i style={{ animationDuration: `${GALLERY_MS}ms` }} />
+                <i style={{ animationDuration: `${slideDwell(slide)}ms` }} />
               </button>
             ))}
           </div>
