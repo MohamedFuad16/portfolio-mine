@@ -1009,6 +1009,12 @@ const projects = [
     title: 'Tutor-System',
     slug: 'tutor-system',
     gallery: [
+      {
+        kind: 'video',
+        video: { en: '/media/launch/tutor-v6-en.mp4', ja: '/media/launch/tutor-v6-en.mp4' },
+        poster: { en: '/media/launch/tutor-v6-en-poster.webp', ja: '/media/launch/tutor-v6-en-poster.webp' },
+        caption: { en: 'Launch video (50 s, sound on)', ja: '紹介動画（50秒・音あり）' },
+      },
       { src: '/media/gallery/tutor-system-1.jpg', caption: { en: 'Study: upload a document', ja: '学習：資料をアップロード' } },
       { src: '/media/gallery/tutor-system-2.jpg', caption: { en: 'Tutor chat', ja: 'チューターとのチャット' } },
       { src: '/media/gallery/tutor-system-3.jpg', caption: { en: 'Cognitive analytics', ja: '学習分析' } },
@@ -1117,9 +1123,9 @@ const projects = [
     gallery: [
       {
         kind: 'video',
-        video: { en: '/media/launch/tokaihub-en.mp4', ja: '/media/launch/tokaihub-ja.mp4' },
-        poster: { en: '/media/launch/tokaihub-en-poster.webp', ja: '/media/launch/tokaihub-ja-poster.webp' },
-        caption: { en: 'Launch video (57 s, sound on)', ja: '紹介動画（57秒・音あり）' },
+        video: { en: '/media/launch/tokaihub-v6-en.mp4', ja: '/media/launch/tokaihub-v6-en.mp4' },
+        poster: { en: '/media/launch/tokaihub-v6-en-poster.webp', ja: '/media/launch/tokaihub-v6-en-poster.webp' },
+        caption: { en: 'Launch video (50 s, sound on)', ja: '紹介動画（50秒・音あり）' },
       },
       { src: '/media/gallery/tokaihub-1.jpg', caption: { en: "Home with today's classes", ja: 'ホームと今日の授業' } },
       { src: '/media/gallery/tokaihub-2.jpg', caption: { en: 'Weekly schedule', ja: '週間スケジュール' } },
