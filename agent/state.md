@@ -1,12 +1,14 @@
 # State
 
-> Last updated: 2026-09-23 · HEAD: fd9008e
+> Last updated: 2026-09-27 · HEAD: fd9008e
 
 ## Current state summary
 
 The workspace contains a Vite React portfolio deployed to Vercel, populated with Mohamed Fuad's bilingual CV content. `src/main.jsx` is entry-only; `src/App.jsx`, `src/components/`, `src/data/`, `src/styles/`, and typed `public/media/` folders separate application concerns without dropping the latest Internship Portal, AI Brain, contribution snapshot, visitor counter, or Daijin mascot features. Upstash backs the existing de-duplicated footer count. Vercel Web Analytics records anonymous `/` and hash-routed project page views, with no GA4 code or Google tag configuration. The Japanese locale serves the exact user-supplied one-page A4 CV. The GitHub skill-marquee hover mask is disabled only while a skill is hovered, preventing the icon overlay/clipping issue while preserving the edge fade at rest. Asset references are validated by `pnpm check:assets`.
 
 ## Recent changes
+
+- 2026-09-27 (WebDrop launch video stat cards, on `main`): the owner found the three stat cards in the "everywhere" beat (46 to 52 s) looked wrong: grey `#EDECE8` boxes close to the ground colour that cut across the phones. They are now white cards with a soft shadow (`0 22px 48px rgba(20,24,40,0.12), 0 4px 12px rgba(20,24,40,0.06)`), 132 px tall at y 758, in both `webdrop/en` and `webdrop/ja` (`compositions/frames/08-everywhere.html`). Re-rendered with the v4 pipeline (4K60 master to 1080p60, 57.5 s, -15.0 LUFS) and web-encoded with the ADR-069 recipe (x264 CRF 23, 60 fps, GOP 120, AAC 128k): `public/media/launch/webdrop-en.mp4` and `webdrop-ja.mp4`, about 6.1 MB each. The WebP posters are unchanged (the poster frame at 15 s has no cards). The earlier masters stay in `~/Documents/launch-videos/webdrop/final/`; all versions are copied to `~/Downloads/launch-video-versions/`.
 
 - 2026-09-25 (gallery video autoplay and play-button fix, branch `redesign`, uncommitted): the play button never worked because hidden carousel slides (opacity 0) sat above the first slide and took its clicks; inactive slides now have `pointer-events: none`. The launch video now plays by itself when its slide shows (`GalleryVideo` in `src/App.jsx`). It tries with sound; if the browser blocks that, it plays muted and shows a "Sound on" / "音を出す" button. With reduced motion it keeps the poster and play button. Verified in the local production preview: autoplay with sound, the muted fallback and its button (with unmuted play forced to fail), and that a click in the frame lands on the active slide. Not tested: a real reduced-motion visit or a phone viewport. The video now starts downloading when the detail page opens.
 
