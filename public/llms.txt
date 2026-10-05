@@ -17,5 +17,5 @@
 - [WebDrop](https://github.com/MohamedFuad16/WebDrop): nearby file sharing in the browser, with proximity checks and direct WebRTC transfers.
 - [Internship Portal](https://github.com/MohamedFuad16/resume-studio-dashboard): a bilingual app for finding internships and tracking every application, on the web and on iOS.
 - CCFT: a leader model plans work as a task graph, and a scheduler runs parallel worker agents through it, with a native macOS app on top.
-- [Tutor-System](https://github.com/MohamedFuad16/Tutor-System): a study workspace for papers and textbooks that tracks where every answer came from.
+- [Tutor-System](https://github.com/MohamedFuad16/Tutor-System): a study workspace where you ask a PDF questions by typing or talking; every answer cites its page. Live at https://tutorsystem.mohamedfuad.com/
 - [TokaiHub](https://github.com/MohamedFuad16/TokaiHub): a bilingual Tokai University student portal on Cognito, Lambda and DynamoDB.

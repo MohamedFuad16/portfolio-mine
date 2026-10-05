@@ -19,7 +19,7 @@ Localized copy:
 
 Current project links:
 - WebDrop: `https://web-drop-lyart.vercel.app/`, GitHub `https://github.com/MohamedFuad16/WebDrop`
-- Tutor-System: `https://tutor-system-architecture.vercel.app/`, GitHub `https://github.com/MohamedFuad16/Tutor-System`
+- Tutor-System: `https://tutorsystem.mohamedfuad.com/` (the old Vercel URL redirects there), GitHub `https://github.com/MohamedFuad16/Tutor-System`
 - TokaiHub: `https://mohamedfuad16.github.io/TokaiHub/`, GitHub `https://github.com/MohamedFuad16/TokaiHub`
 - ClaudeShot: `https://github.com/MohamedFuad16/ClaudeShot`
 

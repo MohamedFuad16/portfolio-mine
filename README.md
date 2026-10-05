@@ -68,7 +68,7 @@ visitor counter, and Vercel Web Analytics for anonymous traffic reporting.
 | **WebDrop** | Nearby file sharing in the browser, with proximity checks and direct WebRTC transfers | [Live](https://webdrop.mohamedfuad.com) · [Repo](https://github.com/MohamedFuad16/WebDrop) |
 | **Internship Portal** | A bilingual app for finding internships and keeping every application in one list, on the web and on iOS | [Live](https://portal.mohamedfuad.com) · [Repo](https://github.com/MohamedFuad16/resume-studio-dashboard) |
 | **CCFT** | A leader model plans the work as a task graph, and a scheduler runs parallel worker agents through it, with a native macOS app on top | Private repo |
-| **Tutor-System** | A study workspace for papers and textbooks that keeps track of where every answer came from | [Live](https://tutor-system-architecture.vercel.app/) · [Repo](https://github.com/MohamedFuad16/Tutor-System) |
+| **Tutor-System** | A study workspace where you ask a PDF questions by typing or talking, and every answer cites its page | [Live](https://tutorsystem.mohamedfuad.com/) · [Repo](https://github.com/MohamedFuad16/Tutor-System) |
 | **TokaiHub** | A bilingual student app for Tokai University that reads the university's TIPS portal | [Live](https://tokaihub.mohamedfuad.com/) · [Repo](https://github.com/MohamedFuad16/TokaiHub) |
 
 ## Tech Stack

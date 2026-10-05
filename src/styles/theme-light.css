@@ -414,7 +414,6 @@
 /* Badges and the hover hint sit on screenshots, not on the page, so they
    stay dark for contrast against any image. */
 :root[data-theme='light'] .project-badge,
-:root[data-theme='light'] .project-shot-hint,
 :root[data-theme='light'] .pd-shot > span {
   box-shadow: rgba(0, 0, 0, 0.25) 0 0 0 1px;
 }

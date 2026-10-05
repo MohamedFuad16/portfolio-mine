@@ -1015,11 +1015,12 @@ const projects = [
         poster: { en: '/media/launch/tutor-v6-en-poster.webp', ja: '/media/launch/tutor-v6-en-poster.webp' },
         caption: { en: 'Launch video (50 s, sound on)', ja: '紹介動画（50秒・音あり）' },
       },
-      { src: '/media/gallery/tutor-system-1.jpg', caption: { en: 'Study: upload a document', ja: '学習：資料をアップロード' } },
-      { src: '/media/gallery/tutor-system-2.jpg', caption: { en: 'Tutor chat', ja: 'チューターとのチャット' } },
-      { src: '/media/gallery/tutor-system-3.jpg', caption: { en: 'Cognitive analytics', ja: '学習分析' } },
-      { src: '/media/gallery/tutor-system-4.jpg', caption: { en: 'Revision library', ja: '復習ライブラリ' } },
-      { src: '/media/gallery/tutor-system-5.jpg', caption: { en: 'App settings', ja: 'アプリ設定' } },
+      { src: '/media/gallery/tutor-system-1.jpg', caption: { en: 'Study: answers cite their page', ja: '学習：回答は根拠のページを引用' } },
+      { src: '/media/gallery/tutor-system-2.jpg', caption: { en: 'A diagram the tutor drew', ja: 'チューターが描いた図' } },
+      { src: '/media/gallery/tutor-system-3.jpg', caption: { en: 'A photo on request', ja: '頼めば写真も' } },
+      { src: '/media/gallery/tutor-system-4.jpg', caption: { en: 'A quick check, graded', ja: '採点される確認クイズ' } },
+      { src: '/media/gallery/tutor-system-5.jpg', caption: { en: 'The living study guide', ja: '成長する学習ガイド' } },
+      { src: '/media/gallery/tutor-system-6.jpg', caption: { en: 'Learning analytics', ja: '学習の分析' } },
     ],
     palette: ['#2a1a10', '#ff7a1a', '#ffb066', '#fbe3c8'],
     // The palette's cream (#fbe3c8) vanishes on the light page, so the third
@@ -1031,58 +1032,58 @@ const projects = [
     imageJa: '/media/projects/tutor-ja-card.webp',
     video: '/media/video/tutor-system.mp4',
     icon: Sparkles,
-    live: 'https://tutor-system-architecture.vercel.app/',
+    live: 'https://tutorsystem.mohamedfuad.com/',
     github: 'https://github.com/MohamedFuad16/Tutor-System',
     description:
-      'A study workspace for papers and textbooks that keeps track of where every answer came from.',
+      'A study workspace where you ask a PDF questions by typing or talking, and every answer cites its page.',
     descriptionJa:
-      '論文や教科書を読むためのワークスペース。回答の根拠がどこにあるのかを見失わずに学べます。',
-    tech: ['React 19', 'TypeScript', 'OpenRouter', 'Deepgram', 'Dexie'],
+      'PDFに文字でも音声でも質問できる学習ワークスペース。回答には必ず根拠のページが付きます。',
+    tech: ['React 19', 'TypeScript', 'Z.AI GLM-5.3', 'Deepgram', 'SQLite'],
     detail: {
       tagline: {
-        en: 'Ask a question about a PDF and the answer comes back with the page it came from.',
-        ja: 'PDFについて質問すると、根拠になったページと一緒に答えが返ってきます。',
+        en: 'Ask a PDF by typing or talking. Answers cite their page, draw diagrams, and feed a study guide that writes itself.',
+        ja: 'PDFに文字でも音声でも質問できます。回答はページを引用し、図を描き、学習ガイドが自動でまとまります。',
       },
       overview: {
-        en: 'Tutor is a study workspace for papers and textbooks. Ask about a PDF by text or voice, and every answer keeps the page it came from. Books, evidence and corrections are stored as local records you can inspect.',
-        ja: 'Tutorは論文や教科書のための学習ワークスペースです。PDFについてテキストか音声で質問でき、回答には根拠のページが付きます。書籍、根拠、訂正は、中身を確認できるローカルの記録として保存されます。',
+        en: 'Tutor is a study workspace for papers and textbooks. Upload a PDF and ask about it by typing or in a live voice conversation. Every claim cites its page, processes become diagrams that draw themselves in, and each conversation feeds a study guide, quizzes and flashcards. One Node process serves the app, the API and voice, with SQLite as the single record.',
+        ja: 'Tutorは論文や教科書のための学習ワークスペースです。PDFをアップロードし、文字入力や音声の会話で質問できます。回答の根拠はページ単位で引用され、手順は図として描かれ、会話の内容は学習ガイド・クイズ・フラッシュカードにまとまります。アプリ、API、音声は1つのNodeプロセスで動き、記録はSQLiteに一本化しています。',
       },
       features: [
         {
-          title: { en: 'Context packet', ja: 'コンテキスト構築' },
-          en: 'Each answer starts from the page, the selection, the history and your learner state.',
-          ja: 'ページ、選択範囲、履歴、学習状態から回答を組み立てます。',
+          title: { en: 'Cited answers', ja: 'ページを引用する回答' },
+          en: 'Answers stream word by word, and every claim links to the page it came from.',
+          ja: '回答は一語ずつ表示され、根拠のページへのリンクが付きます。',
         },
         {
-          title: { en: 'Rich answers', ja: '読みやすい回答' },
-          en: 'Streamed with citations, diagrams, math and code, with optional speech.',
-          ja: '引用、図、数式、コード付きでストリーミングし、読み上げもできます。',
+          title: { en: 'Voice conversation', ja: '音声での会話' },
+          en: 'A fast model keeps talking while a smarter one prepares diagrams. You can interrupt at any time.',
+          ja: '速いモデルが会話を続け、賢いモデルが裏で図を用意します。いつでも割り込めます。',
         },
         {
-          title: { en: 'Voice mode', ja: '音声モード' },
-          en: 'Deepgram through a local broker, sharing context with the chat.',
-          ja: 'ローカル経由のDeepgramを使い、チャットと同じ文脈を共有します。',
+          title: { en: 'Diagrams and photos', ja: '図と写真' },
+          en: 'Processes become diagrams that draw themselves in, with a narrated tour of each step.',
+          ja: '手順は自動で描かれる図になり、各ステップを音声で案内します。',
         },
         {
-          title: { en: 'Background jobs', ja: 'バックグラウンド処理' },
-          en: 'Quick answers come first. Slow retrieval runs later and stays traceable.',
-          ja: 'まずすぐに答え、重い検索は後で実行して履歴を残します。',
+          title: { en: 'Checks understanding', ja: '理解度の確認' },
+          en: 'Quiz cards graded on the server, mastery per concept, and flashcards on a review schedule.',
+          ja: 'サーバーで採点するクイズ、概念ごとの習熟度、復習スケジュール付きのフラッシュカード。',
         },
         {
-          title: { en: 'Local records', ja: 'ローカルの記録' },
-          en: 'SQLite and files per user, with Dexie as a light browser cache.',
-          ja: 'ユーザー単位のSQLiteとファイルに保存し、Dexieは軽いキャッシュです。',
+          title: { en: 'Living study guide', ja: '成長する学習ガイド' },
+          en: 'Concept maps, key points and self-checks that grow with every conversation.',
+          ja: '概念マップ、要点、確認問題が会話ごとに育ちます。',
         },
       ],
       flow: {
-        en: 'A question gathers its page, history and evidence, the tutor answers straight away, and slow work finishes in the background.',
-        ja: '質問から関連ページ、履歴、根拠を集め、チューターがすぐに答え、重い処理はバックグラウンドで続きます。',
+        en: 'A question gathers its page and matching passages, the fast model answers straight away, and the smart model finishes diagrams and deeper answers in the background.',
+        ja: '質問から該当ページと関連箇所を集め、速いモデルがすぐに答え、賢いモデルが図や詳しい回答をバックグラウンドで仕上げます。',
       },
       architecture: [
         { label: { en: 'Study input', ja: '学習入力' }, detail: { en: 'PDF, text, or voice', ja: 'PDF・文章・音声' } },
-        { label: { en: 'Context', ja: 'コンテキスト' }, detail: { en: 'Sources and learner state', ja: '出典と学習状態' } },
-        { label: { en: 'Tutor', ja: 'チューター' }, detail: { en: 'LLM, voice, and tools', ja: 'LLM・音声・ツール' } },
-        { label: { en: 'Learning record', ja: '学習記録' }, detail: { en: 'SQLite, files, and Dexie', ja: 'SQLite・ファイル・Dexie' } },
+        { label: { en: 'Context', ja: 'コンテキスト' }, detail: { en: 'Page, passages, learner state', ja: 'ページ・関連箇所・学習状態' } },
+        { label: { en: 'Tutor', ja: 'チューター' }, detail: { en: 'GLM-5.3 models and Deepgram voice', ja: 'GLM-5.3とDeepgram音声' } },
+        { label: { en: 'Learning record', ja: '学習記録' }, detail: { en: 'SQLite and PDFs', ja: 'SQLiteとPDF' } },
       ],
       stack: [
         {
@@ -1091,28 +1092,28 @@ const projects = [
           sub: { en: 'Chat, PDF selection, or voice', ja: 'チャット・PDF選択・音声' },
           edge: { en: 'assemble', ja: '構築' },
           branch: {
-            title: { en: 'Deepgram STT', ja: 'Deepgram STT' },
+            title: { en: 'Deepgram Flux STT', ja: 'Deepgram Flux STT' },
             edge: { en: 'if voice', ja: '音声時' },
           },
         },
         {
           title: { en: 'Context packet', ja: 'コンテキストパケット' },
-          sub: { en: 'Sources + learner state', ja: '出典 + 学習者状態' },
+          sub: { en: 'Page + full-text search + learner state', ja: 'ページ + 全文検索 + 学習状態' },
           edge: { en: 'prompt', ja: 'プロンプト' },
         },
         {
-          title: { en: 'Tutor model', ja: 'チューターモデル' },
-          sub: { en: 'OpenRouter LLM + tools', ja: 'OpenRouter LLM + ツール' },
+          title: { en: 'Fast model', ja: '高速モデル' },
+          sub: { en: 'GLM-5.3-Flash answers first', ja: 'GLM-5.3-Flashが先に回答' },
           edge: { en: 'answer', ja: '回答' },
           branch: {
-            title: { en: 'Background tasks', ja: 'バックグラウンド処理' },
-            edge: { en: 'slow work', ja: '重い処理' },
+            title: { en: 'Smart model (GLM-5.3)', ja: '高性能モデル（GLM-5.3）' },
+            edge: { en: 'diagrams, study guide', ja: '図・学習ガイド' },
           },
         },
         {
           kind: 'store',
-          title: { en: 'Local learning record', ja: 'ローカル学習記録' },
-          sub: { en: 'SQLite, Dexie, artifacts', ja: 'SQLite・Dexie・成果物' },
+          title: { en: 'Learning record', ja: '学習記録' },
+          sub: { en: 'SQLite (WAL + FTS5), PDFs', ja: 'SQLite（WAL + FTS5）・PDF' },
         },
       ],
     },
@@ -2453,10 +2454,6 @@ function ProjectCard({ project, t, locale, onOpen }) {
           />
         )}
         <span className="project-badge">{badgeLabel(project, locale)}</span>
-        <span className="project-shot-hint">
-          {t.viewDetails}
-          <ArrowUpRight size={14} />
-        </span>
       </button>
       <div className="project-body">
         <div className="project-heading">
@@ -2484,6 +2481,17 @@ function ProjectCard({ project, t, locale, onOpen }) {
                 {t.privateRepo}
               </span>
             )}
+            {/* Always visible: the hover hint on the preview went unseen by most visitors. */}
+            <a
+              href={`#/project/${project.slug}`}
+              onClick={(event) => {
+                event.preventDefault();
+                open(event);
+              }}
+            >
+              <ArrowUpRight size={14} />
+              {t.viewDetails}
+            </a>
           </div>
         </div>
         <p>{locale === 'ja' ? project.descriptionJa : project.description}</p>

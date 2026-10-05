@@ -1409,32 +1409,6 @@ small.red {
   box-shadow: #000000 0 0 0 1px, rgba(255, 255, 255, 0.1) 0 1px 0 inset;
 }
 
-.project-shot-hint {
-  position: absolute;
-  left: 10px;
-  bottom: 9px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  background: rgba(16, 17, 19, 0.82);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 600;
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 180ms ease, transform 180ms ease;
-  box-shadow: #000000 0 0 0 1px, rgba(255, 255, 255, 0.1) 0 1px 0 inset;
-  pointer-events: none;
-}
-
-.project-shot:hover .project-shot-hint,
-.project-shot:focus-visible .project-shot-hint {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 /* The title gets its own full-width line and the Live/GitHub actions sit
    underneath. They used to share one row (ADR-032), which meant a long title
    was squeezed by the buttons and clipped by its own ellipsis — measured on
@@ -2295,11 +2269,6 @@ small.red {
     height: auto;
     aspect-ratio: 16 / 9;
     min-height: 0;
-  }
-
-  .project-shot-hint {
-    opacity: 1;
-    transform: none;
   }
 
   .timeline {
