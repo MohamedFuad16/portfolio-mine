@@ -1247,3 +1247,17 @@ Consequences:
 - The repo grows by about 26 MB, and each video replacement adds to git history.
 - Moving to R2 later means changing the four `video` URLs and the four `poster` URLs in the project data, and adding the media host to the CSP.
 
+
+## ADR-070 — A "My Toolkit" section for things made for other builders (2026-10-06)
+
+Status: Accepted (uncommitted until the owner's remaining launch videos are ready)
+
+Context: The owner wants to show the agent skills they write (Markdown files others can use) and the upcoming Folio SDK, separately from the finished projects, below the projects section.
+
+Decision: A `toolkit` data array and a `ToolkitCard` that reuses the project-card layout (`.project`, so it collapses on phones the same way). An item with a `video` shows its poster and plays in place with the gallery's `GalleryVideo`; an item without one shows a dashed "Demo video coming soon" placeholder. Folio carries three dashed example slots for the owner's example lesson; `/explain` carries a "Skill files coming soon" label instead of a download link. The section sits between "More Projects" and "Thoughts in words" and has a command-palette entry.
+
+Consequences:
+- Adding the remaining videos and examples is a data edit (`video`, `poster`, `examples`, `files`) plus the files in `public/media/`.
+- The Folio film is a web encode in `public/media/launch/` under ADR-069.
+
+Amendment (2026-10-06): toolkit cards stack instead of using the project-card two-column grid. The page column is too narrow for a side-by-side video, and toolkit items lead with their media. The `/explain` example uses static screenshots of the explainer page with a thumbnail switcher, not the live HTML, so the site ships no third-party page and the images follow the page language.

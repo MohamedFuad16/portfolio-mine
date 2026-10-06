@@ -290,6 +290,13 @@ const copy = {
     privateRepo: 'Private repo',
     visitors: (n) => ` ${n === 1 ? 'visitor' : 'visitors'}`,
     moreProjects: 'More Projects',
+    toolkitTitle: 'My Toolkit',
+    toolkitIntro: 'Things I make for other builders: skills that teach an agent a workflow, and an SDK that is on its way.',
+    toolkitPlay: 'Play the video',
+    toolkitVideoSoon: 'Demo video coming soon',
+    toolkitExampleSoon: 'Example lesson coming soon',
+    toolkitFilesSoon: 'Skill files coming soon',
+    toolkitShot: 'Show example picture',
     filterLabel: 'Filter projects by technology',
     tenure: (months) => {
       const years = Math.floor(months / 12);
@@ -415,6 +422,13 @@ const copy = {
     privateRepo: '非公開リポジトリ',
     visitors: () => '人の訪問者',
     moreProjects: '他のプロジェクト',
+    toolkitTitle: 'ツールキット',
+    toolkitIntro: '開発者のために作っているもの。エージェントに作業の進め方を教えるスキルと、準備中のSDKです。',
+    toolkitPlay: '動画を再生',
+    toolkitVideoSoon: 'デモ動画は近日公開',
+    toolkitExampleSoon: 'レッスン例は近日公開',
+    toolkitFilesSoon: 'スキルファイルは近日公開',
+    toolkitShot: '例の画像を表示',
     filterLabel: '技術でプロジェクトを絞り込む',
     tenure: (months) => {
       const years = Math.floor(months / 12);
@@ -504,6 +518,57 @@ const copy = {
 
 // Warm field for transitions that have no project of their own.
 const DEFAULT_PALETTE = ['#fbe9d0', '#f6b26b', '#f07a3a', '#e2431d'];
+
+// The toolkit: things made for other builders. Media marked `null` is a placeholder until the
+// owner's launch videos and examples are ready.
+const toolkit = [
+  {
+    slug: 'folio-sdk',
+    title: 'Folio SDK',
+    icon: Sparkles,
+    badge: { en: 'upcoming', ja: '開発中' },
+    video: { en: '/media/launch/folio-sdk-en.mp4', ja: '/media/launch/folio-sdk-ja.mp4' },
+    poster: { en: '/media/launch/folio-sdk-en-poster.webp', ja: '/media/launch/folio-sdk-ja-poster.webp' },
+    description: {
+      en: 'Folio is a felt teacher who lives in a live 3D world. The Folio SDK will let anyone build their own Folio world and lessons.',
+      ja: 'Folioは、ライブの3Dの世界に住むフェルトの先生です。Folio SDKを使えば、誰でも自分のFolioの世界とレッスンを作れるようになります。',
+    },
+    points: [
+      { en: 'A felt character who teaches inside an interactive 3D world', ja: 'インタラクティブな3Dの世界で教えるフェルトのキャラクター' },
+      { en: 'Real 3D, drawn live in the browser with three.js', ja: 'three.jsでブラウザの中にリアルな3Dをその場で描画' },
+      { en: 'Build your own worlds and lessons with the SDK', ja: 'SDKで自分の世界とレッスンを作れる' },
+    ],
+    tech: ['TypeScript', 'React', 'three.js', 'Blender'],
+  },
+  {
+    slug: 'explain',
+    title: '/explain',
+    icon: Terminal,
+    badge: { en: 'agent skill', ja: 'エージェントスキル' },
+    video: null,
+    poster: null,
+    shots: [1, 2, 3].map((n) => ({
+      en: `/media/toolkit/explain-videobridge-${n}-en.webp`,
+      ja: `/media/toolkit/explain-videobridge-${n}-ja.webp`,
+    })),
+    // Silent loops of the explainer's own animations; the stills above are their posters and thumbnails.
+    loops: [1, 2, 3].map((n) => ({
+      en: `/media/toolkit/explain-videobridge-${n}-en.mp4`,
+      ja: `/media/toolkit/explain-videobridge-${n}-ja.mp4`,
+    })),
+    description: {
+      en: 'An agent skill that explains any topic twice: a short answer in plain English, and one web page with big pictures and very few words. The example explains Video Bridge, an upcoming project of mine.',
+      ja: 'どんなテーマも2通りで説明するエージェントスキル。やさしい英語の短い答えと、大きな図と少ない言葉の1枚のWebページです。例では、開発中のプロジェクト Video Bridge のしくみを説明しています。',
+    },
+    points: [
+      { en: 'Plain text in simplified technical English (ASD-STE100)', ja: '簡略技術英語（ASD-STE100）に沿った平易な文章' },
+      { en: 'Pictures that draw themselves, in the 3Blue1Brown style', ja: '3Blue1Brown風に自分で描かれていく図' },
+      { en: 'Ends with a check: predict the result, then change one assumption', ja: '結果を予想し、前提を1つ変えて確かめる問いで終わる' },
+    ],
+    files: false,
+    tech: ['Claude Code', 'Markdown', 'ASD-STE100'],
+  },
+];
 
 const projects = [
   {
@@ -1712,6 +1777,143 @@ function EmailLink({ label }) {
       <Mail size={14} />
       {label}
     </a>
+  );
+}
+
+// Plays like a GIF: muted, looping, and running only while it is on screen.
+// With reduced motion it stays on its poster, the finished picture.
+function ToolkitLoop({ src, poster, label }) {
+  const ref = useRef(null);
+  // Browsers fetch a video poster at once, so the poster is attached only near the viewport.
+  const [near, setNear] = useState(false);
+  const visible = useRef(false);
+  const still = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  useEffect(() => {
+    const video = ref.current;
+    if (!video) return undefined;
+    const nearIo = new IntersectionObserver(([entry]) => entry.isIntersecting && setNear(true), { rootMargin: '400px 0px' });
+    const playIo = new IntersectionObserver(
+      ([entry]) => {
+        visible.current = entry.isIntersecting;
+        if (still) return;
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      },
+      { threshold: 0.4 },
+    );
+    nearIo.observe(video);
+    playIo.observe(video);
+    return () => {
+      nearIo.disconnect();
+      playIo.disconnect();
+    };
+  }, [src, still]);
+  return (
+    <video
+      ref={ref}
+      className="toolkit-shot"
+      src={near ? src : undefined}
+      poster={near ? poster : undefined}
+      muted
+      loop
+      playsInline
+      preload={near ? 'auto' : 'none'}
+      onCanPlay={(e) => visible.current && !still && e.currentTarget.play().catch(() => {})}
+      aria-label={label}
+    />
+  );
+}
+
+function ToolkitCard({ item, t, locale }) {
+  const [playing, setPlaying] = useState(false);
+  const [shot, setShot] = useState(0);
+  const Icon = item.icon;
+  const pick = (value) => (locale === 'ja' ? value.ja : value.en);
+  const video = item.video && pick(item.video);
+  const poster = item.poster && pick(item.poster);
+  return (
+    <article className={`project toolkit-item toolkit-${item.slug} dashed`}>
+      <div className="toolkit-visual">
+        <div className="toolkit-media">
+          {video && playing && (
+            <GalleryVideo src={video} poster={poster} soundLabel={t.gallerySound} onEnded={() => setPlaying(false)} />
+          )}
+          {video && !playing && (
+            <button type="button" className="toolkit-poster" onClick={() => setPlaying(true)} aria-label={`${item.title}: ${t.toolkitPlay}`}>
+              <img src={poster} alt="" loading="lazy" decoding="async" />
+              <span className="toolkit-play">
+                <Play size={22} />
+              </span>
+            </button>
+          )}
+          {!video && item.shots && (
+            item.loops ? (
+              <ToolkitLoop key={pick(item.loops[shot])} src={pick(item.loops[shot])} poster={pick(item.shots[shot])} label={`${item.title}: ${t.toolkitShot} ${shot + 1}`} />
+            ) : (
+              <img className="toolkit-shot" src={pick(item.shots[shot])} alt={`${item.title}: ${t.toolkitShot} ${shot + 1}`} loading="lazy" decoding="async" />
+            )
+          )}
+          {!video && !item.shots && (
+            <div className="toolkit-placeholder">
+              <Play size={20} />
+              <span>{t.toolkitVideoSoon}</span>
+            </div>
+          )}
+        </div>
+        {item.shots && (
+          <div className="toolkit-examples">
+            {item.shots.map((src, i) => (
+              <button
+                key={src.en}
+                type="button"
+                className="toolkit-thumb"
+                aria-pressed={i === shot}
+                aria-label={`${t.toolkitShot} ${i + 1}`}
+                onClick={() => setShot(i)}
+              >
+                <img src={pick(src)} alt="" loading="lazy" decoding="async" />
+              </button>
+            ))}
+          </div>
+        )}
+        {item.examples > 0 && (
+          <div className="toolkit-examples" aria-label={t.toolkitExampleSoon}>
+            {Array.from({ length: item.examples }, (_, i) => (
+              <span key={i}>{i === 0 ? t.toolkitExampleSoon : ''}</span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="project-body">
+        <div className="project-heading">
+          <h3>
+            <span className="project-title">{item.title}</span>
+            <Icon size={17} />
+            <span className="toolkit-badge">{pick(item.badge)}</span>
+          </h3>
+          {item.files === false && (
+            <span className="repo-private">
+              <FileDown size={13} />
+              {t.toolkitFilesSoon}
+            </span>
+          )}
+        </div>
+        <p>{pick(item.description)}</p>
+        <ul className="toolkit-points">
+          {item.points.map((point) => (
+            <li key={point.en}>{pick(point)}</li>
+          ))}
+        </ul>
+      </div>
+      <div className="project-tech">
+        <strong>{t.tech}</strong>
+        <div className="tags">
+          {item.tech.map((tech) => (
+            <span key={tech}>{tech}</span>
+          ))}
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -3992,6 +4194,7 @@ export default function App() {
       ['work', t.work, '.timeline', BriefcaseBusiness],
       ['contributions', t.command.contributions, '.contribution', Sparkles],
       ['projects', t.projects, '#projects', Rocket],
+      ['toolkit', t.toolkitTitle, '#toolkit', Sparkles],
       ['writing', t.thoughtsTitle, '.blog-content', Terminal],
       ['contact', t.connectTitle, '#contact', Mail],
     ].map(([id, label, selector, icon]) => ({
@@ -4351,6 +4554,14 @@ export default function App() {
           <ArrowUpRight size={17} />
         </a>
       </div>
+
+      <SectionTitle>{t.toolkitTitle}</SectionTitle>
+      <section className="toolkit" id="toolkit">
+        <p className="toolkit-intro">{t.toolkitIntro}</p>
+        {toolkit.map((item) => (
+          <ToolkitCard key={item.slug} item={item} t={t} locale={locale} />
+        ))}
+      </section>
 
       <SectionTitle>{t.thoughtsTitle}</SectionTitle>
       <section className="dashed blog-content" id="writing">

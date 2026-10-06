@@ -700,3 +700,32 @@
 :root[data-theme='light'] .building-roll {
   color: #b8430c;
 }
+
+/* ---- My Toolkit ---- */
+:root[data-theme='light'] .toolkit-intro,
+:root[data-theme='light'] .toolkit-points {
+  color: #4f4943;
+}
+
+:root[data-theme='light'] .toolkit-placeholder,
+:root[data-theme='light'] .toolkit-examples span {
+  border-color: #cfc5bc;
+  color: #7a716a;
+}
+
+:root[data-theme='light'] .toolkit-media {
+  background: #efe9e3;
+}
+
+:root[data-theme='light'] .toolkit-thumb {
+  border-color: #cfc5bc;
+}
+
+:root[data-theme='light'] .toolkit-thumb[aria-pressed='true'] {
+  border-color: #2b2622;
+}
+
+:root[data-theme='light'] .toolkit-badge {
+  border-color: #cfc5bc;
+  color: #4f4943;
+}
