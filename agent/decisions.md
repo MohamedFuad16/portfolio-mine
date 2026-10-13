@@ -1261,3 +1261,20 @@ Consequences:
 - The Folio film is a web encode in `public/media/launch/` under ADR-069.
 
 Amendment (2026-10-06): toolkit cards stack instead of using the project-card two-column grid. The page column is too narrow for a side-by-side video, and toolkit items lead with their media. The `/explain` example uses static screenshots of the explainer page with a thumbnail switcher, not the live HTML, so the site ships no third-party page and the images follow the page language.
+
+
+## ADR-071: Video Bridge on the portfolio, shown from a local test instance (2026-10-13)
+
+Status: Accepted (uncommitted)
+
+Context: Video Bridge's repo is private, the live app sits behind a sign-in wall, and it has no demo mode. Screenshots from the live server would show real accounts and the owner's real library. Visitors cannot open the app to see a room.
+
+Decision: Shoot the screens and footage from a local isolated instance with local test accounts (host Mohamed, viewers Aisha and Ken) and a library of the owner's own launch films (WebDrop, TokaiHub, Tutor-System). Nothing comes from the live server. The card links only to the live site, `https://bridge.mohamedfuad.com/`, with no GitHub link. The launch film uses the Apple theme (v5), in EN and JA cuts.
+
+Consequences:
+- Screens show test names (Mohamed, Aisha, Ken), not real users.
+- A re-shoot needs the local-config folder at `~/Documents/launch-videos/videobridge/local-config`.
+- The launch-video generator gained the optional keys `factsAt`, `rowAfterWindow`, `out` and `lang`. Films that do not set them render as before.
+- The film files follow ADR-069 and are served from `public/media/launch/`.
+
+Amendment (2026-10-13): the films show Big Buck Bunny (Blender Foundation, CC BY 3.0) instead of the owner's own films, so the library in the Decision above is replaced by that one title. The product-native film (v6) leads the gallery and the Apple film (v5) follows. The credit appears in the captions that show the film and on both end cards.

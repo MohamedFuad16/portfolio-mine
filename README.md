@@ -64,6 +64,7 @@ visitor counter, and Vercel Web Analytics for anonymous traffic reporting.
 
 | Project | What it is | Links |
 | ------- | ---------- | ----- |
+| **Video Bridge** | Watch films and series together across countries, with every viewer in sync at their own best quality | [Live](https://bridge.mohamedfuad.com/) · Private repo |
 | **Ledger** | Reads a 100-page annual report, finds the few pages that matter, and returns a checked balance sheet | [Live](https://assignment.mohamedfuad.com) · [Repo](https://github.com/MohamedFuad16/ledger-financial-report-system) |
 | **WebDrop** | Nearby file sharing in the browser, with proximity checks and direct WebRTC transfers | [Live](https://webdrop.mohamedfuad.com) · [Repo](https://github.com/MohamedFuad16/WebDrop) |
 | **Internship Portal** | A bilingual app for finding internships and keeping every application in one list, on the web and on iOS | [Live](https://portal.mohamedfuad.com) · [Repo](https://github.com/MohamedFuad16/resume-studio-dashboard) |

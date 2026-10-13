@@ -25,6 +25,7 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronLeft,
+  Clapperboard,
   Code2,
   Database,
   ExternalLink,
@@ -557,8 +558,8 @@ const toolkit = [
       ja: `/media/toolkit/explain-videobridge-${n}-ja.mp4`,
     })),
     description: {
-      en: 'An agent skill that explains any topic twice: a short answer in plain English, and one web page with big pictures and very few words. The example explains Video Bridge, an upcoming project of mine.',
-      ja: 'どんなテーマも2通りで説明するエージェントスキル。やさしい英語の短い答えと、大きな図と少ない言葉の1枚のWebページです。例では、開発中のプロジェクト Video Bridge のしくみを説明しています。',
+      en: 'An agent skill that explains any topic twice: a short answer in plain English, and one web page with big pictures and very few words. The example explains how Video Bridge works.',
+      ja: 'どんなテーマも2通りで説明するエージェントスキル。やさしい英語の短い答えと、大きな図と少ない言葉の1枚のWebページです。例では、Video Bridge のしくみを説明しています。',
     },
     points: [
       { en: 'Plain text in simplified technical English (ASD-STE100)', ja: '簡略技術英語（ASD-STE100）に沿った平易な文章' },
@@ -571,6 +572,128 @@ const toolkit = [
 ];
 
 const projects = [
+  {
+    title: 'Video Bridge',
+    slug: 'videobridge',
+    gallery: [
+      {
+        kind: 'video',
+        video: { en: '/media/launch/videobridge-v6-en.mp4', ja: '/media/launch/videobridge-v6-ja.mp4' },
+        poster: { en: '/media/launch/videobridge-v6-en-poster.webp', ja: '/media/launch/videobridge-v6-ja-poster.webp' },
+        caption: { en: 'Launch video (50 s, sound on; film: Big Buck Bunny, CC BY 3.0)', ja: '紹介動画（50秒・音あり／映像：Big Buck Bunny、CC BY 3.0）' },
+      },
+      {
+        kind: 'video',
+        video: { en: '/media/launch/videobridge-v5-en.mp4', ja: '/media/launch/videobridge-v5-ja.mp4' },
+        poster: { en: '/media/launch/videobridge-v5-en-poster.webp', ja: '/media/launch/videobridge-v5-ja-poster.webp' },
+        caption: { en: 'Launch video, Apple style (50 s, sound on; Big Buck Bunny, CC BY 3.0)', ja: '紹介動画・Appleスタイル（50秒・音あり／Big Buck Bunny、CC BY 3.0）' },
+      },
+      // Big Buck Bunny is CC BY 3.0, so every caption showing it carries the credit.
+      {
+        src: '/media/gallery/videobridge-1.jpg',
+        caption: {
+          en: 'Three viewers in one room (film: Big Buck Bunny, © Blender Foundation, CC BY 3.0)',
+          ja: '1つのルームに3人（映像：Big Buck Bunny、© Blender Foundation、CC BY 3.0）',
+        },
+      },
+      { src: '/media/gallery/videobridge-2.jpg', caption: { en: 'Drawing on the picture (Big Buck Bunny, CC BY 3.0)', ja: '映像に直接書き込み（Big Buck Bunny、CC BY 3.0）' } },
+      { src: '/media/gallery/videobridge-7.jpg', caption: { en: 'A shared screen, drawn on together', ja: '共有画面に一緒に書き込み' } },
+      { src: '/media/gallery/videobridge-3.jpg', caption: { en: 'Overview and the media pipeline', ja: '概要とメディア処理の状況' } },
+      { src: '/media/gallery/videobridge-4.jpg', caption: { en: 'The drive and its library', ja: 'ドライブとライブラリ' } },
+      { src: '/media/gallery/videobridge-5.jpg', caption: { en: 'Team and invites', ja: 'チームと招待' } },
+      { src: '/media/gallery/videobridge-6.jpg', caption: { en: 'The same room on a phone', ja: 'スマートフォンでも同じルーム' } },
+    ],
+    palette: ['#121214', '#d6f45b', '#8e8f96', '#ececee'],
+    // The palette's lime (#d6f45b) is too light on the page, so the third
+    // accent is a deeper step of the same hue.
+    accents: ['#d6f45b', '#121214', '#5a7300'],
+    badge: 'new project',
+    badgeJa: '新プロジェクト',
+    image: '/media/projects/videobridge-en-card.webp',
+    imageJa: '/media/projects/videobridge-ja-card.webp',
+    video: '/media/video/videobridge.mp4',
+    icon: Clapperboard,
+    live: 'https://bridge.mohamedfuad.com/',
+    description:
+      'Watch films and series together across countries, with every viewer in sync at their own best quality.',
+    descriptionJa:
+      '離れた国にいても一緒に映画やシリーズを観られます。全員が自分に合った最高画質で、同期したまま再生します。',
+    tech: ['React 19', 'TypeScript', 'Go', 'LiveKit', 'AWS EC2'],
+    detail: {
+      tagline: {
+        en: 'Movie night across any distance. Every screen starts together and stays on the room clock, and only play, pause and seek travel between people.',
+        ja: 'どれだけ離れていても、同じ映画の夜を。全員の画面が同時に始まってルームの時計に合わせ続け、人の間を行き来するのは再生・一時停止・シークだけです。',
+      },
+      overview: {
+        en: 'Video Bridge lets friends watch films and series together from different countries. Each viewer streams from the host\'s library at their own best quality, up to 4K. Only play, pause, seek and the clock travel between people. The room has voice, screen share, chat with reactions, and drawing on the picture. A Go server holds the library and room state.',
+        ja: 'Video Bridgeは、別々の国にいる友達と映画やシリーズを一緒に観るためのアプリです。各視聴者はホストのライブラリから、自分に合った最高画質（最大4K）でストリーミングします。人の間を行き来するのは、再生・一時停止・シークと時計だけです。ルームには、音声、画面共有、リアクション付きチャット、映像への書き込みがあります。ライブラリとルームの状態はGoサーバーが持ちます。',
+      },
+      features: [
+        {
+          title: { en: 'Drift checked every 250 ms', ja: '250ミリ秒ごとのずれ確認' },
+          en: 'Every 250 ms each browser compares its position with the room clock. Under 40 ms it does nothing, up to 1 s it changes speed by at most 5%, and past 1 s it jumps.',
+          ja: '250ミリ秒ごとに、各ブラウザが自分の再生位置をルームの時計と比べます。40ミリ秒未満なら何もせず、1秒までは速度を最大5%変え、それを超えるとジャンプします。',
+        },
+        {
+          title: { en: 'Starts together', ja: '同時に始まる' },
+          en: 'When someone presses play, the server picks a start time: the slowest viewer\'s one-way latency (20 to 600 ms) plus 80 ms.',
+          ja: '誰かが再生を押すと、サーバーが開始時刻を決めます。最も遅い視聴者の片道遅延（20〜600ミリ秒）に80ミリ秒を足した時刻です。',
+        },
+        {
+          title: { en: 'Waits for a stalled screen', ja: '止まった画面を待つ' },
+          en: 'If one screen stalls for 1.5 s, the room can wait for it, never more than 15 s, or keep playing. The room owner chooses.',
+          ja: '1台の画面が1.5秒止まると、ルームはその画面を待つことも、再生を続けることもできます。待つのは最長15秒で、ルームのオーナーが設定します。',
+        },
+        {
+          title: { en: 'Voice, screen share and chat', ja: '音声・画面共有・チャット' },
+          en: 'Voice and screen share up to 4K60 run through a LiveKit relay. Chat has reactions and typing indicators, and drawings on the picture reach the whole room.',
+          ja: '音声と最大4K60の画面共有はLiveKitのリレーを通します。チャットにはリアクションと入力中表示があり、映像への書き込みはルーム全員に届きます。',
+        },
+        {
+          title: { en: 'Team invites, phone and app', ja: 'チーム招待・スマホ・アプリ' },
+          en: 'Invite people with codes, add subtitles, and run a speed test. The UI is in English and Japanese, as an installable PWA and an Android app.',
+          ja: '招待コードで人を招待し、字幕を付け、速度テストもできます。画面は日本語と英語に対応し、インストールできるPWAとAndroidアプリがあります。',
+        },
+      ],
+      flow: {
+        en: 'The host\'s library feeds a Go server. FFmpeg makes the stream versions, each viewer plays the one that fits their connection, and a Web Worker keeps every browser on the room clock.',
+        ja: 'ホストのライブラリをGoサーバーが扱い、FFmpegが配信用の画質違いを作ります。各視聴者は自分の回線に合う画質で再生し、Web Workerが全員のブラウザをルームの時計に合わせ続けます。',
+      },
+      architecture: [
+        { label: { en: 'Web app', ja: 'Webアプリ' }, detail: { en: 'React 19 PWA on Vercel', ja: 'Vercel上のReact 19 PWA' } },
+        { label: { en: 'Go server', ja: 'Goサーバー' }, detail: { en: 'Library and room state, AWS EC2 Singapore', ja: 'ライブラリとルーム状態・AWS EC2（シンガポール）' } },
+        { label: { en: 'Media pipeline', ja: 'メディア処理' }, detail: { en: 'FFmpeg stream versions', ja: 'FFmpegの配信用画質' } },
+        { label: { en: 'Voice relay', ja: '音声リレー' }, detail: { en: 'LiveKit voice and screen share', ja: 'LiveKitの音声と画面共有' } },
+      ],
+      stack: [
+        {
+          kind: 'terminal',
+          title: { en: 'Viewer presses play', ja: '視聴者が再生を押す' },
+          sub: { en: 'React 19 PWA or Android app', ja: 'React 19 PWAまたはAndroidアプリ' },
+          edge: { en: 'event', ja: 'イベント' },
+        },
+        {
+          title: { en: 'Room clock', ja: 'ルームの時計' },
+          sub: { en: 'WebTransport, WebSocket fallback', ja: 'WebTransport・WebSocketにフォールバック' },
+          edge: { en: 'start time', ja: '開始時刻' },
+        },
+        {
+          title: { en: 'Go server', ja: 'Goサーバー' },
+          sub: { en: 'Slowest latency + 80 ms', ja: '最も遅い遅延 + 80ミリ秒' },
+          edge: { en: 'stream', ja: '配信' },
+          branch: {
+            title: { en: 'LiveKit relay', ja: 'LiveKitリレー' },
+            edge: { en: 'voice, screen share', ja: '音声・画面共有' },
+          },
+        },
+        {
+          kind: 'store',
+          title: { en: 'Library', ja: 'ライブラリ' },
+          sub: { en: 'FFmpeg versions, hardware encoding on macOS', ja: 'FFmpegの画質違い・macOSでハードウェアエンコード' },
+        },
+      ],
+    },
+  },
   {
     title: 'Ledger',
     slug: 'ledger',

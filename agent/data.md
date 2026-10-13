@@ -18,6 +18,7 @@ Localized copy:
 - Work experience entries include English and Japanese role/date/status/detail variants.
 
 Current project links:
+- Video Bridge: `https://bridge.mohamedfuad.com/` (repo is private, so no GitHub link)
 - WebDrop: `https://web-drop-lyart.vercel.app/`, GitHub `https://github.com/MohamedFuad16/WebDrop`
 - Tutor-System: `https://tutorsystem.mohamedfuad.com/` (the old Vercel URL redirects there), GitHub `https://github.com/MohamedFuad16/Tutor-System`
 - TokaiHub: `https://mohamedfuad16.github.io/TokaiHub/`, GitHub `https://github.com/MohamedFuad16/TokaiHub`

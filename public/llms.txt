@@ -13,6 +13,7 @@
 
 ## Projects
 
+- [Video Bridge](https://bridge.mohamedfuad.com/): watch films and series together across countries, with every viewer in sync at their own best quality.
 - [Ledger](https://github.com/MohamedFuad16/ledger-financial-report-system): reads a 100-page annual report, finds the few pages that matter, and returns a checked balance sheet.
 - [WebDrop](https://github.com/MohamedFuad16/WebDrop): nearby file sharing in the browser, with proximity checks and direct WebRTC transfers.
 - [Internship Portal](https://github.com/MohamedFuad16/resume-studio-dashboard): a bilingual app for finding internships and tracking every application, on the web and on iOS.
