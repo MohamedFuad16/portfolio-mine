@@ -1449,6 +1449,8 @@ small.red {
 .project-actions {
   display: flex;
   flex: 0 0 auto;
+  flex-wrap: wrap;
+  max-width: 100%;
   gap: 7px;
   white-space: nowrap;
 }
