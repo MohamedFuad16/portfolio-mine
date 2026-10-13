@@ -580,29 +580,27 @@ const projects = [
         kind: 'video',
         video: { en: '/media/launch/videobridge-v6-en.mp4', ja: '/media/launch/videobridge-v6-ja.mp4' },
         poster: { en: '/media/launch/videobridge-v6-en-poster.webp', ja: '/media/launch/videobridge-v6-ja-poster.webp' },
-        caption: { en: 'Launch video (50 s, sound on; film: Big Buck Bunny, CC BY 3.0)', ja: '紹介動画（50秒・音あり／映像：Big Buck Bunny、CC BY 3.0）' },
+        caption: { en: 'Launch video (50 s, sound on)', ja: '紹介動画（50秒・音あり）' },
       },
       {
         kind: 'video',
         video: { en: '/media/launch/videobridge-v5-en.mp4', ja: '/media/launch/videobridge-v5-ja.mp4' },
         poster: { en: '/media/launch/videobridge-v5-en-poster.webp', ja: '/media/launch/videobridge-v5-ja-poster.webp' },
-        caption: { en: 'Launch video, Apple style (50 s, sound on; Big Buck Bunny, CC BY 3.0)', ja: '紹介動画・Appleスタイル（50秒・音あり／Big Buck Bunny、CC BY 3.0）' },
+        caption: { en: 'Launch video, Apple style (50 s, sound on)', ja: '紹介動画・Appleスタイル（50秒・音あり）' },
       },
-      // Big Buck Bunny is CC BY 3.0, so every caption showing it carries the credit.
-      {
-        src: '/media/gallery/videobridge-1.jpg',
-        caption: {
-          en: 'Three viewers in one room (film: Big Buck Bunny, © Blender Foundation, CC BY 3.0)',
-          ja: '1つのルームに3人（映像：Big Buck Bunny、© Blender Foundation、CC BY 3.0）',
-        },
-      },
-      { src: '/media/gallery/videobridge-2.jpg', caption: { en: 'Drawing on the picture (Big Buck Bunny, CC BY 3.0)', ja: '映像に直接書き込み（Big Buck Bunny、CC BY 3.0）' } },
+      { src: '/media/gallery/videobridge-1.jpg', caption: { en: 'Three viewers in one room', ja: '1つのルームに3人' } },
+      { src: '/media/gallery/videobridge-2.jpg', caption: { en: 'Drawing on the picture', ja: '映像に直接書き込み' } },
       { src: '/media/gallery/videobridge-7.jpg', caption: { en: 'A shared screen, drawn on together', ja: '共有画面に一緒に書き込み' } },
       { src: '/media/gallery/videobridge-3.jpg', caption: { en: 'Overview and the media pipeline', ja: '概要とメディア処理の状況' } },
       { src: '/media/gallery/videobridge-4.jpg', caption: { en: 'The drive and its library', ja: 'ドライブとライブラリ' } },
       { src: '/media/gallery/videobridge-5.jpg', caption: { en: 'Team and invites', ja: 'チームと招待' } },
       { src: '/media/gallery/videobridge-6.jpg', caption: { en: 'The same room on a phone', ja: 'スマートフォンでも同じルーム' } },
     ],
+    // Big Buck Bunny is CC BY 3.0: the licence needs one credit, shown once under the gallery.
+    galleryNote: {
+      en: 'Film shown: Big Buck Bunny, © Blender Foundation, CC BY 3.0.',
+      ja: '映像：Big Buck Bunny（© Blender Foundation、CC BY 3.0）',
+    },
     palette: ['#121214', '#d6f45b', '#8e8f96', '#ececee'],
     // The palette's lime (#d6f45b) is too light on the page, so the third
     // accent is a deeper step of the same hue.
@@ -3491,6 +3489,7 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup,
           ) : (
             <img src={image} alt={t.a11y.preview(project.title)} loading="lazy" decoding="async" />
           )}
+          {project.galleryNote && <p className="pd-gallery-note">{pick(project.galleryNote)}</p>}
         </div>
 
         {d.highlights && (

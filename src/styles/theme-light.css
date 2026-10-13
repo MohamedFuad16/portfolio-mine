@@ -681,7 +681,8 @@
   color: #302c29;
 }
 
-:root[data-theme='light'] .pd-gallery-caption span {
+:root[data-theme='light'] .pd-gallery-caption span,
+:root[data-theme='light'] .pd-gallery-note {
   color: #6f6862;
 }
 

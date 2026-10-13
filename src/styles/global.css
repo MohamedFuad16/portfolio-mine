@@ -3346,6 +3346,21 @@ small.red {
   font-size: 13.5px;
 }
 
+.pd-gallery-note {
+  margin: 10px 0 0;
+  color: #867d76;
+  font-size: 11.5px;
+}
+
+/* On a phone the dots row takes most of the width, so the caption gets its own line. */
+@media (max-width: 640px) {
+  .pd-gallery-foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+}
+
 .pd-gallery-caption span {
   flex: none;
   color: #867d76;
