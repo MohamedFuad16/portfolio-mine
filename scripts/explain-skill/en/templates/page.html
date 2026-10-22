@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>How CCFT Works</title>
+<!-- Explainer template. Design: "How CCFT works" v1. Words: STE.md. Motion: MOTION.md.
+     Controls follow shadcn's anatomy (SHADCN.md) in v1's colours.
+     To make a new page: replace the steps, the check and the glossary. Keep the tokens, the symbols and the engine. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Tokens: shadcn's semantic pairs, filled with v1's colours. */
+:root {
+  --background: #f0f2f7; --foreground: #16161f;
+  --card: #fdfdfd; --border: #d9dbe6; --muted-foreground: #666a7c;
+  --primary: #4f50e7; --primary-foreground: #ffffff;
+  --accent: #e2e2f4; --ring: #4f50e7;
+  --acc: #4f50e7; --och: #dbad36; --line: #c9cbd8;
+  --ok: #2f8f5b; --bad: #c0532a; --on-status: #ffffff;
+  --radius: 0.75rem;
+  --font: "Figtree", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #13141b; --foreground: #eceef6; --card: #1c1d27; --border: #2e3040; --muted-foreground: #9ba0b5;
+    --primary: #5557ee; --accent: #262846; --ring: #8e8fff; --acc: #8e8fff; --och: #e4b84a; --line: #3a3c50; --ok: #6fcf97; --bad: #f0a070; --on-status: #13141b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --background: #13141b; --foreground: #eceef6; --card: #1c1d27; --border: #2e3040; --muted-foreground: #9ba0b5;
+  --primary: #5557ee; --accent: #262846; --ring: #8e8fff; --acc: #8e8fff; --och: #e4b84a; --line: #3a3c50; --ok: #6fcf97; --bad: #f0a070; --on-status: #13141b;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; } /* layout rules below must never show a hidden part */
+body { background: var(--background); color: var(--foreground); font-family: var(--font); margin: 0; }
+.page { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 56px 80px; }
+.inner { max-width: 1000px; margin-left: clamp(0px, 8vw, 110px); }
+
+h1 { font-weight: 900; font-size: clamp(40px, 7vw, 76px); line-height: 1.02; letter-spacing: -0.035em; margin: 0 0 22px; text-wrap: balance; }
+.lead { font-size: clamp(17px, 2vw, 21px); line-height: 1.55; color: var(--muted-foreground); max-width: 40em; margin: 0; }
+.lead b { color: var(--foreground); font-weight: 700; }
+
+.steps { display: grid; gap: 72px; margin-top: 76px; }
+.step { min-width: 0; } /* lets a wide picture scroll inside its card instead of widening the page */
+.step h2 { display: flex; align-items: baseline; gap: 22px; margin: 0 0 18px; font-size: clamp(21px, 2.6vw, 29px); font-weight: 800; letter-spacing: -0.015em; line-height: 1.2; text-wrap: balance; }
+.step h2 .n { color: var(--acc); font-weight: 900; font-size: 1.35em; min-width: 1.1em; font-variant-numeric: tabular-nums; }
+.card { background: var(--card); border: 1.5px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 14px; }
+.scroll { overflow-x: auto; }
+.scroll svg { display: block; width: 100%; min-width: 620px; height: auto; }
+.cap { color: var(--muted-foreground); font-size: 16.5px; line-height: 1.5; margin: 14px 0 0; max-width: 46em; }
+
+/* Toggle group and buttons: shadcn anatomy (pressed state, 3px focus ring), v1 pill shape. */
+.toggle { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--accent); margin: 0 0 12px 4px; flex-wrap: wrap; }
+.toggle button, .btn { font: 700 14px var(--font); color: var(--foreground); background: transparent; border: 0; border-radius: 999px; padding: 7px 14px; cursor: pointer; white-space: nowrap; }
+.toggle button[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); }
+.btn { background: var(--primary); color: var(--primary-foreground); padding: 9px 18px; }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.toggle button:focus-visible, .btn:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 50%, transparent); }
+/* The check: a question card with answer cards, a check button, then a verdict and one assumption to change. */
+.quiz { padding: 22px; display: grid; gap: 18px; }
+.quiz-q { margin: 0; font-size: 19px; font-weight: 700; line-height: 1.4; max-width: 40em; }
+.quiz-q.small { font-size: 16.5px; font-weight: 600; }
+.choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.choice { display: flex; align-items: center; gap: 14px; text-align: left; font: 600 16px/1.35 var(--font); color: var(--foreground); background: var(--background); border: 1.5px solid var(--border); border-radius: calc(var(--radius) * 1.2); padding: 16px 18px; cursor: pointer; }
+.choice:hover { border-color: var(--acc); }
+.choice:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 50%, transparent); }
+.choice .mark { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--muted-foreground); }
+.choice .key { font: 700 12px var(--mono); color: var(--muted-foreground); margin-right: 10px; }
+.choice[aria-checked="true"] { border-color: var(--acc); background: color-mix(in srgb, var(--acc) 9%, var(--card)); }
+.choice[aria-checked="true"] .mark { border-color: var(--acc); background: var(--acc); box-shadow: inset 0 0 0 4px var(--card); }
+.choice.done { cursor: default; }
+.choice.done:not(.right):not(.wrong) { opacity: .6; }
+.choice.right { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, var(--card)); }
+.choice.right .mark { border-color: var(--ok); background: var(--ok); box-shadow: inset 0 0 0 4px var(--card); }
+.choice.wrong { border-color: var(--bad); background: var(--background); }
+.choice.wrong .mark { border-color: var(--bad); background: transparent; box-shadow: none; }
+.quiz-foot { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.hint { color: var(--muted-foreground); font-size: 14.5px; }
+.verdict { margin: 0; color: var(--muted-foreground); font-size: 16.5px; line-height: 1.6; max-width: 46em; }
+.verdict b { color: var(--foreground); }
+.badge { display: inline-block; font: 700 13px var(--font); border-radius: 999px; padding: 2px 10px; margin-right: 8px; color: var(--on-status); vertical-align: 1px; }
+.badge.ok { background: var(--ok); } .badge.no { background: var(--bad); }
+.quiz .pic { border: 1.5px solid var(--border); border-radius: 14px; padding: 10px; background: var(--card); }
+.assume { display: grid; gap: 12px; border-top: 1px solid var(--border); padding-top: 18px; }
+.assume .toggle { margin: 0; justify-self: start; }
+.assume .verdict { min-height: 1.6em; }
+
+.gloss { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px 28px; padding: 22px; margin: 0; }
+.gloss dt { font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.gloss dt i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); display: inline-block; }
+.gloss dd { margin: 4px 0 0; color: var(--muted-foreground); font-size: 15px; line-height: 1.5; }
+.foot { margin-top: 64px; color: var(--muted-foreground); font-size: 13.5px; }
+.foot code { font-family: var(--mono); font-size: 12.5px; }
+
+/* SVG vocabulary (v1) */
+.s { stroke: var(--foreground); stroke-width: 2.5; fill: var(--card); stroke-linejoin: round; stroke-linecap: round; }
+.sl { stroke: var(--foreground); stroke-width: 2.5; fill: none; stroke-linecap: round; }
+.ln { stroke: var(--line); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+.acc { fill: var(--acc); } .blk { fill: var(--primary); } .och { fill: var(--och); } .lavf { fill: var(--accent); }
+.zone { fill: var(--accent); stroke: var(--muted-foreground); stroke-width: 1.5; stroke-dasharray: 6 6; }
+.box { fill: none; stroke: var(--acc); stroke-width: 2; stroke-dasharray: 7 6; }
+.t { font: 700 15px var(--font); fill: var(--foreground); }
+.tb { font: 800 17px var(--font); fill: var(--foreground); }
+.ts { font: 500 13px var(--font); fill: var(--muted-foreground); }
+.tw { font: 700 15px var(--font); fill: #fff; }
+.tm { font: 500 12px var(--mono); fill: var(--muted-foreground); }
+.ar { stroke: var(--foreground); stroke-width: 2.2; fill: none; marker-end: url(#ah); }
+.ar.a { stroke: var(--acc); marker-end: url(#aha); }
+.ar.two { marker-start: url(#ah); }
+.ar.a.two { marker-start: url(#aha); }
+.ar.d { stroke-dasharray: 7 6; }
+.mk { fill: var(--foreground); } .mka { fill: var(--acc); }
+
+/* Motion (MOTION.md). The engine marks each picture item; items draw on in order when the card scrolls in. */
+@property --d { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --f { syntax: "<number>"; inherits: true; initial-value: 1; }
+/* Dash 1, gap 2, offset just past 1: a hidden stroke leaves no round-cap dot. */
+.dr { stroke-dasharray: 1 2; stroke-dashoffset: calc(var(--d) * 1.01); }
+.s, .acc, .blk, .och, .lavf, .zone { fill-opacity: var(--f); }
+.item { --delay: 0ms;
+  transition: --d .8s cubic-bezier(.65,0,.35,1) var(--delay), --f .45s ease calc(var(--delay) + 350ms),
+              opacity .5s ease var(--delay), filter .5s ease var(--delay), transform .55s cubic-bezier(.22,1,.36,1) var(--delay); }
+.fd { transition: opacity .5s ease var(--delay, 0ms); }
+.item.pre { --d: 1; --f: 0; }
+text.item.pre { opacity: 0; filter: blur(3px); transform: translateY(4px); }
+.item.pre .fd, .item.pre.fd { opacity: 0; }
+.hl, .hl .ar { marker-start: none !important; marker-end: none !important; }
+.hint { transition: opacity .35s ease; }
+.flow { pointer-events: none; }
+/* Each step rises softly into place as it scrolls in. */
+.step { transition: opacity .6s ease, transform .6s cubic-bezier(.22,1,.36,1); }
+.step.enter { opacity: 0; transform: translateY(18px); }
+@media (max-width: 520px) { .step h2 { gap: 14px; } .steps { gap: 56px; } }
+@media (prefers-reduced-motion: no-preference) { .toggle button { transition: background .15s, color .15s; } }
+</style>
+</head>
+<body>
+<svg id="sym" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker>
+    <marker id="aha" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mka"/></marker>
+    <symbol id="bot" viewBox="0 0 80 72">
+      <line x1="40" y1="6" x2="40" y2="16" class="sl"/>
+      <circle cx="40" cy="6" r="4.5" class="acc"/>
+      <rect x="6" y="30" width="7" height="16" rx="3" class="s"/>
+      <rect x="67" y="30" width="7" height="16" rx="3" class="s"/>
+      <rect x="13" y="16" width="54" height="46" rx="11" class="s"/>
+      <circle cx="30" cy="36" r="5.5" class="acc"/>
+      <circle cx="50" cy="36" r="5.5" class="acc"/>
+      <path d="M31 49 Q40 56 49 49" class="sl"/>
+    </symbol>
+    <symbol id="db" viewBox="0 0 84 76">
+      <path d="M6 13 V61 A36 10 0 0 0 78 61 V13" class="s"/>
+      <ellipse cx="42" cy="13" rx="36" ry="10" class="s"/>
+      <line x1="22" y1="38" x2="62" y2="38" class="ln"/>
+      <line x1="22" y1="48" x2="62" y2="48" class="ln"/>
+    </symbol>
+    <symbol id="win" viewBox="0 0 140 84">
+      <rect x="2" y="2" width="136" height="80" rx="9" class="s"/>
+      <line x1="2" y1="20" x2="138" y2="20" class="sl" style="stroke-width:2"/>
+      <circle cx="14" cy="11" r="2.6" class="lavf"/>
+      <circle cx="23" cy="11" r="2.6" class="lavf"/>
+      <circle cx="32" cy="11" r="2.6" class="lavf"/>
+    </symbol>
+    <symbol id="person" viewBox="0 0 44 54">
+      <circle cx="22" cy="12" r="10" class="och"/>
+      <path d="M3 52 Q3 27 22 27 Q41 27 41 52 Z" class="och"/>
+    </symbol>
+    <symbol id="clock" viewBox="0 0 50 50">
+      <circle cx="25" cy="25" r="21" class="s"/>
+      <path d="M25 12 V25 H35" class="sl"/>
+    </symbol>
+    <symbol id="lock" viewBox="0 0 30 34">
+      <path d="M8 15 V10 A7 7 0 0 1 22 10 V15" class="sl"/>
+      <rect x="3" y="15" width="24" height="17" rx="4" class="s"/>
+      <circle cx="15" cy="23" r="2.5" class="acc"/>
+    </symbol>
+    <symbol id="env" viewBox="0 0 40 28">
+      <rect x="2" y="2" width="36" height="24" rx="4" class="s"/>
+      <path d="M3 4 L20 16 L37 4" class="sl" style="stroke-width:2"/>
+    </symbol>
+    <symbol id="key" viewBox="0 0 48 24">
+      <circle cx="11" cy="12" r="8" class="s"/>
+      <path d="M19 12 H45 M36 12 V19 M42 12 V17" class="sl"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="page">
+<div class="inner">
+  <h1>How does<br>CCFT work?</h1>
+  <p class="lead">One small program on your Mac runs <b>a team of AI models</b>, like a <b>computer runs programs</b>. It gives them work, keeps them apart, and <b>writes down every step</b>. Here is the whole machine, one picture at a time.</p>
+
+  <div class="steps">
+
+  <section class="step" aria-labelledby="s1">
+    <h2 id="s1"><span class="n">1</span>One robot on your Mac. The models live in the cloud.</h2>
+    <div class="card scroll">
+      <svg viewBox="0 0 760 270" role="img" aria-label="The robot on your Mac sends a request to a cloud model and gets a response back">
+        <rect x="24" y="22" width="300" height="226" rx="16" class="s" style="stroke-width:2"/>
+        <text x="44" y="50" class="ts">your Mac</text>
+        <use href="#bot" x="119" y="62" width="110" height="99"/>
+        <text x="174" y="190" text-anchor="middle" class="tb">the robot</text>
+        <text x="174" y="210" text-anchor="middle" class="ts">(the daemon, ccftd)</text>
+        <rect x="440" y="18" width="296" height="234" rx="44" class="zone"/>
+        <text x="588" y="46" text-anchor="middle" class="ts">providers, in the cloud</text>
+        <rect x="474" y="62" width="228" height="44" rx="10" class="blk"/>
+        <text x="588" y="89" text-anchor="middle" class="tw">Claude</text>
+        <rect x="474" y="118" width="228" height="44" rx="10" class="blk"/>
+        <text x="588" y="145" text-anchor="middle" class="tw">GPT</text>
+        <rect x="474" y="174" width="228" height="44" rx="10" class="blk"/>
+        <text x="588" y="201" text-anchor="middle" class="tw">Kimi, GLM, MiniMax ...</text>
+        <path d="M240 118 L462 140" class="ar a two"/>
+        <text x="384" y="116" text-anchor="middle" class="t" style="fill:var(--acc)">request</text>
+        <text x="372" y="162" text-anchor="middle" class="t" style="fill:var(--och)">response</text>
+      </svg>
+    </div>
+    <p class="cap">No model runs on your Mac. Any model that you have a key or a plan for can join.</p>
+  </section>
+
+  <section class="step" aria-labelledby="s2">
+    <h2 id="s2"><span class="n">2</span>The model is the CPU. The context is the RAM.</h2>
+    <div class="card scroll">
+      <svg viewBox="0 0 760 280" role="img" aria-label="For each request, the robot copies what one agent can see from your files into the context window, then sends it to the model" data-script="rebuild">
+        <use href="#db" x="40" y="74" width="104" height="94"/>
+        <text x="92" y="196" text-anchor="middle" class="tb">your files</text>
+        <text x="92" y="215" text-anchor="middle" class="ts">(on the disk)</text>
+        <rect x="290" y="46" width="170" height="168" rx="12" class="s"/>
+        <g class="ctx">
+          <line x1="312" y1="84" x2="438" y2="84" class="ln"/>
+          <line x1="312" y1="108" x2="420" y2="108" class="ln"/>
+          <line x1="312" y1="132" x2="438" y2="132" class="ln"/>
+          <line x1="312" y1="156" x2="400" y2="156" class="ln"/>
+          <line x1="312" y1="180" x2="428" y2="180" class="ln"/>
+        </g>
+        <text x="375" y="240" text-anchor="middle" class="tb">the context window</text>
+        <text x="375" y="259" text-anchor="middle" class="ts">(the RAM, packed again for each request)</text>
+        <rect x="586" y="74" width="136" height="104" rx="14" class="blk"/>
+        <g class="sl" style="stroke:var(--primary)">
+          <line x1="610" y1="66" x2="610" y2="74"/><line x1="636" y1="66" x2="636" y2="74"/><line x1="662" y1="66" x2="662" y2="74"/><line x1="688" y1="66" x2="688" y2="74"/>
+          <line x1="610" y1="178" x2="610" y2="186"/><line x1="636" y1="178" x2="636" y2="186"/><line x1="662" y1="178" x2="662" y2="186"/><line x1="688" y1="178" x2="688" y2="186"/>
+        </g>
+        <text x="654" y="131" text-anchor="middle" class="tw">the model</text>
+        <text x="654" y="206" text-anchor="middle" class="tb">the CPU</text>
+        <text x="654" y="225" text-anchor="middle" class="ts">(forgets after each request)</text>
+        <path d="M150 118 L282 118" class="ar"/>
+        <text x="216" y="96" text-anchor="middle" class="t">copies in</text>
+        <text x="216" y="140" text-anchor="middle" class="ts">only what this</text>
+        <text x="216" y="156" text-anchor="middle" class="ts">agent can see</text>
+        <path d="M466 128 L578 128" class="ar a"/>
+        <text x="522" y="116" text-anchor="middle" class="t">sends</text>
+      </svg>
+    </div>
+    <p class="cap">The model remembers nothing. So the robot packs the context again for each request.</p>
+  </section>
+
+  <section class="step" aria-labelledby="s3">
+    <h2 id="s3"><span class="n">3</span>One log. Every screen reads from it.</h2>
+    <div class="card scroll">
+      <svg viewBox="0 0 760 290" role="img" aria-label="The robot writes every step to one encrypted log, and the app, the terminal and the phone all read from it">
+        <use href="#bot" x="40" y="86" width="100" height="90"/>
+        <text x="90" y="200" text-anchor="middle" class="tb">the robot</text>
+        <use href="#db" x="300" y="70" width="140" height="126"/>
+        <text x="370" y="226" text-anchor="middle" class="tb">the log</text>
+        <text x="370" y="245" text-anchor="middle" class="ts">(one encrypted file, never erased)</text>
+        <path d="M150 132 L290 132" class="ar"/>
+        <text x="220" y="118" text-anchor="middle" class="t">writes</text>
+        <text x="220" y="154" text-anchor="middle" class="ts">every step</text>
+        <use href="#win" x="560" y="20" width="150" height="78"/>
+        <text x="635" y="72" text-anchor="middle" class="t">desktop app</text>
+        <use href="#win" x="560" y="108" width="150" height="78"/>
+        <text x="635" y="160" text-anchor="middle" class="t">terminal</text>
+        <use href="#win" x="560" y="196" width="150" height="78"/>
+        <text x="635" y="248" text-anchor="middle" class="t">phone (later)</text>
+        <path d="M452 118 L552 64" class="ar a"/>
+        <path d="M452 136 L552 146" class="ar a"/>
+        <path d="M452 154 L552 228" class="ar a"/>
+        <text x="522" y="114" text-anchor="middle" class="ts">reads</text>
+      </svg>
+    </div>
+    <p class="cap">After a crash, the robot reads the log again. It never pays a model twice for the same step.</p>
+  </section>
+
+  <section class="step" aria-labelledby="s4">
+    <h2 id="s4"><span class="n">4</span>Agents pass notes, not diaries.</h2>
+    <div class="card scroll">
+      <svg viewBox="0 0 760 330" role="img" aria-label="A leader agent puts tasks on a board. Agents on different models take them and send back short checked notes. Each one keeps its own conversation locked">
+        <use href="#bot" x="30" y="96" width="112" height="101"/>
+        <text x="86" y="222" text-anchor="middle" class="tb">the leader</text>
+        <text x="86" y="241" text-anchor="middle" class="ts">(big model)</text>
+        <rect x="222" y="70" width="222" height="178" rx="12" class="s"/>
+        <text x="333" y="100" text-anchor="middle" class="t">task board</text>
+        <line x1="222" y1="114" x2="444" y2="114" class="sl" style="stroke-width:2"/>
+        <rect x="240" y="128" width="186" height="30" rx="7" class="lavf"/>
+        <text x="254" y="148" class="ts" style="fill:var(--foreground)">fix the login page</text>
+        <rect x="240" y="166" width="186" height="30" rx="7" class="lavf"/>
+        <text x="254" y="186" class="ts" style="fill:var(--foreground)">write the tests</text>
+        <rect x="240" y="204" width="186" height="30" rx="7" class="lavf"/>
+        <text x="254" y="224" class="ts" style="fill:var(--foreground)">review the change</text>
+        <path d="M148 150 L214 150" class="ar"/>
+        <text x="182" y="138" text-anchor="middle" class="ts">adds</text>
+        <use href="#bot" x="560" y="18" width="70" height="63"/>
+        <text x="640" y="54" class="t">Claude</text>
+        <use href="#lock" x="704" y="34" width="22" height="25"/>
+        <use href="#bot" x="560" y="128" width="70" height="63"/>
+        <text x="640" y="164" class="t">GLM</text>
+        <use href="#lock" x="704" y="144" width="22" height="25"/>
+        <use href="#bot" x="560" y="238" width="70" height="63"/>
+        <text x="640" y="274" class="t">GPT</text>
+        <use href="#lock" x="704" y="254" width="22" height="25"/>
+        <path d="M452 120 L552 56" class="ar a two"/>
+        <path d="M452 158 L552 160" class="ar a two"/>
+        <path d="M452 196 L552 266" class="ar a two"/>
+        <text x="646" y="318" text-anchor="middle" class="ts">each conversation stays locked</text>
+      </svg>
+    </div>
+    <p class="cap">No agent reads the conversation of another agent. Only short, checked notes go across.</p>
+  </section>
+
+  <section class="step" aria-labelledby="s5">
+    <h2 id="s5"><span class="n">5</span>Tools run in a locked box. Keys stay with the keeper.</h2>
+    <div class="card scroll">
+      <svg viewBox="0 0 760 290" role="img" aria-label="The tool calls of an agent run inside a sandbox. All network traffic leaves through the key keeper, which adds the key on the way out">
+        <use href="#bot" x="30" y="92" width="100" height="90"/>
+        <text x="80" y="206" text-anchor="middle" class="tb">an agent</text>
+        <rect x="206" y="40" width="250" height="200" rx="16" class="box"/>
+        <use href="#lock" x="420" y="22" width="28" height="32"/>
+        <text x="331" y="72" text-anchor="middle" class="t">the locked box</text>
+        <text x="331" y="90" text-anchor="middle" class="ts">(sandbox)</text>
+        <rect x="232" y="108" width="92" height="36" rx="18" class="s" style="stroke-width:2"/>
+        <text x="278" y="131" text-anchor="middle" class="t">shell</text>
+        <rect x="338" y="108" width="92" height="36" rx="18" class="s" style="stroke-width:2"/>
+        <text x="384" y="131" text-anchor="middle" class="t">files</text>
+        <rect x="232" y="156" width="198" height="36" rx="18" class="s" style="stroke-width:2"/>
+        <text x="331" y="179" text-anchor="middle" class="t">MCP tools and skills</text>
+        <text x="331" y="222" text-anchor="middle" class="tm">MCP: one plug for every tool</text>
+        <path d="M136 138 L198 138" class="ar"/>
+        <text x="168" y="124" text-anchor="middle" class="ts">tool call</text>
+        <rect x="530" y="92" width="96" height="88" rx="12" class="blk"/>
+        <use href="#key" x="548" y="112" width="60" height="30" style="--card:var(--primary);--foreground:#fff"/>
+        <text x="578" y="164" text-anchor="middle" class="tw">keeper</text>
+        <text x="578" y="206" text-anchor="middle" class="ts">(key broker)</text>
+        <path d="M462 138 L522 138" class="ar"/>
+        <text x="492" y="124" text-anchor="middle" class="ts">internet</text>
+        <path d="M632 136 L732 136" class="ar a"/>
+        <text x="682" y="118" text-anchor="middle" class="t">adds the key</text>
+        <text x="682" y="160" text-anchor="middle" class="ts">on the way out</text>
+      </svg>
+    </div>
+    <p class="cap">An agent cannot read your API keys, because it never has them.</p>
+  </section>
+
+  <section class="step" aria-labelledby="s6">
+    <h2 id="s6"><span class="n">6</span>Talk to it. A fast talker, a big worker.</h2>
+    <div class="toggle" role="group" aria-label="Turn mode">
+      <button type="button" id="mode-auto" aria-pressed="true">Automatic</button>
+      <button type="button" id="mode-hold" aria-pressed="false">Hold to talk</button>
+    </div>
+    <div class="card scroll">
+      <svg viewBox="0 0 760 380" role="img" aria-label="Your voice goes to cloud ears. A fast talker model answers through cloud speech and hands real work to the big leader model. The thread keeps only what you heard">
+        <use href="#person" x="40" y="54" width="54" height="66"/>
+        <text x="67" y="144" text-anchor="middle" class="tb">you</text>
+        <g id="hint-auto" class="hint">
+          <text x="67" y="166" text-anchor="middle" class="ts">Just talk. The ears</text>
+          <text x="67" y="182" text-anchor="middle" class="ts">hear when you stop.</text>
+        </g>
+        <g id="hint-hold" class="hint" style="opacity:0">
+          <text x="67" y="166" text-anchor="middle" class="ts">Hold a key to talk.</text>
+          <text x="67" y="182" text-anchor="middle" class="ts">Let go to send.</text>
+        </g>
+        <path d="M102 86 L144 86" class="ar"/>
+        <rect x="152" y="62" width="130" height="50" rx="10" class="blk"/>
+        <text x="217" y="93" text-anchor="middle" class="tw">ears</text>
+        <text x="217" y="134" text-anchor="middle" class="ts">(Deepgram, cloud)</text>
+        <path d="M290 87 L344 87" class="ar"/>
+        <use href="#bot" x="352" y="46" width="92" height="83"/>
+        <text x="398" y="152" text-anchor="middle" class="tb">the talker</text>
+        <text x="398" y="170" text-anchor="middle" class="ts">(small, fast model)</text>
+        <path d="M452 87 L506 87" class="ar"/>
+        <rect x="514" y="62" width="130" height="50" rx="10" class="blk"/>
+        <text x="579" y="93" text-anchor="middle" class="tw">mouth</text>
+        <text x="579" y="134" text-anchor="middle" class="ts">(Deepgram, cloud)</text>
+        <path d="M579 56 V22 H67 V44" class="ar a d"/>
+        <text x="240" y="44" text-anchor="middle" class="t">you hear the answer</text>
+        <path d="M385 184 L385 236" class="ar"/>
+        <text x="374" y="215" text-anchor="end" class="ts">hands off work</text>
+        <path d="M412 236 L412 184" class="ar a"/>
+        <text x="423" y="215" class="ts">reports back when done</text>
+        <use href="#bot" x="352" y="246" width="92" height="83"/>
+        <text x="398" y="350" text-anchor="middle" class="tb">the leader</text>
+        <text x="398" y="368" text-anchor="middle" class="ts">(big model, keeps working)</text>
+        <path d="M458 290 L568 296" class="ar d"/>
+        <text x="513" y="280" text-anchor="middle" class="ts">only what</text>
+        <text x="513" y="318" text-anchor="middle" class="ts">you heard</text>
+        <use href="#db" x="580" y="258" width="80" height="72"/>
+        <text x="620" y="352" text-anchor="middle" class="t">the thread</text>
+      </svg>
+    </div>
+    <p class="cap">You can interrupt at any time. The work continues, and the thread keeps only the words that you heard.</p>
+  </section>
+
+  <section class="step" aria-labelledby="s7">
+    <h2 id="s7"><span class="n">7</span>Named agents work on a schedule.</h2>
+    <div class="card scroll">
+      <svg viewBox="0 0 760 270" role="img" aria-label="A named agent wakes on a timer and reads its own files. When nobody watches, it can only look. To act, it asks you for a tap">
+        <use href="#clock" x="40" y="80" width="80" height="80"/>
+        <text x="80" y="188" text-anchor="middle" class="tb">a timer</text>
+        <text x="80" y="207" text-anchor="middle" class="ts">(every 30 min)</text>
+        <use href="#bot" x="240" y="52" width="110" height="99"/>
+        <rect x="258" y="160" width="74" height="26" rx="13" class="och"/>
+        <text x="295" y="178" text-anchor="middle" class="t" style="fill:#16161f">Scout</text>
+        <text x="295" y="212" text-anchor="middle" class="tm">AGENT.md  MEMORY.md</text>
+        <text x="295" y="230" text-anchor="middle" class="ts">its own files</text>
+        <path d="M128 120 L230 110" class="ar"/>
+        <text x="180" y="100" text-anchor="middle" class="ts">wakes up</text>
+        <rect x="440" y="56" width="120" height="44" rx="22" class="s" style="stroke-width:2"/>
+        <text x="500" y="84" text-anchor="middle" class="t">only looks</text>
+        <path d="M358 96 L432 80" class="ar"/>
+        <use href="#person" x="630" y="112" width="50" height="61"/>
+        <text x="655" y="196" text-anchor="middle" class="tb">you</text>
+        <text x="655" y="215" text-anchor="middle" class="ts">tap to approve</text>
+        <path d="M358 130 L620 146" class="ar a d"/>
+        <text x="490" y="168" text-anchor="middle" class="t">wants to act? asks first</text>
+      </svg>
+    </div>
+    <p class="cap">When nobody watches, a named agent can only read. To act, it needs your tap.</p>
+  </section>
+
+  <section class="step" aria-labelledby="s8">
+    <h2 id="s8"><span class="n">8</span>Plug in anything. Every plugin asks first.</h2>
+    <div class="card scroll">
+      <svg viewBox="0 0 760 280" role="img" aria-label="Plugins go into slots: a model as a data file, tools as MCP servers, skills and agent roles. Each one needs your approval, tied to its files">
+        <rect x="30" y="36" width="440" height="212" rx="16" class="s" style="stroke-width:2"/>
+        <text x="52" y="64" class="ts">the robot's expansion slots</text>
+        <g>
+          <rect x="52" y="84" width="92" height="140" rx="10" class="lavf"/>
+          <rect x="156" y="84" width="92" height="140" rx="10" class="lavf"/>
+          <rect x="260" y="84" width="92" height="140" rx="10" class="lavf"/>
+          <rect x="364" y="84" width="92" height="140" rx="10" class="lavf"/>
+        </g>
+        <rect x="60" y="98" width="76" height="112" rx="8" class="blk"/>
+        <text x="98" y="150" text-anchor="middle" class="tw">a model</text>
+        <text x="98" y="170" text-anchor="middle" class="tw" style="font-weight:500;font-size:12px">(a data file)</text>
+        <rect x="164" y="98" width="76" height="112" rx="8" class="blk"/>
+        <text x="202" y="150" text-anchor="middle" class="tw">tools</text>
+        <text x="202" y="170" text-anchor="middle" class="tw" style="font-weight:500;font-size:12px">(MCP)</text>
+        <rect x="268" y="98" width="76" height="112" rx="8" class="blk"/>
+        <text x="306" y="158" text-anchor="middle" class="tw">skills</text>
+        <rect x="372" y="98" width="76" height="112" rx="8" class="s" style="stroke-dasharray:6 5;stroke:var(--acc)"/>
+        <text x="410" y="148" text-anchor="middle" class="t" style="fill:var(--acc)">agent</text>
+        <text x="410" y="170" text-anchor="middle" class="t" style="fill:var(--acc)">role</text>
+        <path d="M600 160 L478 160" class="ar a"/>
+        <text x="540" y="148" text-anchor="middle" class="ts">goes in</text>
+        <use href="#person" x="630" y="78" width="54" height="66"/>
+        <text x="657" y="166" text-anchor="middle" class="tb">you</text>
+        <text x="657" y="186" text-anchor="middle" class="ts">approve once,</text>
+        <text x="657" y="202" text-anchor="middle" class="ts">tied to every file</text>
+      </svg>
+    </div>
+    <p class="cap">If one file in a plugin changes, the robot asks you again.</p>
+  </section>
+
+  <!-- The check: pick an answer, check it, then change one assumption. -->
+  <section class="step" aria-labelledby="s9" id="check">
+    <h2 id="s9"><span class="n">?</span>Predict first.</h2>
+    <div class="card quiz">
+      <p class="quiz-q">You ask one more question. What does the robot send to the model this time?</p>
+      <div class="choices" role="radiogroup" aria-label="Your prediction">
+        <button type="button" class="choice" role="radio" aria-checked="false" data-guess="new"><span class="mark" aria-hidden="true"></span><span><span class="key">A</span>Only the new question</span></button>
+        <button type="button" class="choice" role="radio" aria-checked="false" data-guess="all"><span class="mark" aria-hidden="true"></span><span><span class="key">B</span>All the context again</span></button>
+      </div>
+      <div class="quiz-foot">
+        <button type="button" class="btn" id="reveal" disabled>Check my answer</button>
+        <span class="hint" id="hint">Pick an answer first.</span>
+      </div>
+      <p class="verdict" id="verdict" hidden aria-live="polite"></p>
+      <div class="pic scroll" id="check-card" hidden>
+        <svg viewBox="0 0 760 250" role="img" aria-label="The context window gets one more line, the robot sends all of it, and the bar shows the cost of the request">
+        <use href="#bot" x="30" y="50" width="100" height="90"/>
+        <text x="80" y="164" text-anchor="middle" class="tb">the robot</text>
+        <rect x="250" y="24" width="170" height="170" rx="12" class="s"/>
+        <line x1="272" y1="52" x2="398" y2="52" class="ln"/>
+        <line x1="272" y1="76" x2="380" y2="76" class="ln"/>
+        <line x1="272" y1="100" x2="398" y2="100" class="ln"/>
+        <line x1="272" y1="124" x2="360" y2="124" class="ln"/>
+        <line x1="272" y1="148" x2="388" y2="148" class="ln"/>
+        <line x1="272" y1="172" x2="372" y2="172" class="ln" style="stroke:var(--acc)"/>
+        <text x="335" y="216" text-anchor="middle" class="ts">the whole context, plus your new question</text>
+        <path d="M140 96 L242 96" class="ar"/>
+        <text x="191" y="84" text-anchor="middle" class="ts">packs</text>
+        <rect x="586" y="44" width="136" height="104" rx="14" class="blk"/>
+        <text x="654" y="101" text-anchor="middle" class="tw">the model</text>
+        <path d="M426 96 L578 96" class="ar a"/>
+        <text x="502" y="84" text-anchor="middle" class="t">request</text>
+        <text x="470" y="186" class="ts">cost of this request</text>
+        <rect x="470" y="196" width="252" height="14" rx="7" class="lavf"/>
+        <rect id="costbar" x="470" y="196" width="0" height="14" rx="7" class="och"/>
+      </svg>
+      </div>
+      <div class="assume" id="assume" hidden>
+        <p class="quiz-q small">Change one thing. The provider can keep the start of your last request for a few minutes. This copy is the cache.</p>
+        <div class="toggle" role="group" aria-label="Cache">
+          <button type="button" id="cache-off" aria-pressed="true">Cache off</button>
+          <button type="button" id="cache-on" aria-pressed="false">Cache on</button>
+        </div>
+        <p class="verdict" id="assume-note">Without the cache, the robot pays for the whole context again.</p>
+      </div>
+    </div>
+  </section>
+
+  </div>
+
+  <section class="step" style="margin-top:90px" aria-labelledby="g">
+    <h2 id="g">Words on this page</h2>
+    <div class="card"><dl class="gloss">
+      <div><dt><i></i>the robot (daemon)</dt><dd>A program that runs in the background on your Mac, with no window. CCFT calls it ccftd.</dd></div>
+      <div><dt><i></i>model</dt><dd>The AI itself, for example Claude. It reads text, writes text and remembers nothing between requests.</dd></div>
+      <div><dt><i></i>provider</dt><dd>The company that runs a model on its computers, for example Anthropic.</dd></div>
+      <div><dt><i style="background:var(--acc)"></i>request</dt><dd>One message from the robot to a provider. It asks the model for one response.</dd></div>
+      <div><dt><i style="background:var(--och)"></i>response</dt><dd>What comes back for one request. It arrives in small pieces.</dd></div>
+      <div><dt><i></i>context</dt><dd>Everything that the model reads in one request: the rules, your ask, the chat so far.</dd></div>
+      <div><dt><i></i>the log</dt><dd>One encrypted file where the robot writes every step. Nothing in it is ever changed or erased.</dd></div>
+      <div><dt><i></i>agent</dt><dd>One worker: a model with one job, its own conversation, and the tools that it can use.</dd></div>
+      <div><dt><i></i>sandbox</dt><dd>A locked box around a tool. The tool can only write inside its own folder.</dd></div>
+      <div><dt><i></i>cache</dt><dd>A copy of the start of your last request. Reading it again costs less.</dd></div>
+    </dl></div>
+  </section>
+
+  <p class="foot">Template for the /explain skill. Design from "How does CCFT work?" version 1 (1 Oct 2026). The example topic is CCFT, a small program that runs a team of AI models.</p>
+</div>
+</main>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SHAPES = 'path,rect,circle,ellipse,line,polyline,polygon';
+  const EASE = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // smooth in and out
+  const wait = ms => new Promise(r => setTimeout(r, reduce ? 0 : ms));
+  function tween(from, to, ms, frame) {
+    if (reduce) { frame(to); return Promise.resolve(); }
+    return new Promise(done => { const t0 = performance.now();
+      const tick = now => { const k = Math.min(1, (now - t0) / ms); frame(from.map((f, i) => f + (to[i] - f) * EASE(k))); k < 1 ? requestAnimationFrame(tick) : done(); };
+      requestAnimationFrame(tick); });
+  }
+
+  // 1. Stroked shapes draw on (pathLength 1). Dashed shapes cannot, so they fade in.
+  function prep(root) {
+    root.querySelectorAll(SHAPES).forEach(el => {
+      if (el.closest('marker')) return;
+      const cs = getComputedStyle(el);
+      if (cs.strokeDasharray !== 'none' && !el.classList.contains('dr')) { el.classList.add('fd'); return; }
+      if (cs.stroke !== 'none') { el.setAttribute('pathLength', '1'); el.classList.add('dr'); }
+    });
+  }
+  prep(document.getElementById('sym'));
+  const pics = [...document.querySelectorAll('.card svg')];
+  pics.forEach(svg => {
+    prep(svg);
+    if (reduce) return;
+    [...svg.children].filter(el => !['title', 'defs', 'desc'].includes(el.tagName)).forEach(el => el.classList.add('item', 'pre'));
+  });
+
+  // 2. Build a picture once, item by item, in document order (outline, then fill, then text, then the arrow head).
+  const STAGGER = 45, built = new WeakSet();  // a whole picture lands in about 1.7 to 2 s
+  function build(svg) {
+    if (built.has(svg) || reduce) return Promise.resolve();
+    built.add(svg);
+    const items = [...svg.querySelectorAll(':scope > .item')];
+    items.forEach((el, i) => {
+      const delay = i * STAGGER;
+      el.style.setProperty('--delay', delay + 'ms');
+      const arrows = el.matches('.ar') ? [el] : [...el.querySelectorAll('.ar')];
+      arrows.forEach(a => { a.classList.add('hl'); setTimeout(() => a.classList.remove('hl'), delay + 800); });
+      el.classList.remove('pre');
+    });
+    return wait(items.length * STAGGER + 1200);
+  }
+
+  // 3. Flow: an indigo dot with a short tail carries the request along each accent arrow. On a two-way arrow,
+  //    an ochre dot brings the response back. Dots fade in and out at the ends of the arrow, and the flow
+  //    crossfades from one card to the next, so only one live thing moves at a time.
+  const ns = 'http://www.w3.org/2000/svg', TAIL = [1, 0.45, 0.25, 0.12], flows = new Map();
+  function flowFor(svg) {
+    if (flows.has(svg)) return flows.get(svg);
+    const dots = fill => TAIL.map((_, j) => { const c = document.createElementNS(ns, 'circle');
+      c.setAttribute('r', String(5.5 - j)); c.setAttribute('class', 'flow'); c.style.fill = fill; c.style.opacity = 0; svg.appendChild(c); return c; });
+    const list = [...svg.querySelectorAll('.ar.a')].map(p => ({ p, len: p.getTotalLength(), out: dots('var(--acc)'), back: p.classList.contains('two') ? dots('var(--och)') : null }));
+    const f = { list, amp: 0 }; flows.set(svg, f); return f;
+  }
+  function trail(p, len, dots, u, dir, amp) {
+    dots.forEach((c, j) => {
+      const v = u - dir * j * 0.035;
+      if (v <= 0 || v >= 1 || amp < 0.01) { c.style.opacity = 0; return; }
+      const pt = p.getPointAtLength(len * EASE(v));
+      c.setAttribute('cx', pt.x.toFixed(2)); c.setAttribute('cy', pt.y.toFixed(2));
+      const edge = Math.min(1, v / 0.22, (1 - v) / 0.22);  // fade in and out over the first and last fifth
+      c.style.opacity = (amp * edge * edge * (3 - 2 * edge) * TAIL[j]).toFixed(3);
+    });
+  }
+  let live = null, raf = 0;
+  const t0 = performance.now();
+  function loop() {
+    const T = 3400, k = ((performance.now() - t0) % T) / T;
+    if (live && ready.has(live)) flowFor(live);
+    let moving = false;
+    flows.forEach((f, svg) => {
+      f.amp += ((svg === live ? 1 : 0) - f.amp) * 0.08;
+      if (f.amp < 0.01 && svg !== live) { if (f.amp > 0) { f.amp = 0; f.list.forEach(x => { trail(x.p, x.len, x.out, 0, 1, 0); if (x.back) trail(x.p, x.len, x.back, 0, -1, 0); }); } return; }
+      moving = true;
+      f.list.forEach(({ p, len, out, back }) => {
+        if (!back) { trail(p, len, out, k / 0.9, 1, f.amp); return; }  // one way: the dot uses the whole cycle
+        trail(p, len, out, k / 0.46, 1, f.amp);                       // request out, then response back
+        trail(p, len, back, 1 - (k - 0.5) / 0.46, -1, f.amp);
+      });
+    });
+    raf = moving || live ? requestAnimationFrame(loop) : 0;
+  }
+  function setLive(svg) {
+    if (svg === live) return;
+    live = svg;
+    if (!raf && !reduce) raf = requestAnimationFrame(loop);
+  }
+  const runFlow = () => { if (!raf && !reduce) raf = requestAnimationFrame(loop); };
+
+  // 4. Scripts: one-off 3Blue1Brown moments after a picture builds.
+  const box = svg => svg.getAttribute('viewBox').split(' ').map(Number);
+  const camera = (svg, to, ms = 1000) => tween(box(svg), to, ms, v => svg.setAttribute('viewBox', v.join(' ')));
+  const SCRIPTS = {
+    // The context window is packed again: zoom in, the lines leave, new lines draw in, zoom out.
+    async rebuild(svg) {
+      const start = box(svg), lines = [...svg.querySelectorAll('.ctx line')];
+      await camera(svg, [180, 30, 420, 154.7]);
+      await wait(150);
+      lines.forEach(l => { l.style.transition = 'stroke-dashoffset .6s cubic-bezier(.65,0,.35,1)'; l.style.strokeDashoffset = 1.01; });
+      await wait(550);
+      for (const l of lines) { l.style.strokeDashoffset = 0; await wait(70); }
+      await wait(450);
+      await camera(svg, start);
+    },
+  };
+
+  // 5. Scroll: build each picture when it comes into view, then run its script, then its flow.
+  const ready = new WeakSet(), ratio = new Map();
+  function pickLive() {
+    let best = null, top = 0.45;
+    ratio.forEach((r, svg) => { if (r > top && !svg.closest('[hidden]')) { best = svg; top = r; } });
+    setLive(best);
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      ratio.set(e.target, e.intersectionRatio);
+    });
+    pickLive();
+  }, { threshold: [0, 0.3, 0.45, 0.6, 0.8, 1] });
+  pics.forEach(svg => io.observe(svg));
+  // Draw a picture when its top edge passes 62% of the screen height: late enough that the reader is
+  // looking at it, so it never finishes off screen. A picture in view at load waits a moment first.
+  const draw = new IntersectionObserver(entries => entries.forEach(e => {
+    if (!e.isIntersecting || built.has(e.target)) return;
+    const svg = e.target; draw.unobserve(svg);
+    wait(performance.now() < 1500 ? 500 : 0).then(() => build(svg)).then(async () => {
+      const s = SCRIPTS[svg.dataset.script]; if (s) await s(svg);
+      ready.add(svg);
+      runFlow();
+    });
+  }), { rootMargin: '0px 0px -38% 0px', threshold: 0 });
+  pics.forEach(svg => draw.observe(svg));
+  if (!reduce) {
+    const steps = [...document.querySelectorAll('.step')];
+    const enter = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.remove('enter'); enter.unobserve(e.target); } }), { threshold: 0.12 });
+    steps.forEach(st => { if (st.getBoundingClientRect().top > innerHeight) { st.classList.add('enter'); enter.observe(st); } });
+  }
+
+  // 6. Step 6 toggle (from v1).
+  const auto = document.getElementById('mode-auto'), hold = document.getElementById('mode-hold');
+  const ha = document.getElementById('hint-auto'), hh = document.getElementById('hint-hold');
+  function mode(isHold) {
+    auto.setAttribute('aria-pressed', String(!isHold)); hold.setAttribute('aria-pressed', String(isHold));
+    ha.style.opacity = isHold ? 0 : 1; hh.style.opacity = isHold ? 1 : 0;
+  }
+  if (auto && hold && ha && hh) { auto.addEventListener('click', () => mode(false)); hold.addEventListener('click', () => mode(true)); }
+
+  // 7. The check: pick an answer, check it, then change one assumption. The cost bar is a live value.
+  const ANSWER = 'all';
+  const VERDICT = 'The model remembers nothing, so the robot sends all of the context again.';
+  let guess = null, barW = 0;
+  const reveal = document.getElementById('reveal'), hint = document.getElementById('hint');
+  const verdict = document.getElementById('verdict'), card = document.getElementById('check-card');
+  const choices = [...document.querySelectorAll('.choice')];
+  const bar = document.getElementById('costbar'), full = 252;
+  const setBar = w => tween([barW], [Math.max(0, w)], 1100, ([v]) => { barW = Math.max(0, v); bar.setAttribute('width', barW); });
+  choices.forEach(b => b.addEventListener('click', () => {
+    if (b.classList.contains('done')) return;
+    guess = b.dataset.guess;
+    choices.forEach(x => x.setAttribute('aria-checked', String(x === b)));
+    reveal.disabled = false; hint.hidden = true;
+  }));
+  reveal.addEventListener('click', async () => {
+    const right = guess === ANSWER;
+    choices.forEach(x => {
+      x.classList.add('done'); x.disabled = true;
+      if (x.dataset.guess === ANSWER) x.classList.add('right');
+      else if (x.dataset.guess === guess) x.classList.add('wrong');
+    });
+    verdict.innerHTML = (right ? '<span class="badge ok">Correct</span>' : '<span class="badge no">Not quite</span>') + VERDICT;
+    verdict.hidden = false; reveal.hidden = true;
+    card.hidden = false;
+    const svg = card.querySelector('svg');
+    await build(svg); ready.add(svg); pickLive(); runFlow();
+    setBar(full);
+    document.getElementById('assume').hidden = false;
+  });
+  const off = document.getElementById('cache-off'), on = document.getElementById('cache-on'), note = document.getElementById('assume-note');
+  function cache(isOn) {
+    off.setAttribute('aria-pressed', String(!isOn)); on.setAttribute('aria-pressed', String(isOn));
+    setBar(isOn ? full * 0.25 : full);
+    note.textContent = isOn ? 'With the cache, reading the repeated start costs much less.' : 'Without the cache, the robot pays for the whole context again.';
+  }
+  off.addEventListener('click', () => cache(false)); on.addEventListener('click', () => cache(true));
+})();
+</script>
+</body>
+</html>

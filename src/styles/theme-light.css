@@ -730,3 +730,48 @@
   border-color: #cfc5bc;
   color: #4f4943;
 }
+
+/* ---- Tiny courts ---- */
+:root[data-theme='light'] .plays-intro {
+  color: #4f4943;
+}
+
+:root[data-theme='light'] .plays-stage {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 62%, rgba(255, 255, 255, 0.7), transparent 70%),
+    #efe8de;
+}
+
+:root[data-theme='light'] .plays-hud {
+  color: #4f4943;
+}
+
+:root[data-theme='light'] .plays-switch,
+:root[data-theme='light'] .plays-toggle {
+  border-color: #ddd4cd;
+  background: #ffffff;
+}
+
+:root[data-theme='light'] .plays-switch button,
+:root[data-theme='light'] .plays-toggle {
+  color: #67615b;
+}
+
+:root[data-theme='light'] .plays-switch button:hover,
+:root[data-theme='light'] .plays-toggle:hover {
+  color: #191512;
+}
+
+:root[data-theme='light'] .plays-toggle:hover {
+  border-color: #b9aea4;
+}
+
+:root[data-theme='light'] .plays-fallback {
+  color: #4f4943;
+}
+
+:root[data-theme='light'] .plays-switch button.on {
+  background: #191512;
+  color: #ffffff;
+  box-shadow: none;
+}

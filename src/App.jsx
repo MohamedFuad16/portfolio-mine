@@ -11,6 +11,7 @@ import { useGSAP } from '@gsap/react';
 import { signatureGlyphs, signatureViewBox, signatureFontSize } from './data/signature-path';
 import { DaijinMascot } from './components/DaijinMascot';
 import { SilkWave } from './components/SilkWave';
+import { TinyCourts } from './components/TinyCourts';
 import { pixelCover, pixelUncover, waitForCalm } from './components/pixelTransition';
 import Scritto from '@scritto/react';
 
@@ -297,6 +298,8 @@ const copy = {
     toolkitVideoSoon: 'Demo video coming soon',
     toolkitExampleSoon: 'Example lesson coming soon',
     toolkitFilesSoon: 'Skill files coming soon',
+    toolkitDownload: 'Download the skill',
+    toolkitDownloadLabel: (title, size) => `Download the ${title} skill, English version (ZIP, ${size})`,
     toolkitShot: 'Show example picture',
     filterLabel: 'Filter projects by technology',
     tenure: (months) => {
@@ -332,6 +335,31 @@ const copy = {
     thoughts: 'I write about the things I build and learn. Browse all of my posts on',
     thoughtsLink: 'my Qiita profile',
     thoughtsTail: '.',
+    playsTitle: 'Tiny courts.',
+    plays: {
+      intro: 'Small isometric scenes, rendered live in WebGL and dithered like pixel art. No images or video. Pick one and watch them play.',
+      noWebgl: 'This browser cannot show the courts, because WebGL is off.',
+      switchLabel: 'Sport',
+      sports: { diving: 'Diving', gaming: 'Gaming', tabletennis: 'Table tennis', basketball: 'Basketball' },
+      labels: {
+        diving: 'An isometric pixel-art diving pool where two divers flip off a platform and a springboard.',
+        gaming: 'An isometric pixel-art living room where someone on the couch plays a runner game on a PS5, with a cat asleep beside them.',
+        tabletennis: 'An isometric pixel-art park table where two players keep a fast rally going.',
+        basketball: 'An isometric pixel-art street court with dunks, alley-oops and a cheering crowd.',
+      },
+      rally: 'Rally',
+      shotClock: 'Shot clock',
+      dive: 'Dive',
+      score: 'Score',
+      level: 'Level',
+      points: 'Score',
+      flash: {
+        out: 'Out', net: 'Net', two: '+2', three: '+3', miss: 'Rebound', dunk: 'Dunk', alley: 'Alley-oop',
+        game: 'Game', score: 'Score', rip: 'Rip entry', clear: 'Level clear', ko: 'K.O.',
+      },
+      pause: 'Pause the animation',
+      play: 'Play the animation',
+    },
     connectTitle: "Let's Connect",
     connectText: 'Feel free to reach out through any of these platforms',
     resume: 'Resume',
@@ -429,6 +457,8 @@ const copy = {
     toolkitVideoSoon: 'デモ動画は近日公開',
     toolkitExampleSoon: 'レッスン例は近日公開',
     toolkitFilesSoon: 'スキルファイルは近日公開',
+    toolkitDownload: 'スキルをダウンロード',
+    toolkitDownloadLabel: (title, size) => `${title} スキルをダウンロード（日本語版、ZIP、${size}）`,
     toolkitShot: '例の画像を表示',
     filterLabel: '技術でプロジェクトを絞り込む',
     tenure: (months) => {
@@ -461,6 +491,31 @@ const copy = {
     thoughts: '開発や学びについて書いています。すべての記事は',
     thoughtsLink: 'Qiitaプロフィール',
     thoughtsTail: 'からご覧いただけます。',
+    playsTitle: '小さなコート。',
+    plays: {
+      intro: 'WebGLでリアルタイムに描き、ピクセルアートのようにディザをかけた小さなアイソメトリックの情景です。画像や動画は使っていません。競技を選んで試合を眺めてください。',
+      noWebgl: 'WebGLが無効なため、このブラウザではコートを表示できません。',
+      switchLabel: '競技',
+      sports: { diving: '飛び込み', gaming: 'ゲーム', tabletennis: '卓球', basketball: 'バスケ' },
+      labels: {
+        diving: '2人の選手が飛び込み台と飛板から回転して飛び込む、ピクセルアートのプール。',
+        gaming: 'ソファでPS5のランゲームを遊ぶ人と、隣で眠る猫がいる、ピクセルアートのリビング。',
+        tabletennis: '2人の選手が速いラリーを続ける、公園のピクセルアートの卓球台。',
+        basketball: 'ダンクやアリウープに観客が沸く、ピクセルアートのストリートコート。',
+      },
+      rally: 'ラリー',
+      shotClock: 'ショットクロック',
+      dive: 'ダイブ',
+      score: '得点',
+      level: 'レベル',
+      points: 'スコア',
+      flash: {
+        out: 'アウト', net: 'ネット', two: '+2', three: '+3', miss: 'リバウンド', dunk: 'ダンク', alley: 'アリウープ',
+        game: 'ゲーム', score: '得点', rip: 'ノースプラッシュ', clear: 'ステージクリア', ko: 'K.O.',
+      },
+      pause: 'アニメーションを一時停止',
+      play: 'アニメーションを再生',
+    },
     connectTitle: 'お問い合わせ',
     connectText: '以下のリンクからお気軽にご連絡ください',
     resume: '履歴書',
@@ -566,7 +621,11 @@ const toolkit = [
       { en: 'Pictures that draw themselves, in the 3Blue1Brown style', ja: '3Blue1Brown風に自分で描かれていく図' },
       { en: 'Ends with a check: predict the result, then change one assumption', ja: '結果を予想し、前提を1つ変えて確かめる問いで終わる' },
     ],
-    files: false,
+    // Built by scripts/make-explain-skill.py from scripts/explain-skill/.
+    files: {
+      en: { href: '/media/skills/explain-skill-en.zip', size: '28 KB' },
+      ja: { href: '/media/skills/explain-skill-ja.zip', size: '37 KB' },
+    },
     tech: ['Claude Code', 'Markdown', 'ASD-STE100'],
   },
 ];
@@ -2017,6 +2076,19 @@ function ToolkitCard({ item, t, locale }) {
               <FileDown size={13} />
               {t.toolkitFilesSoon}
             </span>
+          )}
+          {item.files && (
+            // The visitor's language picks the package: English or Japanese.
+            <div className="project-actions">
+              <a
+                href={pick(item.files).href}
+                download
+                aria-label={t.toolkitDownloadLabel(item.title, pick(item.files).size)}
+              >
+                <FileDown size={14} />
+                {t.toolkitDownload}
+              </a>
+            </div>
           )}
         </div>
         <p>{pick(item.description)}</p>
@@ -4103,7 +4175,7 @@ export default function App() {
 
         // Generic blocks fade up when scrolled into view.
         gsap.utils
-          .toArray(['.contribution', '.more-projects-row', '.blog-content', '.contact-card'])
+          .toArray(['.contribution', '.more-projects-row', '.blog-content', '.plays', '.contact-card'])
           .forEach((el) => {
             gsap.from(el, {
               scrollTrigger: { trigger: el, start: 'top 90%' },
@@ -4318,6 +4390,7 @@ export default function App() {
       ['projects', t.projects, '#projects', Rocket],
       ['toolkit', t.toolkitTitle, '#toolkit', Sparkles],
       ['writing', t.thoughtsTitle, '.blog-content', Terminal],
+      ['courts', t.playsTitle, '#plays', Target],
       ['contact', t.connectTitle, '#contact', Mail],
     ].map(([id, label, selector, icon]) => ({
       id: `go-${id}`,
@@ -4695,6 +4768,11 @@ export default function App() {
           </a>
           {t.thoughtsTail}
         </p>
+      </section>
+
+      <SectionTitle>{t.playsTitle}</SectionTitle>
+      <section className="dashed plays" id="plays">
+        <TinyCourts copy={t.plays} reducedMotion={reducedMotion} />
       </section>
 
       <section className="dashed contact-card" id="contact">

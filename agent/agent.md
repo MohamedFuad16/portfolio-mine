@@ -12,6 +12,7 @@ If the task concerns... → read
   secrets / env keys                → agent/secrets.md
   why something was decided         → agent/decisions.md
   what changed / current state      → agent/state.md
+  older entries, ADRs, errors, perf → agent/archive/
   impact of a change                → agent/graph/graph.md
 
 After changes, update agent/state.md and append an ADR to agent/decisions.md.

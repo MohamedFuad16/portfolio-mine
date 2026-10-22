@@ -1,0 +1,3 @@
+# keep: synonyms
+request: call
+daemon: demon, background service

@@ -4176,3 +4176,151 @@ small.red {
     padding: 16px;
   }
 }
+
+/* ---- Tiny courts ---- */
+.plays {
+  margin-bottom: 28px;
+  padding: 18px;
+}
+
+.plays-intro {
+  margin: 0 0 14px;
+  color: #aea9a4;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* The canvas is sized in whole device pixels by TinyCourts, so it sits
+   centred in the stage rather than stretched to it. */
+.plays-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1.6;
+  overflow: hidden;
+  border-radius: 6px;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 62%, rgba(255, 214, 160, 0.08), transparent 70%),
+    #141210;
+}
+
+.plays-canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.plays-hud {
+  position: absolute;
+  top: 11px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #cfc8c1;
+  font: 600 10.5px/1 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.plays-hud-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+.plays-hud-score b {
+  font-weight: 700;
+}
+
+/* Square team swatches, to match the pixel art. */
+.plays-hud-score i {
+  width: 7px;
+  height: 7px;
+  background: var(--team);
+}
+
+.plays-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.plays-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid #423d38;
+  border-radius: 999px;
+  background: #1c1915;
+}
+
+.plays-switch button {
+  min-height: 26px;
+  border: 0;
+  border-radius: 999px;
+  padding: 4px 12px;
+  background: transparent;
+  color: #a6a09a;
+  font: 700 12px/1 'Figtree Variable', 'Figtree Fallback', sans-serif;
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.plays-switch button:hover {
+  color: #ece8e4;
+}
+
+.plays-switch button.on {
+  background: #332f2b;
+  color: #ffffff;
+  box-shadow: rgba(255, 255, 255, 0.08) 0 1px 0 inset, rgba(0, 0, 0, 0.4) 0 2px 6px;
+}
+
+.plays-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #423d38;
+  border-radius: 999px;
+  background: #1c1915;
+  color: #d9d3cd;
+  cursor: pointer;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+
+.plays-toggle:hover {
+  border-color: #5f5954;
+  color: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .plays {
+    padding: 12px;
+  }
+
+  .plays-stage {
+    aspect-ratio: 1.45;
+  }
+
+  .plays-switch button {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+}
+
+.plays-fallback {
+  position: absolute;
+  inset: auto 16px 16px;
+  margin: 0;
+  color: #aea9a4;
+  font-size: 13px;
+  text-align: center;
+}

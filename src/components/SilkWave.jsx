@@ -48,6 +48,9 @@ export function SilkWave({ className = '', reducedMotion = false }) {
     };
 
     const draw = (now) => {
+      // A zero-width canvas (hidden tab, mid-layout) makes x / width NaN, and
+      // the palette lookup then throws on every frame.
+      if (!width || !height) return;
       const time = (now - start) / 1000;
       context.clearRect(0, 0, width, height);
       const step = 2;
