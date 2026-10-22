@@ -60,8 +60,11 @@ export function TinyCourts({ copy, reducedMotion = false }) {
     let hudText = '';
     let scoreText = '';
 
+    // Format by the sim's own sport, not the selected one: after a switch the
+    // old scene keeps running until the new one is built, and reading the new
+    // sport's fields off the old sim threw inside the frame loop and froze it.
     const onHud = (sim) => {
-      const [nextHud, nextScore] = hudLine(SPORTS[sportRef.current], sim, copyRef.current);
+      const [nextHud, nextScore] = hudLine(sim.sport, sim, copyRef.current);
       if (nextHud !== hudText && hudRef.current) hudRef.current.textContent = hudText = nextHud;
       if (nextScore !== scoreText && scoreRef.current) scoreRef.current.textContent = scoreText = nextScore;
     };
