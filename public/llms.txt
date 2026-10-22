@@ -20,3 +20,8 @@
 - CCFT: a leader model plans work as a task graph, and a scheduler runs parallel worker agents through it, with a native macOS app on top. Details: https://www.mohamedfuad.com/projects/ccft
 - [Tutor-System](https://github.com/MohamedFuad16/Tutor-System): a study workspace where you ask a PDF questions by typing or talking; every answer cites its page. Live at https://tutorsystem.mohamedfuad.com/ Details: https://www.mohamedfuad.com/projects/tutor-system
 - [TokaiHub](https://github.com/MohamedFuad16/TokaiHub): a bilingual Tokai University student portal on Cognito, Lambda and DynamoDB. Details: https://www.mohamedfuad.com/projects/tokaihub
+
+## Interactive
+
+- [Sticker pack](https://www.mohamedfuad.com/labs/sticker-pack/): an interactive sticker pack built in code. Press and hold to tear it open, then peel and rearrange 33 stickers.
+- Tiny courts: small isometric sports scenes rendered live in WebGL and dithered like pixel art, on the portfolio home page.

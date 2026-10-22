@@ -12,6 +12,7 @@ import { signatureGlyphs, signatureViewBox, signatureFontSize } from './data/sig
 import { DaijinMascot } from './components/DaijinMascot';
 import { SilkWave } from './components/SilkWave';
 import { TinyCourts } from './components/TinyCourts';
+import { StickerPack } from './components/StickerPack';
 import { pixelCover, pixelUncover, waitForCalm } from './components/pixelTransition';
 import Scritto from '@scritto/react';
 
@@ -187,7 +188,7 @@ const experience = [
     end: null,
     dateJa: '2023年6月 - 現在',
     icon: Languages,
-    logo: '/media/logos/altius-link.png',
+    logo: '/media/logos/altius-link.webp',
     url: 'https://www.altius-link.com/eng/',
     tone: 'green',
     details: [
@@ -212,7 +213,7 @@ const experience = [
     end: '2023-07',
     dateJa: '2023年4月 - 2023年7月',
     icon: BriefcaseBusiness,
-    logo: '/media/logos/hotel-sui-akasaka.ico',
+    logo: '/media/logos/hotel-sui-akasaka.webp',
     url: 'https://hotelsui-akasaka.com/',
     tone: 'red',
     details: [
@@ -299,7 +300,7 @@ const copy = {
     toolkitExampleSoon: 'Example lesson coming soon',
     toolkitFilesSoon: 'Skill files coming soon',
     toolkitDownload: 'Download the skill',
-    toolkitDownloadLabel: (title, size) => `Download the ${title} skill, English version (ZIP, ${size})`,
+    toolkitDownloadLabel: (title, size) => `Download the skill: ${title}, English version (ZIP, ${size})`,
     toolkitShot: 'Show example picture',
     filterLabel: 'Filter projects by technology',
     tenure: (months) => {
@@ -323,7 +324,6 @@ const copy = {
       move: 'move',
       open: 'open',
       close: 'close',
-      button: 'Open command menu',
       search: 'Search',
       clear: 'Clear search',
       suggestions: ['AI', 'Swift', 'React', 'résumé'],
@@ -335,6 +335,13 @@ const copy = {
     thoughts: 'I write about the things I build and learn. Browse all of my posts on',
     thoughtsLink: 'my Qiita profile',
     thoughtsTail: '.',
+    stickersTitle: 'Sticker pack.',
+    stickers: {
+      play: 'Tap to play',
+      open: 'Open full screen',
+      frameTitle: 'Interactive sticker pack',
+      posterAlt: 'A closed orange sticker pack labelled fuad, waiting to be opened.',
+    },
     playsTitle: 'Tiny courts.',
     plays: {
       intro: 'Small isometric scenes, rendered live in WebGL and dithered like pixel art. No images or video. Pick one and watch them play.',
@@ -414,6 +421,7 @@ const copy = {
       linkedinQr: 'LinkedIn QR code',
       preview: (title) => `${title} interface preview`,
       closeDialog: 'Close',
+      launchRocket: 'Launch the rocket',
     },
   },
   ja: {
@@ -458,7 +466,7 @@ const copy = {
     toolkitExampleSoon: 'レッスン例は近日公開',
     toolkitFilesSoon: 'スキルファイルは近日公開',
     toolkitDownload: 'スキルをダウンロード',
-    toolkitDownloadLabel: (title, size) => `${title} スキルをダウンロード（日本語版、ZIP、${size}）`,
+    toolkitDownloadLabel: (title, size) => `スキルをダウンロード：${title}（日本語版、ZIP、${size}）`,
     toolkitShot: '例の画像を表示',
     filterLabel: '技術でプロジェクトを絞り込む',
     tenure: (months) => {
@@ -479,7 +487,6 @@ const copy = {
       move: '移動',
       open: '開く',
       close: '閉じる',
-      button: 'コマンドメニューを開く',
       search: '検索',
       clear: '検索をクリア',
       suggestions: ['AI', 'Swift', 'React', '履歴書'],
@@ -491,6 +498,13 @@ const copy = {
     thoughts: '開発や学びについて書いています。すべての記事は',
     thoughtsLink: 'Qiitaプロフィール',
     thoughtsTail: 'からご覧いただけます。',
+    stickersTitle: 'ステッカーパック。',
+    stickers: {
+      play: 'タップして遊ぶ',
+      open: 'フルスクリーンで開く',
+      frameTitle: 'インタラクティブなステッカーパック',
+      posterAlt: 'fuadと書かれた、開封前のオレンジ色のステッカーパック。',
+    },
     playsTitle: '小さなコート。',
     plays: {
       intro: 'WebGLでリアルタイムに描き、ピクセルアートのようにディザをかけた小さなアイソメトリックの情景です。画像や動画は使っていません。競技を選んで試合を眺めてください。',
@@ -568,6 +582,7 @@ const copy = {
       linkedinQr: 'LinkedInのQRコード',
       preview: (title) => `${title}の画面プレビュー`,
       closeDialog: '閉じる',
+      launchRocket: 'ロケットを打ち上げる',
     },
   },
 };
@@ -1641,7 +1656,7 @@ function redirectLegacyHash() {
 // The tab title after client-side navigation. scripts/prerender.mjs writes the
 // same strings into each page's <title> and fails the build if HOME_TITLE no
 // longer matches index.html.
-export const HOME_TITLE = 'Mohamed Fuad | Full Stack Developer | AI Agents';
+export const HOME_TITLE = 'Mohamed Fuad | AI Engineer & Full-Stack Developer in Tokyo';
 export const projectTitle = (project) => `${project.title} | Mohamed Fuad`;
 
 function readLocale() {
@@ -4567,9 +4582,11 @@ export default function App({ initialPath = '/' }) {
   // hydration commit and run normally on the corrected re-render. A home-route
   // visit has no route change to trigger the pageview effect, so count it here.
   useEffect(() => {
+    // Also without a prerender to hydrate (the dev server), or a Japanese
+    // visitor's page stays hidden.
+    document.documentElement.removeAttribute('data-hold-prerender');
     if (!bootRef.current) return;
     bootRef.current = false;
-    document.documentElement.removeAttribute('data-hold-prerender');
     // A direct landing counts once, here: the route-change effect skips this
     // commit. An old hash link is counted by that effect after its redirect.
     if (import.meta.env.PROD && !hashRedirectedRef.current) {
@@ -4596,6 +4613,8 @@ export default function App({ initialPath = '/' }) {
           // touch on the avatar primes it ahead of the open animation.
           src={photoPrimed ? '/media/images/profile.jpg' : undefined}
           alt={t.a11y.enlargedPhoto}
+          width="1000"
+          height="750"
           onClick={(event) => event.stopPropagation()}
         />
       </div>
@@ -4642,7 +4661,7 @@ export default function App({ initialPath = '/' }) {
           type="button"
           className="command-trigger"
           onClick={() => window.dispatchEvent(new Event('command:open'))}
-          aria-label={t.command.button}
+          aria-haspopup="dialog"
           aria-keyshortcuts="Meta+K Control+K"
         >
           <Search size={13} aria-hidden="true" />
@@ -4695,7 +4714,7 @@ export default function App({ initialPath = '/' }) {
             {/* Split into letters in the markup itself, so the entrance can
                 run in CSS from the first (prerendered) paint. The label keeps
                 it one name for screen readers, as the split-text aria pattern does. */}
-            <span className="name-text" aria-label="Mohamed Fuad">
+            <span className="name-text" role="img" aria-label="Mohamed Fuad">
               {['Mohamed', 'Fuad'].map((word, w) => (
                 <React.Fragment key={word}>
                   {w > 0 && ' '}
@@ -4707,8 +4726,13 @@ export default function App({ initialPath = '/' }) {
                 </React.Fragment>
               ))}
             </span>
-            <button className={`name-action ${burst ? 'bursting' : ''}`} type="button" onClick={handleNameAction}>
-              <Rocket size={19} fill="currentColor" />
+            <button
+              className={`name-action ${burst ? 'bursting' : ''}`}
+              type="button"
+              onClick={handleNameAction}
+              aria-label={t.a11y.launchRocket}
+            >
+              <Rocket size={19} fill="currentColor" aria-hidden="true" />
               <i />
               <i />
               <i />
@@ -4757,11 +4781,11 @@ export default function App({ initialPath = '/' }) {
           {t.email}
         </a>
         <i />
-        <a className="square" href="https://github.com/MohamedFuad16" target="_blank" rel="noopener noreferrer">
+        <a className="square" href="https://github.com/MohamedFuad16" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
           <BrandIcon name="github" />
         </a>
-        <a className="square" href={resumeHref} target="_blank" rel="noopener noreferrer">
-          <FileDown size={16} />
+        <a className="square" href={resumeHref} target="_blank" rel="noopener noreferrer" aria-label={t.resume}>
+          <FileDown size={16} aria-hidden="true" />
         </a>
       </nav>
 
@@ -4841,6 +4865,11 @@ export default function App({ initialPath = '/' }) {
       <SectionTitle>{t.playsTitle}</SectionTitle>
       <section className="dashed plays" id="plays">
         <TinyCourts copy={t.plays} reducedMotion={reducedMotion} />
+      </section>
+
+      <SectionTitle>{t.stickersTitle}</SectionTitle>
+      <section className="dashed stickers" id="stickers">
+        <StickerPack copy={t.stickers} />
       </section>
 
       <section className="dashed contact-card" id="contact">

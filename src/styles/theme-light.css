@@ -647,7 +647,8 @@
 
 :root[data-theme='light'] .university-grad {
   background: rgba(184, 67, 12, 0.1);
-  color: #b8430c;
+  /* #b8430c was 4.2:1 on this tint; this is 5.4:1. */
+  color: #9c3808;
 }
 
 /* ---- Project detail, redesigned ---- */
