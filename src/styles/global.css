@@ -1619,6 +1619,11 @@ small.red {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Prerendered /projects/<slug> pages: show the overlay before any JS runs. */
+html[data-prerender-route='project'] .project-detail {
+  opacity: 1;
+}
+
 .project.is-expand-origin {
   opacity: 0 !important;
   pointer-events: none;

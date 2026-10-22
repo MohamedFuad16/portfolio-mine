@@ -1,4 +1,7 @@
 {
+  "rewrites": [
+    { "source": "/projects/:slug", "destination": "/projects/:slug.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

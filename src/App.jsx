@@ -630,7 +630,7 @@ const toolkit = [
   },
 ];
 
-const projects = [
+export const projects = [
   {
     title: 'Video Bridge',
     slug: 'videobridge',
@@ -1619,6 +1619,30 @@ const IS_SERVER = typeof window === 'undefined';
 const PRERENDERED = !IS_SERVER && Boolean(document.getElementById('root')?.firstElementChild);
 let hydratingPrerender = PRERENDERED;
 const fromBrowser = (read, fallback) => (IS_SERVER || hydratingPrerender ? fallback : read());
+
+// Each project detail page lives at /projects/<slug> (no trailing slash) and has
+// its own prerendered HTML (scripts/prerender.mjs). `route` is that path.
+const projectPath = (slug) => `/projects/${slug}`;
+const projectAtPath = (path) => projects.find((p) => path === projectPath(p.slug)) || null;
+// Both the prerendered HTML and the dev server render the page for the path in
+// the address bar, so this is also what hydration must match.
+const readRoutePath = () => window.location.pathname.replace(/(.)\/+$/, '$1') || '/';
+// Old links used the hash (#/project/<slug>). Rewrite the URL to the project's
+// path and return it; an unknown slug only loses its hash. Null when there is
+// no old hash.
+function redirectLegacyHash() {
+  const legacy = window.location.hash.match(/^#\/project\/([^/?#]+)/);
+  if (!legacy) return null;
+  const target = projects.find((p) => p.slug === legacy[1]);
+  const path = target ? projectPath(target.slug) : readRoutePath();
+  window.history.replaceState(null, '', path + window.location.search);
+  return path;
+}
+// The tab title after client-side navigation. scripts/prerender.mjs writes the
+// same strings into each page's <title> and fails the build if HOME_TITLE no
+// longer matches index.html.
+export const HOME_TITLE = 'Mohamed Fuad | Full Stack Developer | AI Agents';
+export const projectTitle = (project) => `${project.title} | Mohamed Fuad`;
 
 function readLocale() {
   try {
@@ -2878,7 +2902,7 @@ function ProjectCard({ project, t, locale, onOpen }) {
             )}
             {/* Always visible: the hover hint on the preview went unseen by most visitors. */}
             <a
-              href={`#/project/${project.slug}`}
+              href={projectPath(project.slug)}
               onClick={(event) => {
                 event.preventDefault();
                 open(event);
@@ -3113,11 +3137,14 @@ function FlowArrow({ from, to, label, variant = 'down', geo }) {
 
 /** Live flag for the compact (phone) flow-chart tuning. */
 function useCompactFlow() {
-  const [compact, setCompact] = useState(
-    () => window.matchMedia('(max-width: 640px)').matches
+  // The detail view is server-rendered now, so the first render (server and
+  // hydration) uses the wide layout and the effect corrects it.
+  const [compact, setCompact] = useState(() =>
+    fromBrowser(() => window.matchMedia('(max-width: 640px)').matches, false)
   );
   useEffect(() => {
     const query = window.matchMedia('(max-width: 640px)');
+    setCompact(query.matches);
     const onChange = (event) => setCompact(event.matches);
     query.addEventListener('change', onChange);
     return () => query.removeEventListener('change', onChange);
@@ -3641,14 +3668,25 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup,
   );
 }
 
-export default function App() {
+export default function App({ initialPath = '/' }) {
   const [locale, setLocale] = useState(() => fromBrowser(readLocale, 'en'));
   const [burst, setBurst] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const [photoPrimed, setPhotoPrimed] = useState(false);
-  const [route, setRoute] = useState(() => fromBrowser(() => window.location.hash, ''));
-  const [shownProject, setShownProject] = useState(null);
+  // The route this page was rendered for: the server's `initialPath`, or the
+  // address bar (the prerendered HTML at /projects/x was rendered for x).
+  const [initialRoute] = useState(() => (IS_SERVER ? initialPath : readRoutePath()));
+  const [route, setRoute] = useState(initialRoute);
+  // Start with the overlay open when the page loads straight onto a project, so
+  // the server HTML contains the detail view.
+  const [shownProject, setShownProject] = useState(() => projectAtPath(initialRoute));
+  // True until the entrance has run once for a direct landing: that case shows
+  // the overlay at once, with no animation.
+  const landedOnDetailRef = useRef(Boolean(projectAtPath(initialRoute)));
+  // Set when an old #/project/<slug> link was rewritten to its path, so the
+  // route-change pageview counts it and the boot effect does not count home.
+  const hashRedirectedRef = useRef(false);
   const [daijinWave, setDaijinWave] = useState(0);
   const [theme, setTheme] = useState(() => fromBrowser(readTheme, 'dark'));
   const [themeChosen, setThemeChosen] = useState(() => fromBrowser(readThemeChosen, false));
@@ -3666,10 +3704,18 @@ export default function App() {
     setIsApple(/Mac|iPhone|iPad/.test(navigator.platform));
   }, []);
   React.useLayoutEffect(() => {
+    // The browser loads the home HTML for an old hash link, so rewrite the URL
+    // and open the detail after hydration. Runs without a prerender too (the
+    // dev server).
+    const redirected = redirectLegacyHash();
+    if (redirected && redirected !== initialRoute) {
+      hashRedirectedRef.current = true;
+      setRoute(redirected);
+    }
     if (!bootRef.current) return;
     hydratingPrerender = false;
     setLocale(readLocale());
-    setRoute(window.location.hash);
+    if (!redirected) setRoute(readRoutePath());
     setTheme(readTheme());
     setThemeChosen(readThemeChosen());
   }, []);
@@ -3684,14 +3730,14 @@ export default function App() {
   const detailRef = useRef(null);
   const detailOriginCardRef = useRef(null);
   const detailOriginMarkupRef = useRef('');
-  // True only when this app pushed the #/project/... entry, so closing knows
+  // True only when this app pushed the /projects/<slug> entry, so closing knows
   // whether stepping back stays on the site.
   const pushedDetailRef = useRef(false);
   // The control that opened the overlay, so focus can go back to it on close.
   const detailReturnFocusRef = useRef(null);
 
   const t = copy[locale];
-  const activeProject = projects.find((p) => route === `#/project/${p.slug}`) || null;
+  const activeProject = projectAtPath(route);
   const openProject = (slug, trigger, { direct = false } = {}) => {
     // The pixel transition covers the page, the detail view mounts under it,
     // then the cells clear. It replaces the mobile card-clone expand, so the
@@ -3735,11 +3781,13 @@ export default function App() {
       detailOriginMarkupRef.current = '';
       detailOriginCardRef.current = null;
     }
-    // Assigning the hash pushes a history entry, so closing may step back.
+    // pushState adds a history entry, so closing may step back. It fires no
+    // popstate, so drive the route directly.
     pushedDetailRef.current = true;
-    window.location.hash = `#/project/${slug}`;
+    window.history.pushState(null, '', projectPath(slug) + window.location.search);
+    setRoute(projectPath(slug));
   };
-  // The hash change re-renders asynchronously, and GSAP ScrollSmoother's
+  // The route change re-renders asynchronously, and GSAP ScrollSmoother's
   // touch-flick momentum can still be settling the list between the tap and
   // that render — a gap a synthetic click never has, which is why this only
   // ever showed up on a real phone. Re-measuring the live card at the moment
@@ -3765,14 +3813,14 @@ export default function App() {
     return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
   };
   // `history.length > 1` only says the tab has history — not that the previous
-  // entry belongs to this site. Someone opening a shared #/project/... link in
+  // entry belongs to this site. Someone opening a shared /projects/<slug> link in
   // a tab they arrived in from LinkedIn was sent *back to LinkedIn* by the
   // "Back to projects" button. Only step back through an entry this app pushed
-  // itself; otherwise clear the hash, which lands on the project list either
-  // way (ADR-042).
+  // itself; otherwise replace the URL with the home path, which lands on the
+  // project list either way (ADR-042).
   const closeProject = ({ direct = false } = {}) => {
     if (!direct && !reducedMotion) {
-      const project = projects.find((item) => route === `#/project/${item.slug}`);
+      const project = projectAtPath(route);
       pixelCover({ x: 40, y: 40, palette: project?.palette || DEFAULT_PALETTE }).then(() => {
         closeProject({ direct: true });
         waitForCalm().then(pixelUncover);
@@ -3784,11 +3832,11 @@ export default function App() {
       window.history.back();
       return;
     }
-    // Deep-linked visit: strip the hash in place rather than pushing another
-    // entry that Back would only re-open. replaceState fires no hashchange,
-    // so drive the route directly.
-    window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    setRoute('');
+    // Deep-linked visit: go home in place rather than pushing another entry
+    // that Back would only re-open. replaceState fires no popstate, so drive
+    // the route directly.
+    window.history.replaceState(null, '', '/' + window.location.search);
+    setRoute('/');
   };
   // Japanese visitors get the Japanese-language CV; everyone else the English
   // one. This branch was disabled for a while because the JA file was a
@@ -3807,19 +3855,30 @@ export default function App() {
 
   useEffect(() => {
     if (!import.meta.env.PROD || bootRef.current) return;
-    const path = activeProject ? `/project/${activeProject.slug}` : '/';
+    const path = activeProject ? projectPath(activeProject.slug) : '/';
     pageview({ route: path, path });
   }, [route, activeProject]);
 
-  // Project detail routing: keep `route` in sync with the URL hash.
+  // Project detail routing: keep `route` in sync with the URL path on Back and
+  // Forward, and on an old #/project/<slug> hash typed or followed in place.
   useEffect(() => {
-    const onHash = () => setRoute(window.location.hash);
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
+    const onNavigate = () => setRoute(redirectLegacyHash() || readRoutePath());
+    window.addEventListener('popstate', onNavigate);
+    window.addEventListener('hashchange', onNavigate);
+    return () => {
+      window.removeEventListener('popstate', onNavigate);
+      window.removeEventListener('hashchange', onNavigate);
+    };
   }, []);
 
+  // The prerendered <title> is only right for the page that was loaded.
+  useEffect(() => {
+    if (bootRef.current) return;
+    document.title = activeProject ? projectTitle(activeProject) : HOME_TITLE;
+  }, [activeProject]);
+
   // Mount the detail view when navigating in; animate it out then unmount when
-  // navigating away (hash cleared or browser back).
+  // navigating away (home path restored or browser back).
   useEffect(() => {
     if (activeProject) {
       setShownProject(activeProject);
@@ -3890,10 +3949,15 @@ export default function App() {
       const el = detailRef.current;
       if (!shownProject || !el) return;
       el.scrollTop = 0;
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const landed = landedOnDetailRef.current;
+      landedOnDetailRef.current = false;
+      if (landed || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         gsap.set(el, { autoAlpha: 1, y: 0, inset: 0, width: 'auto', height: 'auto' });
         gsap.set(el.querySelector('.pd-expand-face'), { display: 'none' });
         gsap.set(el.querySelector('.project-detail-inner'), { autoAlpha: 1 });
+        // GSAP's inline opacity now owns the overlay, so the prerender's
+        // first-paint rule must not fight later closes.
+        document.documentElement.removeAttribute('data-prerender-route');
         return;
       }
       const origin = measureOrigin();
@@ -4506,8 +4570,12 @@ export default function App() {
     if (!bootRef.current) return;
     bootRef.current = false;
     document.documentElement.removeAttribute('data-hold-prerender');
-    if (import.meta.env.PROD && !window.location.hash.startsWith('#/project/')) {
-      pageview({ route: '/', path: '/' });
+    // A direct landing counts once, here: the route-change effect skips this
+    // commit. An old hash link is counted by that effect after its redirect.
+    if (import.meta.env.PROD && !hashRedirectedRef.current) {
+      const landed = projectAtPath(initialRoute);
+      const path = landed ? projectPath(landed.slug) : '/';
+      pageview({ route: path, path });
     }
   }, []);
 

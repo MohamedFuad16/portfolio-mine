@@ -4,7 +4,7 @@ The site is a Vite React portfolio deployed to Vercel. The current component and
 
 - `index.html` loads Google fonts and the React entry.
 - `src/main.jsx` initializes anonymous Vercel Web Analytics and mounts React through the error boundary.
-- `src/App.jsx` contains localized portfolio data, hash-routed project details, contribution loading, click audio, GSAP orchestration, semantic one-shot scene selection, and title/photo partner reactions for the desktop mascot. It reports sanitized `/` and `/project/<slug>` virtual page views.
+- `src/App.jsx` contains localized portfolio data, path-routed project details (`/projects/<slug>`, ADR-075), contribution loading, click audio, GSAP orchestration, semantic one-shot scene selection, and title/photo partner reactions for the desktop mascot. It reports sanitized `/` and `/projects/<slug>` virtual page views. `scripts/prerender.mjs` writes `dist/index.html` and `dist/projects/<slug>.html`, and `vercel.json` rewrites `/projects/:slug` to the `.html` file.
 - `src/components/DaijinMascot.jsx` owns demand-driven atlas decoding, clip-specific frame timelines, an imperative canvas clock, one-shot holding, and clip bridging independently of GSAP section selection.
 - `src/styles/global.css` implements the dark dashed-border system, responsive project-card rails, Daijin's desktop left rail/portrait touch position, and the full-viewport geometry for the mobile cloned-card transition.
 - `public/media/` separates audio, contribution data, images, logos, mascot atlases, and project artwork.
