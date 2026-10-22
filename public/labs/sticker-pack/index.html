@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sticker pack | Mohamed Fuad</title>
+  <meta name="description" content="An interactive sticker pack by Mohamed Fuad: press and hold to tear it open, then peel and rearrange 33 stickers.">
+  <link rel="canonical" href="https://www.mohamedfuad.com/labs/sticker-pack/">
+  <meta name="author" content="Mohamed Fuad">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mohamed Fuad">
+  <meta property="og:url" content="https://www.mohamedfuad.com/labs/sticker-pack/">
+  <meta property="og:title" content="Sticker pack | Mohamed Fuad">
+  <meta property="og:description" content="Press and hold to tear it open, then peel and rearrange 33 stickers.">
+  <meta property="og:image" content="https://www.mohamedfuad.com/media/images/sticker-pack-og.jpg">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="800">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main id="stage" aria-label="Interactive sticker pack">
+    <h1 class="visually-hidden">fuad sticker pack by Mohamed Fuad</h1>
+    <div id="board"></div>
+  </main>
+  <p class="fallback" role="alert">This sticker pack needs JavaScript and a modern browser. <a href="https://www.mohamedfuad.com/">Visit mohamedfuad.com</a></p>
+  <noscript><style>.fallback { display: grid; }</style></noscript>
+  <canvas id="fx"></canvas>
+  <script type="importmap">
+    { "imports": {
+      "three": "./vendor/three/build/three.module.min.js",
+      "three/addons/": "./vendor/three/examples/jsm/"
+    } }
+  </script>
+  <script type="module" src="./js/main.js"></script>
+  <script src="./js/fallback.js"></script>
+</body>
+</html>

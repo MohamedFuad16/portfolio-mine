@@ -1,0 +1,186 @@
+:root {
+  --bg: #e3dfd7;
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+body {
+  font-family: 'Inter Tight', 'Noto Sans JP', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* 1280 x 800 artboard, scaled to fit the window by main.js. */
+#board {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1280px;
+  height: 800px;
+  transform-origin: 0 0;
+}
+
+.sticker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.sticker.is-out { visibility: visible; }
+
+.sticker.is-flying { will-change: transform; }
+
+/* Laid out at full size before the burst so its GPU layer is rasterised sharp. */
+.sticker.is-pending { opacity: 0; }
+
+/* Reduced motion: stickers fade in place instead of flying. */
+.sticker.is-fading { animation: sticker-fade 0.5s ease both; }
+
+@keyframes sticker-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.fallback {
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  font: 500 15px/1.5 system-ui, sans-serif;
+  color: #11110f;
+}
+
+html[data-failed] .fallback { display: grid; }
+
+
+.sticker.is-lifted {
+  filter: drop-shadow(3px 10px 9px rgba(40, 30, 20, 0.22));
+}
+
+.sticker .face {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+}
+
+.sticker .face > svg,
+.sticker .face > canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.sticker svg text {
+  font-family: 'Inter Tight', 'Noto Sans JP', system-ui, sans-serif;
+}
+
+.pack {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 268px;
+  height: 409px;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  z-index: 100;
+  will-change: transform;
+  outline: none;
+}
+
+.pack:focus-visible .pack-inner {
+  outline: 3px solid #11110f;
+  outline-offset: 8px;
+  border-radius: 6px;
+}
+
+.pack-hint {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-top: 26px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgba(17, 17, 15, 0.68);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.pack-hint.is-on { opacity: 1; }
+
+.pack-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  /* Squash and stretch from the bottom edge, like it sits on the table. */
+  transform-origin: 50% 100%;
+}
+
+.pack-side {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.pack-back { transform: rotateY(180deg); }
+
+.pack-strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 268px;
+  height: 30px;
+  overflow: visible;
+  transform-origin: 266px 22px;
+  visibility: hidden;
+}
+
+#fx {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6000;
+}

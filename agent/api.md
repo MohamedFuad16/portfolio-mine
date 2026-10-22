@@ -9,7 +9,7 @@
 ## Vercel Web Analytics
 
 - `src/main.jsx` injects `@vercel/analytics` only in production with automatic history tracking disabled.
-- `src/App.jsx` manually reports sanitized `/` and `/project/<slug>` page views so hash-routed project details appear separately.
+- `src/App.jsx` manually reports sanitized `/` and `/projects/<slug>` page views (before ADR-075 the project path was `/project/<slug>`).
 - Enable it from the Vercel project dashboard; there is no analytics environment variable.
 - Reports are anonymous aggregates, not raw IP addresses or personal identities.
 

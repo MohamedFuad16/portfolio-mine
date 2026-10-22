@@ -12,6 +12,7 @@ import { signatureGlyphs, signatureViewBox, signatureFontSize } from './data/sig
 import { DaijinMascot } from './components/DaijinMascot';
 import { SilkWave } from './components/SilkWave';
 import { TinyCourts } from './components/TinyCourts';
+import { StickerPack } from './components/StickerPack';
 import { pixelCover, pixelUncover, waitForCalm } from './components/pixelTransition';
 import Scritto from '@scritto/react';
 
@@ -187,7 +188,7 @@ const experience = [
     end: null,
     dateJa: '2023年6月 - 現在',
     icon: Languages,
-    logo: '/media/logos/altius-link.png',
+    logo: '/media/logos/altius-link.webp',
     url: 'https://www.altius-link.com/eng/',
     tone: 'green',
     details: [
@@ -212,7 +213,7 @@ const experience = [
     end: '2023-07',
     dateJa: '2023年4月 - 2023年7月',
     icon: BriefcaseBusiness,
-    logo: '/media/logos/hotel-sui-akasaka.ico',
+    logo: '/media/logos/hotel-sui-akasaka.webp',
     url: 'https://hotelsui-akasaka.com/',
     tone: 'red',
     details: [
@@ -299,7 +300,7 @@ const copy = {
     toolkitExampleSoon: 'Example lesson coming soon',
     toolkitFilesSoon: 'Skill files coming soon',
     toolkitDownload: 'Download the skill',
-    toolkitDownloadLabel: (title, size) => `Download the ${title} skill, English version (ZIP, ${size})`,
+    toolkitDownloadLabel: (title, size) => `Download the skill: ${title}, English version (ZIP, ${size})`,
     toolkitShot: 'Show example picture',
     filterLabel: 'Filter projects by technology',
     tenure: (months) => {
@@ -323,7 +324,6 @@ const copy = {
       move: 'move',
       open: 'open',
       close: 'close',
-      button: 'Open command menu',
       search: 'Search',
       clear: 'Clear search',
       suggestions: ['AI', 'Swift', 'React', 'résumé'],
@@ -335,6 +335,13 @@ const copy = {
     thoughts: 'I write about the things I build and learn. Browse all of my posts on',
     thoughtsLink: 'my Qiita profile',
     thoughtsTail: '.',
+    stickersTitle: 'Sticker pack.',
+    stickers: {
+      play: 'Tap to play',
+      open: 'Open full screen',
+      frameTitle: 'Interactive sticker pack',
+      posterAlt: 'A closed orange sticker pack labelled fuad, waiting to be opened.',
+    },
     playsTitle: 'Tiny courts.',
     plays: {
       intro: 'Small isometric scenes, rendered live in WebGL and dithered like pixel art. No images or video. Pick one and watch them play.',
@@ -414,6 +421,7 @@ const copy = {
       linkedinQr: 'LinkedIn QR code',
       preview: (title) => `${title} interface preview`,
       closeDialog: 'Close',
+      launchRocket: 'Launch the rocket',
     },
   },
   ja: {
@@ -458,7 +466,7 @@ const copy = {
     toolkitExampleSoon: 'レッスン例は近日公開',
     toolkitFilesSoon: 'スキルファイルは近日公開',
     toolkitDownload: 'スキルをダウンロード',
-    toolkitDownloadLabel: (title, size) => `${title} スキルをダウンロード（日本語版、ZIP、${size}）`,
+    toolkitDownloadLabel: (title, size) => `スキルをダウンロード：${title}（日本語版、ZIP、${size}）`,
     toolkitShot: '例の画像を表示',
     filterLabel: '技術でプロジェクトを絞り込む',
     tenure: (months) => {
@@ -479,7 +487,6 @@ const copy = {
       move: '移動',
       open: '開く',
       close: '閉じる',
-      button: 'コマンドメニューを開く',
       search: '検索',
       clear: '検索をクリア',
       suggestions: ['AI', 'Swift', 'React', '履歴書'],
@@ -491,6 +498,13 @@ const copy = {
     thoughts: '開発や学びについて書いています。すべての記事は',
     thoughtsLink: 'Qiitaプロフィール',
     thoughtsTail: 'からご覧いただけます。',
+    stickersTitle: 'ステッカーパック。',
+    stickers: {
+      play: 'タップして遊ぶ',
+      open: 'フルスクリーンで開く',
+      frameTitle: 'インタラクティブなステッカーパック',
+      posterAlt: 'fuadと書かれた、開封前のオレンジ色のステッカーパック。',
+    },
     playsTitle: '小さなコート。',
     plays: {
       intro: 'WebGLでリアルタイムに描き、ピクセルアートのようにディザをかけた小さなアイソメトリックの情景です。画像や動画は使っていません。競技を選んで試合を眺めてください。',
@@ -568,6 +582,7 @@ const copy = {
       linkedinQr: 'LinkedInのQRコード',
       preview: (title) => `${title}の画面プレビュー`,
       closeDialog: '閉じる',
+      launchRocket: 'ロケットを打ち上げる',
     },
   },
 };
@@ -630,7 +645,7 @@ const toolkit = [
   },
 ];
 
-const projects = [
+export const projects = [
   {
     title: 'Video Bridge',
     slug: 'videobridge',
@@ -1619,6 +1634,30 @@ const IS_SERVER = typeof window === 'undefined';
 const PRERENDERED = !IS_SERVER && Boolean(document.getElementById('root')?.firstElementChild);
 let hydratingPrerender = PRERENDERED;
 const fromBrowser = (read, fallback) => (IS_SERVER || hydratingPrerender ? fallback : read());
+
+// Each project detail page lives at /projects/<slug> (no trailing slash) and has
+// its own prerendered HTML (scripts/prerender.mjs). `route` is that path.
+const projectPath = (slug) => `/projects/${slug}`;
+const projectAtPath = (path) => projects.find((p) => path === projectPath(p.slug)) || null;
+// Both the prerendered HTML and the dev server render the page for the path in
+// the address bar, so this is also what hydration must match.
+const readRoutePath = () => window.location.pathname.replace(/(.)\/+$/, '$1') || '/';
+// Old links used the hash (#/project/<slug>). Rewrite the URL to the project's
+// path and return it; an unknown slug only loses its hash. Null when there is
+// no old hash.
+function redirectLegacyHash() {
+  const legacy = window.location.hash.match(/^#\/project\/([^/?#]+)/);
+  if (!legacy) return null;
+  const target = projects.find((p) => p.slug === legacy[1]);
+  const path = target ? projectPath(target.slug) : readRoutePath();
+  window.history.replaceState(null, '', path + window.location.search);
+  return path;
+}
+// The tab title after client-side navigation. scripts/prerender.mjs writes the
+// same strings into each page's <title> and fails the build if HOME_TITLE no
+// longer matches index.html.
+export const HOME_TITLE = 'Mohamed Fuad | AI Engineer & Full-Stack Developer in Tokyo';
+export const projectTitle = (project) => `${project.title} | Mohamed Fuad`;
 
 function readLocale() {
   try {
@@ -2878,7 +2917,7 @@ function ProjectCard({ project, t, locale, onOpen }) {
             )}
             {/* Always visible: the hover hint on the preview went unseen by most visitors. */}
             <a
-              href={`#/project/${project.slug}`}
+              href={projectPath(project.slug)}
               onClick={(event) => {
                 event.preventDefault();
                 open(event);
@@ -3113,11 +3152,14 @@ function FlowArrow({ from, to, label, variant = 'down', geo }) {
 
 /** Live flag for the compact (phone) flow-chart tuning. */
 function useCompactFlow() {
-  const [compact, setCompact] = useState(
-    () => window.matchMedia('(max-width: 640px)').matches
+  // The detail view is server-rendered now, so the first render (server and
+  // hydration) uses the wide layout and the effect corrects it.
+  const [compact, setCompact] = useState(() =>
+    fromBrowser(() => window.matchMedia('(max-width: 640px)').matches, false)
   );
   useEffect(() => {
     const query = window.matchMedia('(max-width: 640px)');
+    setCompact(query.matches);
     const onChange = (event) => setCompact(event.matches);
     query.addEventListener('change', onChange);
     return () => query.removeEventListener('change', onChange);
@@ -3641,14 +3683,25 @@ function ProjectDetailView({ project, t, locale, onClose, viewRef, originMarkup,
   );
 }
 
-export default function App() {
+export default function App({ initialPath = '/' }) {
   const [locale, setLocale] = useState(() => fromBrowser(readLocale, 'en'));
   const [burst, setBurst] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const [photoPrimed, setPhotoPrimed] = useState(false);
-  const [route, setRoute] = useState(() => fromBrowser(() => window.location.hash, ''));
-  const [shownProject, setShownProject] = useState(null);
+  // The route this page was rendered for: the server's `initialPath`, or the
+  // address bar (the prerendered HTML at /projects/x was rendered for x).
+  const [initialRoute] = useState(() => (IS_SERVER ? initialPath : readRoutePath()));
+  const [route, setRoute] = useState(initialRoute);
+  // Start with the overlay open when the page loads straight onto a project, so
+  // the server HTML contains the detail view.
+  const [shownProject, setShownProject] = useState(() => projectAtPath(initialRoute));
+  // True until the entrance has run once for a direct landing: that case shows
+  // the overlay at once, with no animation.
+  const landedOnDetailRef = useRef(Boolean(projectAtPath(initialRoute)));
+  // Set when an old #/project/<slug> link was rewritten to its path, so the
+  // route-change pageview counts it and the boot effect does not count home.
+  const hashRedirectedRef = useRef(false);
   const [daijinWave, setDaijinWave] = useState(0);
   const [theme, setTheme] = useState(() => fromBrowser(readTheme, 'dark'));
   const [themeChosen, setThemeChosen] = useState(() => fromBrowser(readThemeChosen, false));
@@ -3666,10 +3719,18 @@ export default function App() {
     setIsApple(/Mac|iPhone|iPad/.test(navigator.platform));
   }, []);
   React.useLayoutEffect(() => {
+    // The browser loads the home HTML for an old hash link, so rewrite the URL
+    // and open the detail after hydration. Runs without a prerender too (the
+    // dev server).
+    const redirected = redirectLegacyHash();
+    if (redirected && redirected !== initialRoute) {
+      hashRedirectedRef.current = true;
+      setRoute(redirected);
+    }
     if (!bootRef.current) return;
     hydratingPrerender = false;
     setLocale(readLocale());
-    setRoute(window.location.hash);
+    if (!redirected) setRoute(readRoutePath());
     setTheme(readTheme());
     setThemeChosen(readThemeChosen());
   }, []);
@@ -3684,14 +3745,14 @@ export default function App() {
   const detailRef = useRef(null);
   const detailOriginCardRef = useRef(null);
   const detailOriginMarkupRef = useRef('');
-  // True only when this app pushed the #/project/... entry, so closing knows
+  // True only when this app pushed the /projects/<slug> entry, so closing knows
   // whether stepping back stays on the site.
   const pushedDetailRef = useRef(false);
   // The control that opened the overlay, so focus can go back to it on close.
   const detailReturnFocusRef = useRef(null);
 
   const t = copy[locale];
-  const activeProject = projects.find((p) => route === `#/project/${p.slug}`) || null;
+  const activeProject = projectAtPath(route);
   const openProject = (slug, trigger, { direct = false } = {}) => {
     // The pixel transition covers the page, the detail view mounts under it,
     // then the cells clear. It replaces the mobile card-clone expand, so the
@@ -3735,11 +3796,13 @@ export default function App() {
       detailOriginMarkupRef.current = '';
       detailOriginCardRef.current = null;
     }
-    // Assigning the hash pushes a history entry, so closing may step back.
+    // pushState adds a history entry, so closing may step back. It fires no
+    // popstate, so drive the route directly.
     pushedDetailRef.current = true;
-    window.location.hash = `#/project/${slug}`;
+    window.history.pushState(null, '', projectPath(slug) + window.location.search);
+    setRoute(projectPath(slug));
   };
-  // The hash change re-renders asynchronously, and GSAP ScrollSmoother's
+  // The route change re-renders asynchronously, and GSAP ScrollSmoother's
   // touch-flick momentum can still be settling the list between the tap and
   // that render — a gap a synthetic click never has, which is why this only
   // ever showed up on a real phone. Re-measuring the live card at the moment
@@ -3765,14 +3828,14 @@ export default function App() {
     return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
   };
   // `history.length > 1` only says the tab has history — not that the previous
-  // entry belongs to this site. Someone opening a shared #/project/... link in
+  // entry belongs to this site. Someone opening a shared /projects/<slug> link in
   // a tab they arrived in from LinkedIn was sent *back to LinkedIn* by the
   // "Back to projects" button. Only step back through an entry this app pushed
-  // itself; otherwise clear the hash, which lands on the project list either
-  // way (ADR-042).
+  // itself; otherwise replace the URL with the home path, which lands on the
+  // project list either way (ADR-042).
   const closeProject = ({ direct = false } = {}) => {
     if (!direct && !reducedMotion) {
-      const project = projects.find((item) => route === `#/project/${item.slug}`);
+      const project = projectAtPath(route);
       pixelCover({ x: 40, y: 40, palette: project?.palette || DEFAULT_PALETTE }).then(() => {
         closeProject({ direct: true });
         waitForCalm().then(pixelUncover);
@@ -3784,11 +3847,11 @@ export default function App() {
       window.history.back();
       return;
     }
-    // Deep-linked visit: strip the hash in place rather than pushing another
-    // entry that Back would only re-open. replaceState fires no hashchange,
-    // so drive the route directly.
-    window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    setRoute('');
+    // Deep-linked visit: go home in place rather than pushing another entry
+    // that Back would only re-open. replaceState fires no popstate, so drive
+    // the route directly.
+    window.history.replaceState(null, '', '/' + window.location.search);
+    setRoute('/');
   };
   // Japanese visitors get the Japanese-language CV; everyone else the English
   // one. This branch was disabled for a while because the JA file was a
@@ -3807,19 +3870,30 @@ export default function App() {
 
   useEffect(() => {
     if (!import.meta.env.PROD || bootRef.current) return;
-    const path = activeProject ? `/project/${activeProject.slug}` : '/';
+    const path = activeProject ? projectPath(activeProject.slug) : '/';
     pageview({ route: path, path });
   }, [route, activeProject]);
 
-  // Project detail routing: keep `route` in sync with the URL hash.
+  // Project detail routing: keep `route` in sync with the URL path on Back and
+  // Forward, and on an old #/project/<slug> hash typed or followed in place.
   useEffect(() => {
-    const onHash = () => setRoute(window.location.hash);
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
+    const onNavigate = () => setRoute(redirectLegacyHash() || readRoutePath());
+    window.addEventListener('popstate', onNavigate);
+    window.addEventListener('hashchange', onNavigate);
+    return () => {
+      window.removeEventListener('popstate', onNavigate);
+      window.removeEventListener('hashchange', onNavigate);
+    };
   }, []);
 
+  // The prerendered <title> is only right for the page that was loaded.
+  useEffect(() => {
+    if (bootRef.current) return;
+    document.title = activeProject ? projectTitle(activeProject) : HOME_TITLE;
+  }, [activeProject]);
+
   // Mount the detail view when navigating in; animate it out then unmount when
-  // navigating away (hash cleared or browser back).
+  // navigating away (home path restored or browser back).
   useEffect(() => {
     if (activeProject) {
       setShownProject(activeProject);
@@ -3890,10 +3964,15 @@ export default function App() {
       const el = detailRef.current;
       if (!shownProject || !el) return;
       el.scrollTop = 0;
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const landed = landedOnDetailRef.current;
+      landedOnDetailRef.current = false;
+      if (landed || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         gsap.set(el, { autoAlpha: 1, y: 0, inset: 0, width: 'auto', height: 'auto' });
         gsap.set(el.querySelector('.pd-expand-face'), { display: 'none' });
         gsap.set(el.querySelector('.project-detail-inner'), { autoAlpha: 1 });
+        // GSAP's inline opacity now owns the overlay, so the prerender's
+        // first-paint rule must not fight later closes.
+        document.documentElement.removeAttribute('data-prerender-route');
         return;
       }
       const origin = measureOrigin();
@@ -4503,11 +4582,17 @@ export default function App() {
   // hydration commit and run normally on the corrected re-render. A home-route
   // visit has no route change to trigger the pageview effect, so count it here.
   useEffect(() => {
+    // Also without a prerender to hydrate (the dev server), or a Japanese
+    // visitor's page stays hidden.
+    document.documentElement.removeAttribute('data-hold-prerender');
     if (!bootRef.current) return;
     bootRef.current = false;
-    document.documentElement.removeAttribute('data-hold-prerender');
-    if (import.meta.env.PROD && !window.location.hash.startsWith('#/project/')) {
-      pageview({ route: '/', path: '/' });
+    // A direct landing counts once, here: the route-change effect skips this
+    // commit. An old hash link is counted by that effect after its redirect.
+    if (import.meta.env.PROD && !hashRedirectedRef.current) {
+      const landed = projectAtPath(initialRoute);
+      const path = landed ? projectPath(landed.slug) : '/';
+      pageview({ route: path, path });
     }
   }, []);
 
@@ -4528,6 +4613,8 @@ export default function App() {
           // touch on the avatar primes it ahead of the open animation.
           src={photoPrimed ? '/media/images/profile.jpg' : undefined}
           alt={t.a11y.enlargedPhoto}
+          width="1000"
+          height="750"
           onClick={(event) => event.stopPropagation()}
         />
       </div>
@@ -4574,7 +4661,7 @@ export default function App() {
           type="button"
           className="command-trigger"
           onClick={() => window.dispatchEvent(new Event('command:open'))}
-          aria-label={t.command.button}
+          aria-haspopup="dialog"
           aria-keyshortcuts="Meta+K Control+K"
         >
           <Search size={13} aria-hidden="true" />
@@ -4627,7 +4714,7 @@ export default function App() {
             {/* Split into letters in the markup itself, so the entrance can
                 run in CSS from the first (prerendered) paint. The label keeps
                 it one name for screen readers, as the split-text aria pattern does. */}
-            <span className="name-text" aria-label="Mohamed Fuad">
+            <span className="name-text" role="img" aria-label="Mohamed Fuad">
               {['Mohamed', 'Fuad'].map((word, w) => (
                 <React.Fragment key={word}>
                   {w > 0 && ' '}
@@ -4639,8 +4726,13 @@ export default function App() {
                 </React.Fragment>
               ))}
             </span>
-            <button className={`name-action ${burst ? 'bursting' : ''}`} type="button" onClick={handleNameAction}>
-              <Rocket size={19} fill="currentColor" />
+            <button
+              className={`name-action ${burst ? 'bursting' : ''}`}
+              type="button"
+              onClick={handleNameAction}
+              aria-label={t.a11y.launchRocket}
+            >
+              <Rocket size={19} fill="currentColor" aria-hidden="true" />
               <i />
               <i />
               <i />
@@ -4689,11 +4781,11 @@ export default function App() {
           {t.email}
         </a>
         <i />
-        <a className="square" href="https://github.com/MohamedFuad16" target="_blank" rel="noopener noreferrer">
+        <a className="square" href="https://github.com/MohamedFuad16" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
           <BrandIcon name="github" />
         </a>
-        <a className="square" href={resumeHref} target="_blank" rel="noopener noreferrer">
-          <FileDown size={16} />
+        <a className="square" href={resumeHref} target="_blank" rel="noopener noreferrer" aria-label={t.resume}>
+          <FileDown size={16} aria-hidden="true" />
         </a>
       </nav>
 
@@ -4773,6 +4865,11 @@ export default function App() {
       <SectionTitle>{t.playsTitle}</SectionTitle>
       <section className="dashed plays" id="plays">
         <TinyCourts copy={t.plays} reducedMotion={reducedMotion} />
+      </section>
+
+      <SectionTitle>{t.stickersTitle}</SectionTitle>
+      <section className="dashed stickers" id="stickers">
+        <StickerPack copy={t.stickers} />
       </section>
 
       <section className="dashed contact-card" id="contact">

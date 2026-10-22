@@ -1,7 +1,10 @@
 {
+  "rewrites": [
+    { "source": "/projects/:slug", "destination": "/projects/:slug.html" }
+  ],
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/((?!labs/sticker-pack/).*)",
       "headers": [
         {
           "key": "Content-Security-Policy-Report-Only",
@@ -14,6 +17,27 @@
         {
           "key": "X-Content-Type-Options",
           "value": "nosniff"
+        }
+      ]
+    },
+    {
+      "source": "/labs/sticker-pack/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy-Report-Only",
+          "value": "default-src 'self'; script-src 'self' 'sha256-hgvTtruqG0Ly6iTRdyWhrxyy7qqtQsXbiiu9ROG0pms='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
         }
       ]
     }

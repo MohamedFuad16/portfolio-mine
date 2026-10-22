@@ -51,14 +51,7 @@ Append-only. The newest ADRs are below. ADR-001 to ADR-071 are in `agent/archive
 - ADR-069 Launch videos served from public/ for now (decisions-060-071.md)
 - ADR-070 A "My Toolkit" section for things made for other builders (decisions-060-071.md)
 - ADR-071 Video Bridge on the portfolio, shown from a local test instance (decisions-060-071.md)
-
-## ADR-072: Tiny courts drawn on a low-resolution canvas (2026-10-21)
-
-Context: the owner wanted a section like Dhruv's "Small plays" (isometric sports dioramas with tiny players).
-Decision: draw it live in code, not as a video. One 2D canvas at a low art resolution, scaled up by a whole number of device pixels with nearest-neighbour, so shapes keep a pixel grid. The ground is cached per resize; players, ball and props are depth-sorted each frame (points by x + y, full-width props such as nets by y). Play logic is seeded and per sport. The loop stops when the section is off screen or paused.
-Consequences: no new assets or dependencies, about 1,000 lines in one component. Adding a sport means a new sport object with court, surface, props, setup, tick, carry and hud.
-
-Amendment (2026-10-21): the 2D canvas renderer is replaced. The owner wanted the reference's exact quality, which is a WebGL render with a dither pass. The scene is now three.js (orthographic camera at 30 degrees, one shadow-casting sun, Lambert materials) rendered into a target at art resolution, then quantised per channel with a 4x4 Bayer threshold. Partly transparent pixels are stippled by the same threshold. three.js is a new dependency, loaded in its own chunk only near the section, so the first page load does not grow. The play logic did not change apart from 3D facing (`yaw`), velocities and player separation.
+- ADR-072: Tiny courts drawn on a low-resolution canvas (`agent/archive/decisions-072.md`)
 
 ## ADR-073: Eddy sticker pack built as a standalone lab outside the Vite app (2026-10-22)
 
@@ -74,3 +67,16 @@ Context: the owner wanted visitors to download the explain-classic skill, in Eng
 Decision: keep a public copy in `scripts/explain-skill/{en,ja,shared}`, not the owner's `~/.folio` skill, because the original names local paths, the CCFT architecture notes path, Folio's world internals and the `/lesson` command. `scripts/make-explain-skill.py` zips each language into `public/media/skills/` with fixed timestamps, so the bytes only change when the sources do. The Japanese package translates the docs and the template page, swaps STE for its own plain-Japanese WRITING.md with `ja_lint.py`, and keeps STE.md for English output. The toolkit card picks the zip by locale.
 Consequences: a change to the owner's skill does not reach the download until someone ports it here and rebuilds. The template's worked example still explains CCFT's architecture at a high level.
 
+
+## ADR-074: Sticker pack embedded as a lazy iframe from public/labs (2026-10-22)
+
+Context: the owner wanted the sticker pack on the home page without loading three.js for every visitor. (ADR-073 is used twice; this follows both.)
+Decision: move the lab to `public/labs/sticker-pack/` so Vite copies it into `dist/`, vendor three.js 0.180.0 (the app's version) instead of the CDN, and embed it with an iframe that gets its src only near the viewport. Touch screens load it after a tap, because the lab uses `touch-action: none` and would trap page scrolling. The lab keeps its own CSP header with the importmap hash and `frame-ancestors 'self'`.
+Consequences: the lab's three.js is a second copy (860 KB raw, about 180 KB gzip for the two core files, loaded only with the frame). Any edit to the importmap text needs a new sha256 in `vercel.json`. The section shows only the pack and a full-screen link.
+
+
+## ADR-075: Project pages on real paths, prerendered per project (2026-10-22)
+
+Context: project detail pages lived at `#/project/<slug>`. A hash is never sent to the server, so every project shared one URL, one title and one HTML file for crawlers and link previews.
+Decision: use `/projects/<slug>` (no trailing slash). The build writes `dist/projects/<slug>.html` for the 7 projects, each with its own title, description, canonical, og and twitter tags and JSON-LD, and the server HTML already has the detail overlay open. `vercel.json` rewrites `/projects/:slug` to `/projects/:slug.html`. The client uses `pushState` and `popstate`, and old `#/project/<slug>` links, on load and in place, are rewritten to the path with `replaceState`. Files are `<slug>.html`, not `<slug>/index.html`, because `vite preview` serves the home page for the second form (see `agent/errors.md`). This supersedes the hash-routing part of ADR-026.
+Consequences: a new project needs an entry in the slug list, the sitemap and `llms.txt`. The build fails if a head pattern is missing or if the `index.html` title differs from `HOME_TITLE`. The Vercel rewrite has not run in production yet. Pageviews are now reported as `/projects/<slug>`, so older `/project/<slug>` rows in analytics are a separate path.
