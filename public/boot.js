@@ -13,19 +13,35 @@
     document.head.appendChild(script);
   };
   // Wait for the browser to report first contentful paint, so the request can
-  // never compete with it. A timer covers browsers without paint timing.
+  // never compete with it. The fallback is the load event, not a timer: on a
+  // slow test machine a 1.5 s timer sometimes fired before first paint, and
+  // Lighthouse then counted the whole bundle into FCP and LCP (mobile scores
+  // split between ~87 and ~98). A timer remains only without paint timing.
   var started = false;
   var once = function () {
     if (started) return;
     started = true;
     start();
   };
+  var observed = false;
   try {
     new PerformanceObserver(function (list) {
       if (list.getEntriesByName('first-contentful-paint').length) requestAnimationFrame(once);
     }).observe({ type: 'paint', buffered: true });
+    observed = true;
   } catch (error) {
     /* no paint timing */
   }
-  setTimeout(once, 1500);
+  if (observed) {
+    // Fallback if FCP is never reported: after load, wait for a frame to be
+    // painted (load can come first on a slow CPU). A background tab runs no
+    // frames, so the bundle then starts when the tab is shown.
+    window.addEventListener('load', function () {
+      requestAnimationFrame(function () {
+        setTimeout(once, 0);
+      });
+    });
+  } else {
+    setTimeout(once, 1500);
+  }
 })();
