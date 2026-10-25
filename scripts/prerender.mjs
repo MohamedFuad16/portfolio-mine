@@ -6,6 +6,7 @@
 // downloaded and run: AI crawlers that do not execute JavaScript see nothing,
 // and on a throttled phone the first text paints only after ~3.5s.
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, rmSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -16,7 +17,8 @@ const serverEntry = pathToFileURL(`${root}.ssr/entry-server.mjs`).href;
 
 const { render, projects, HOME_TITLE, projectTitle } = await import(serverEntry);
 const outDir = dirname(htmlPath);
-const template = readFileSync(htmlPath, 'utf8');
+const dateModifiedPattern = /"dateModified": "[^"]*"/;
+let template = readFileSync(htmlPath, 'utf8');
 const empty = '<div id="root"></div>';
 if (!template.includes(empty)) throw new Error(`${htmlPath} has no empty #root to fill`);
 // App.jsx restores the home title after a project closes, so it must match.
@@ -33,6 +35,32 @@ if (!vercelConfig.includes(`'${hash}'`)) {
 }
 
 const SITE = 'https://www.mohamedfuad.com';
+
+// Google wants dateModified as a full ISO 8601 date-time with an offset, and a
+// hand-written date went stale. Use the last commit that changed site content
+// (the daily contribution snapshot does not count), shown in Tokyo time. Falls
+// back to the build time when git history is not available.
+function lastModified() {
+  let when = new Date();
+  try {
+    const iso = execFileSync(
+      'git',
+      ['log', '-1', '--format=%cI', '--', 'index.html', 'src', 'public', ':!public/media/data'],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+    ).trim();
+    if (iso) when = new Date(iso);
+  } catch {}
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Tokyo', hourCycle: 'h23', year: 'numeric', month: '2-digit',
+      day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
+    }).formatToParts(when).map((x) => [x.type, x.value])
+  );
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}+09:00`;
+}
+
+if (!dateModifiedPattern.test(template)) throw new Error('index.html JSON-LD has no dateModified');
+template = template.replace(dateModifiedPattern, `"dateModified": "${lastModified()}"`);
 
 // Turns the client-built template into a finished page: fills #root, then the
 // head transform (home: none) and the steps shared by every page.
