@@ -778,6 +778,30 @@ main {
   border-radius: 4px;
 }
 
+.skill-mark {
+  --drift-y: 3.5px;
+  --drift-dur: 1.5s;
+  --drift-delay: -1s;
+}
+
+/* Icons drift gently, like floating along a pipeline. Pure CSS so it costs
+   no main-thread work (it used to be one infinite GSAP tween per icon). */
+@media (prefers-reduced-motion: no-preference) {
+  .skill-mark {
+    animation: skill-drift var(--drift-dur) ease-in-out var(--drift-delay) infinite alternate;
+  }
+}
+
+@keyframes skill-drift {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(var(--drift-y));
+  }
+}
+
 .skill-mark svg {
   width: 22px;
   height: 22px;
@@ -1199,6 +1223,29 @@ small.red {
 
 .grid .cell.is-active {
   box-shadow: 0 0 0 1.5px #12100e, 0 0 0 3px #f4f2f0;
+}
+
+/* Sparkle-in, started by toggling data-reveal on the grid (see App.jsx).
+   "wait" hides the cells until the grid scrolls in; "go" plays the entrance
+   with a per-cell delay (--cell-delay). Backwards fill only, so nothing
+   stays on the cells afterwards: a lingering transform would make each one
+   a stacking context and let neighbours paint over the hover tooltip. */
+.grid[data-reveal='wait'] .cell {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .grid[data-reveal='go'] .cell {
+    animation: cell-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) var(--cell-delay, 0s) backwards;
+  }
+}
+
+@keyframes cell-in {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
 }
 
 /* Hovering or focusing a month label dims every day outside it. */

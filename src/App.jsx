@@ -2254,11 +2254,50 @@ function Highlight({ name, children }) {
   );
 }
 
+// Give the main thread back so input and paint can run between chunks of work.
+function yieldToMain() {
+  if (typeof scheduler !== 'undefined' && typeof scheduler.yield === 'function') {
+    return scheduler.yield();
+  }
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+// Run decoration after first paint. Returns a cancel function.
+function whenIdle(callback, timeout) {
+  if (typeof window.requestIdleCallback === 'function') {
+    const id = window.requestIdleCallback(callback, { timeout });
+    return () => window.cancelIdleCallback(id);
+  }
+  const id = setTimeout(callback, 200);
+  return () => clearTimeout(id);
+}
+
+// Deterministic 0..1 value from a string and a salt, so the icon drift and the
+// contribution sparkle look the same on the server render and the client.
+function unitHash(text, salt) {
+  let h = 2166136261 ^ salt;
+  for (let i = 0; i < text.length; i++) {
+    h = Math.imul(h ^ text.charCodeAt(i), 16777619);
+  }
+  h ^= h >>> 15;
+  h = Math.imul(h, 2246822519);
+  h ^= h >>> 13;
+  return (h >>> 0) / 4294967296;
+}
+
+function driftStyle(label) {
+  return {
+    '--drift-y': `${(2.5 + unitHash(label, 1) * 2).toFixed(2)}px`,
+    '--drift-dur': `${(1.1 + unitHash(label, 2) * 0.8).toFixed(2)}s`,
+    '--drift-delay': `-${(unitHash(label, 3) * 2).toFixed(2)}s`,
+  };
+}
+
 function SkillPill({ skill, copy }) {
   const Icon = skill.Icon;
   return (
     <li className="skill" aria-hidden={copy || undefined}>
-      <span className="skill-mark">
+      <span className="skill-mark" style={driftStyle(skill.label)}>
         <Icon style={{ color: skill.color }} aria-hidden="true" />
       </span>
       <span>{skill.label}</span>
@@ -4202,11 +4241,11 @@ export default function App({ initialPath = '/' }) {
   }, [photoOpen]);
 
   useGSAP(
-    (context, contextSafe) => {
+    (context) => {
       const mm = gsap.matchMedia();
 
       // Animate only when the visitor hasn't asked for reduced motion.
-      mm.add('(prefers-reduced-motion: no-preference)', () => {
+      mm.add('(prefers-reduced-motion: no-preference)', (matchContext, contextSafe) => {
           const ease = 'power3.out';
 
           // Pass elements, not selectors: the useGSAP context is scoped to
@@ -4229,176 +4268,215 @@ export default function App({ initialPath = '/' }) {
         // (global.css, "Hero entrance"), so they start with the prerendered
         // paint instead of waiting for this bundle.
 
-        // Skill icons drift gently, like icons floating along a pipeline.
-        gsap.utils.toArray('.skill-mark').forEach((el) => {
-          gsap.to(el, {
-            y: gsap.utils.random(2.5, 4.5),
-            duration: gsap.utils.random(1.1, 1.9),
-            ease: 'sine.inOut',
-            yoyo: true,
-            repeat: -1,
-            delay: -gsap.utils.random(0, 2),
-          });
-        });
+        // Everything below is scroll-triggered decoration. Building ~400 tweens
+        // inside the hydration task blocked the main thread for ~440 ms, so it
+        // runs after first paint, in small chunks that yield in between.
+        // (Skill-icon drift and the contribution sparkle are CSS now.)
+        let cancelled = false;
+        const grid = mainRef.current?.querySelector('.contribution .grid');
 
-        // Section headings slide in from the left as they appear.
-        gsap.utils.toArray('.section-title').forEach((el) => {
-          gsap.from(el, {
-            scrollTrigger: { trigger: el, start: 'top 88%' },
-            x: -18,
-            opacity: 0,
-            duration: 0.65,
-            ease,
-          });
-        });
+        // Already on screen when the setup runs: leave it visible instead of
+        // hiding it just to reveal it again (the hero has its own CSS intro).
+        const inView = (el, fraction) =>
+          !!el && el.getBoundingClientRect().top < window.innerHeight * fraction;
+        // gsap.from() hides the target at once, so only use it below the fold.
+        const reveal = (el, fraction, vars) => {
+          if (inView(el, fraction)) return;
+          gsap.from(el, vars);
+        };
 
-        // Generic blocks fade up when scrolled into view.
-        gsap.utils
-          .toArray(['.contribution', '.more-projects-row', '.blog-content', '.plays', '.contact-card'])
-          .forEach((el) => {
-            gsap.from(el, {
-              scrollTrigger: { trigger: el, start: 'top 90%' },
-              y: 28,
+        const chunks = [
+          () => {
+            // Section headings slide in from the left as they appear.
+            gsap.utils.toArray('.section-title').forEach((el) => {
+              reveal(el, 0.88, {
+                scrollTrigger: { trigger: el, start: 'top 88%' },
+                x: -18,
+                opacity: 0,
+                duration: 0.65,
+                ease,
+              });
+            });
+
+            // Generic blocks fade up when scrolled into view.
+            gsap.utils
+              .toArray(['.contribution', '.more-projects-row', '.blog-content', '.plays', '.contact-card'])
+              .forEach((el) => {
+                reveal(el, 0.9, {
+                  scrollTrigger: { trigger: el, start: 'top 90%' },
+                  y: 28,
+                  opacity: 0,
+                  duration: 0.7,
+                  ease,
+                });
+              });
+          },
+          () => {
+            // Timeline: draw the dashed line, raise the rows, pop the nodes.
+            const timeline = mainRef.current?.querySelector('.timeline');
+            if (inView(timeline, 0.8)) return;
+            gsap.from('.timeline .line', {
+              scrollTrigger: { trigger: '.timeline', start: 'top 80%' },
+              scaleY: 0,
+              transformOrigin: 'top center',
+              duration: 0.9,
+              ease: 'power2.inOut',
+            });
+            gsap.from('.timeline .experience-item', {
+              scrollTrigger: { trigger: '.timeline', start: 'top 80%' },
+              y: 24,
+              opacity: 0,
+              duration: 0.6,
+              stagger: 0.15,
+              ease,
+            });
+            gsap.from('.timeline .dot', {
+              scrollTrigger: { trigger: '.timeline', start: 'top 80%' },
+              scale: 0,
+              duration: 0.5,
+              delay: 0.3,
+              stagger: 0.15,
+              ease: 'back.out(2.4)',
+            });
+          },
+          // Projects: each card reveals on its own, tags cascade in,
+          // and the screenshot drifts (parallax) while the page scrolls past.
+          // One chunk per card so no single task grows large.
+          ...gsap.utils.toArray('.projects .project').map((card) => () => {
+            reveal(card, 0.86, {
+              scrollTrigger: { trigger: card, start: 'top 86%' },
+              y: 36,
+              opacity: 0,
+              scale: 0.985,
+              duration: 0.7,
+              ease,
+            });
+            if (!inView(card, 0.8)) {
+              gsap.from(card.querySelectorAll('.tags span'), {
+                scrollTrigger: { trigger: card, start: 'top 80%' },
+                y: 10,
+                opacity: 0,
+                duration: 0.4,
+                stagger: 0.05,
+                ease,
+              });
+            }
+            const shot = card.querySelector('.project-shot img');
+            if (shot) {
+              gsap.fromTo(
+                shot,
+                { yPercent: -5, scale: 1.12 },
+                {
+                  yPercent: 5,
+                  scale: 1.12,
+                  ease: 'none',
+                  scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true },
+                }
+              );
+            }
+          }),
+          () => {
+            // Contribution grid sparkles in cell by cell. The motion itself is
+            // a CSS animation (global.css, "cell-in"); the scroll trigger only
+            // flips data-reveal from "wait" (cells hidden) to "go" (play).
+            if (!grid || inView(grid.closest('.contribution'), 0.78)) return;
+            grid.dataset.reveal = 'wait';
+            ScrollTrigger.create({
+              trigger: '.contribution',
+              start: 'top 78%',
+              once: true,
+              onEnter: () => {
+                // Delays are set here, not in the markup, so the 365 values
+                // don't add weight to the prerendered HTML. Writes only, no reads.
+                grid.querySelectorAll('.cell').forEach((cell, index) => {
+                  cell.style.setProperty('--cell-delay', `${(unitHash(String(index), 7) * 1.8).toFixed(3)}s`);
+                });
+                grid.dataset.reveal = 'go';
+              },
+            });
+          },
+          () => {
+            // Signature: the Spell UI timing. Each glyph traces for 1.5s with
+            // easeInOut, starting 0.2s after the previous one, once, on enter.
+            const signatureTimeline = gsap.timeline({
+              paused: true,
+              defaults: { duration: 1.5, ease: 'power1.inOut' },
+            });
+            // Hidden until its turn, like Spell's opacity step: a round cap on a
+            // zero-length dash would otherwise leave a dot at every glyph start.
+            ['.signature .sig-outline', '.signature .sig-reveal'].forEach((selector) => {
+              gsap.utils.toArray(selector).forEach((path, index) => {
+                signatureTimeline
+                  .set(path, { opacity: 1 }, index * 0.2)
+                  .fromTo(path, { drawSVG: 0 }, { drawSVG: '100%', immediateRender: true }, index * 0.2);
+              });
+            });
+            gsap.set('.signature .sig-outline, .signature .sig-reveal', { opacity: 0 });
+            ScrollTrigger.create({
+              trigger: '.signature-wrap',
+              start: 'top 88%',
+              once: true,
+              onEnter: () => signatureTimeline.play(),
+            });
+          },
+          () => {
+            // Waveform divider grows outward, then keeps breathing like a
+            // quiet equalizer.
+            gsap.from('.wave-divider .wave-bars i', {
+              scrollTrigger: { trigger: '.wave-divider', start: 'top 94%' },
+              scaleY: 0.1,
+              opacity: 0,
+              duration: 0.6,
+              ease: 'back.out(1.8)',
+              stagger: { each: 0.03, from: 'center' },
+              onComplete: () => {
+                gsap.utils.toArray('.wave-bars i').forEach((bar) => {
+                  gsap.to(bar, {
+                    scaleY: 'random(0.3, 1)',
+                    duration: 'random(0.5, 1.1)',
+                    ease: 'sine.inOut',
+                    yoyo: true,
+                    repeat: -1,
+                    repeatRefresh: true,
+                  });
+                });
+              },
+            });
+
+            // Footer sits at the very bottom, so use a start it can always reach.
+            reveal(mainRef.current?.querySelector('footer'), 1, {
+              scrollTrigger: { trigger: 'footer', start: 'top bottom-=40' },
+              y: 22,
               opacity: 0,
               duration: 0.7,
               ease,
             });
-          });
 
-        // Timeline: draw the dashed line, raise the rows, pop the nodes.
-        gsap.from('.timeline .line', {
-          scrollTrigger: { trigger: '.timeline', start: 'top 80%' },
-          scaleY: 0,
-          transformOrigin: 'top center',
-          duration: 0.9,
-          ease: 'power2.inOut',
-        });
-        gsap.from('.timeline .experience-item', {
-          scrollTrigger: { trigger: '.timeline', start: 'top 80%' },
-          y: 24,
-          opacity: 0,
-          duration: 0.6,
-          stagger: 0.15,
-          ease,
-        });
-        gsap.from('.timeline .dot', {
-          scrollTrigger: { trigger: '.timeline', start: 'top 80%' },
-          scale: 0,
-          duration: 0.5,
-          delay: 0.3,
-          stagger: 0.15,
-          ease: 'back.out(2.4)',
-        });
-
-        // Projects: each card reveals on its own, tags cascade in,
-        // and the screenshot drifts (parallax) while the page scrolls past.
-        gsap.utils.toArray('.projects .project').forEach((card) => {
-          gsap.from(card, {
-            scrollTrigger: { trigger: card, start: 'top 86%' },
-            y: 36,
-            opacity: 0,
-            scale: 0.985,
-            duration: 0.7,
-            ease,
-          });
-          gsap.from(card.querySelectorAll('.tags span'), {
-            scrollTrigger: { trigger: card, start: 'top 80%' },
-            y: 10,
-            opacity: 0,
-            duration: 0.4,
-            stagger: 0.05,
-            ease,
-          });
-          const shot = card.querySelector('.project-shot img');
-          if (shot) {
-            gsap.fromTo(
-              shot,
-              { yPercent: -5, scale: 1.12 },
-              {
-                yPercent: 5,
-                scale: 1.12,
-                ease: 'none',
-                scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true },
-              }
-            );
-          }
-        });
-
-        // Contribution grid sparkles in cell by cell.
-        gsap.from('.contribution .grid .cell', {
-          scrollTrigger: { trigger: '.contribution', start: 'top 78%' },
-          scale: 0.3,
-          opacity: 0,
-          duration: 0.5,
-          ease,
-          stagger: { each: 0.005, from: 'random' },
-          // A leftover `transform: translate(0, 0)` makes every cell its own
-          // stacking context, which is how neighbouring cells used to paint
-          // over the hover tooltip. Leave nothing inline once each cell lands.
-          clearProps: 'transform,translate,rotate,scale,opacity',
-        });
-
-        // Signature: the Spell UI timing. Each glyph traces for 1.5s with
-        // easeInOut, starting 0.2s after the previous one, once, on enter.
-        const signatureTimeline = gsap.timeline({
-          paused: true,
-          defaults: { duration: 1.5, ease: 'power1.inOut' },
-        });
-        // Hidden until its turn, like Spell's opacity step: a round cap on a
-        // zero-length dash would otherwise leave a dot at every glyph start.
-        ['.signature .sig-outline', '.signature .sig-reveal'].forEach((selector) => {
-          gsap.utils.toArray(selector).forEach((path, index) => {
-            signatureTimeline
-              .set(path, { opacity: 1 }, index * 0.2)
-              .fromTo(path, { drawSVG: 0 }, { drawSVG: '100%', immediateRender: true }, index * 0.2);
-          });
-        });
-        gsap.set('.signature .sig-outline, .signature .sig-reveal', { opacity: 0 });
-        ScrollTrigger.create({
-          trigger: '.signature-wrap',
-          start: 'top 88%',
-          once: true,
-          onEnter: () => signatureTimeline.play(),
-        });
-
-        // Waveform divider grows outward, then keeps breathing like a
-        // quiet equalizer.
-        gsap.from('.wave-divider .wave-bars i', {
-          scrollTrigger: { trigger: '.wave-divider', start: 'top 94%' },
-          scaleY: 0.1,
-          opacity: 0,
-          duration: 0.6,
-          ease: 'back.out(1.8)',
-          stagger: { each: 0.03, from: 'center' },
-          onComplete: () => {
-            gsap.utils.toArray('.wave-bars i').forEach((bar) => {
-              gsap.to(bar, {
-                scaleY: 'random(0.3, 1)',
-                duration: 'random(0.5, 1.1)',
-                ease: 'sine.inOut',
-                yoyo: true,
-                repeat: -1,
-                repeatRefresh: true,
-              });
+            // Daijin lives in the contact card now and waves when it scrolls in.
+            ScrollTrigger.create({
+              trigger: '.contact-card',
+              start: 'top 80%',
+              onEnter: () => setDaijinWave((count) => count + 1),
             });
           },
-        });
+        ];
 
-        // Footer sits at the very bottom, so use a start it can always reach.
-        gsap.from('footer', {
-          scrollTrigger: { trigger: 'footer', start: 'top bottom-=40' },
-          y: 22,
-          opacity: 0,
-          duration: 0.7,
-          ease,
+        // Tweens made after this callback returns are not recorded by the
+        // matchMedia context on their own, so every chunk runs through
+        // contextSafe: cleanup and the reduced-motion toggle still revert them.
+        const runChunk = contextSafe((chunk) => {
+          if (!cancelled) chunk();
         });
-
-        // Daijin lives in the contact card now and waves when it scrolls in.
-        ScrollTrigger.create({
-          trigger: '.contact-card',
-          start: 'top 80%',
-          onEnter: () => setDaijinWave((count) => count + 1),
-        });
+        const runAll = async () => {
+          for (const chunk of chunks) {
+            if (cancelled) return;
+            runChunk(chunk);
+            await yieldToMain();
+          }
+        };
+        const cancelIdle = whenIdle(() => {
+          runAll();
+        }, 1500);
 
         // Smooth-scroll the hero's "#projects" link instead of jumping.
         const buildingLink = mainRef.current?.querySelector('.building');
@@ -4417,6 +4495,9 @@ export default function App({ initialPath = '/' }) {
         window.addEventListener('load', onLoad);
 
         return () => {
+          cancelled = true;
+          cancelIdle();
+          if (grid) delete grid.dataset.reveal;
           buildingLink?.removeEventListener('click', smoothScroll);
           window.removeEventListener('load', onLoad);
         };
