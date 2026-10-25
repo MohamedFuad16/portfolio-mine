@@ -1,12 +1,66 @@
 /* Arial-class fallback scaled to Figtree's width and line box, so the swap to
    the web font does not reflow the intro paragraph (Lighthouse mobile CLS was
-   0.175 from that swap). Numbers measured against the intro copy at 100px. */
+   0.175 from that swap). Figtree's hhea metrics are 0.95 / 0.25 / 0, so the
+   overrides are those divided by size-adjust. Arial spaces are 14% wider than
+   Figtree's while its letters are about 1% narrower, so no single scale makes
+   every line break match. 100% was picked by sweeping size-adjust against
+   the real swap at 360-1440px wide: it keeps the intro height within 1px at
+   412, 402, 414, 430 and 360/375, where the old 101.2% did not at 412. */
 @font-face {
   font-family: 'Figtree Fallback';
   src: local('Arial'), local('Helvetica'), local('Liberation Sans'), local('Arimo');
-  size-adjust: 101.2%;
-  ascent-override: 93.9%;
-  descent-override: 24.7%;
+  size-adjust: 100%;
+  ascent-override: 95%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+}
+
+/* Same idea for the other two web fonts, which also load after first paint.
+   Numbers come from the woff2 files in node_modules (fontTools). Each override
+   is the web font's hhea metric divided by size-adjust, because size-adjust
+   scales the overrides as well. One face per local font family with the same
+   metrics; a face whose local() sources are all missing is skipped.
+
+   Instrument Serif (hero name, section titles): width ratio of "Mohamed Fuad"
+   to Times New Roman is 0.848, so size-adjust 84.8%. Times New Roman,
+   Liberation Serif and Tinos share metrics. Hhea 0.99 / 0.31 / 0. */
+@font-face {
+  font-family: 'Instrument Serif Fallback';
+  src: local('Times New Roman'), local('TimesNewRomanPSMT'), local('Liberation Serif'), local('Tinos');
+  size-adjust: 84.8%;
+  ascent-override: 116.7%;
+  descent-override: 36.6%;
+  line-gap-override: 0%;
+}
+
+/* JetBrains Mono (hero meta line, OR, kbd hints): advance 0.6em, hhea
+   1.02 / 0.30 / 0. Menlo advances 0.602em, so size-adjust 99.7%. */
+@font-face {
+  font-family: 'JetBrains Mono Fallback';
+  src: local('Menlo-Regular'), local('Menlo');
+  size-adjust: 99.7%;
+  ascent-override: 102.3%;
+  descent-override: 30.1%;
+  line-gap-override: 0%;
+}
+
+/* Courier New, Liberation Mono and Cousine also advance 0.6em. */
+@font-face {
+  font-family: 'JetBrains Mono Fallback Courier';
+  src: local('Courier New'), local('CourierNewPSMT'), local('Liberation Mono'), local('Cousine');
+  size-adjust: 100%;
+  ascent-override: 102%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+
+/* Consolas advances 0.5498em (1126 / 2048), so size-adjust 109.1%. */
+@font-face {
+  font-family: 'JetBrains Mono Fallback Consolas';
+  src: local('Consolas');
+  size-adjust: 109.1%;
+  ascent-override: 93.5%;
+  descent-override: 27.5%;
   line-gap-override: 0%;
 }
 
@@ -399,7 +453,7 @@ main {
 }
 
 .meta {
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
   color: #ada8a3;
 }
 
@@ -667,7 +721,7 @@ main {
 
 .actions span {
   color: #b7c9d9;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
   font-size: 12px;
 }
 
@@ -696,7 +750,7 @@ main {
   align-items: baseline;
   margin: 18px 0 16px;
   color: #f2ede8;
-  font-family: 'Instrument Serif', 'Times New Roman', serif;
+  font-family: 'Instrument Serif', 'Instrument Serif Fallback', 'Times New Roman', serif;
   font-size: 32px;
   font-weight: 400;
   line-height: 1.05;
@@ -707,7 +761,7 @@ main {
 .section-title::before {
   content: counter(section, decimal-leading-zero);
   color: #f1824b;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
   font-size: 12px;
   letter-spacing: 0.04em;
   transform: translateY(-4px);
@@ -1886,7 +1940,7 @@ html[data-prerender-route='project'] .project-detail {
   display: block;
   margin-bottom: 6px;
   color: #f4f1ee;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
   font-size: 26px;
   font-weight: 600;
   line-height: 1;
@@ -1951,7 +2005,7 @@ html[data-prerender-route='project'] .project-detail {
 .pd-bench-value {
   grid-area: value;
   color: #dfd8d1;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
@@ -2679,7 +2733,7 @@ html[data-prerender-route='project'] .project-detail {
 
 .command-trigger kbd,
 .command-menu kbd {
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
   font-size: 10.5px;
   line-height: 1;
 }
@@ -2851,7 +2905,7 @@ html[data-prerender-route='project'] .project-detail {
 }
 
 .command-group span {
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
   font-weight: 500;
   color: #6f6862;
 }
@@ -3120,7 +3174,7 @@ html[data-prerender-route='project'] .project-detail {
 
 /* ---- Redesign prototype: serif name, rolling role, mosaic portrait, silk band ---- */
 .name-text {
-  font-family: 'Instrument Serif', 'Times New Roman', serif;
+  font-family: 'Instrument Serif', 'Instrument Serif Fallback', 'Times New Roman', serif;
   font-weight: 400;
   font-size: 1.28em;
   letter-spacing: -0.01em;
@@ -3212,7 +3266,7 @@ html[data-prerender-route='project'] .project-detail {
   display: block;
   margin: 0 0 12px;
   color: #f7f2ec;
-  font-family: 'Instrument Serif', 'Times New Roman', serif;
+  font-family: 'Instrument Serif', 'Instrument Serif Fallback', 'Times New Roman', serif;
   font-size: clamp(44px, 7vw, 72px);
   font-weight: 400;
   line-height: 0.98;
@@ -3421,7 +3475,7 @@ html[data-prerender-route='project'] .project-detail {
 .pd-gallery-caption span {
   flex: none;
   color: #867d76;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
   font-size: 11.5px;
 }
 
@@ -3503,7 +3557,7 @@ html[data-prerender-route='project'] .project-detail {
   align-items: center;
   margin: 0 0 20px;
   color: var(--pd-text);
-  font-family: 'Instrument Serif', 'Times New Roman', serif;
+  font-family: 'Instrument Serif', 'Instrument Serif Fallback', 'Times New Roman', serif;
   font-size: clamp(30px, 4vw, 38px);
   font-weight: 400;
   line-height: 1;
@@ -3560,7 +3614,7 @@ html[data-prerender-route='project'] .project-detail {
 
 .pd-kpis strong {
   color: inherit;
-  font-family: 'Instrument Serif', 'Times New Roman', serif;
+  font-family: 'Instrument Serif', 'Instrument Serif Fallback', 'Times New Roman', serif;
   font-size: clamp(54px, 6.4vw, 70px);
   font-weight: 400;
   line-height: 0.9;

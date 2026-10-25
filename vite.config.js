@@ -40,7 +40,12 @@ function mockVisitsApi() {
  * this the browser only discovers the font after the bundle runs, and the swap
  * from the fallback re-wraps the intro paragraph (a 0.13 layout shift in
  * Lighthouse mobile). The file name is hashed, so it is read from the bundle.
+ * The hero name's Instrument Serif (21 KB) is preloaded too, so the name does
+ * not visibly swap. JetBrains Mono (40 KB) is not: its fallback is size-matched
+ * and the text it sets is small.
  */
+const PRELOADED_FONTS = [/figtree-latin-wght-normal-[^/]+\.woff2$/, /instrument-serif-latin-400-normal-[^/]+\.woff2$/];
+
 function preloadBodyFont() {
   return {
     name: 'preload-body-font',
@@ -48,9 +53,10 @@ function preloadBodyFont() {
     transformIndexHtml: {
       order: 'post',
       handler(html, ctx) {
-        const font = Object.keys(ctx.bundle || {}).find((file) => /figtree-latin-wght-normal-[^/]+\.woff2$/.test(file));
-        if (!font) return html;
-        return [{ tag: 'link', attrs: { rel: 'preload', href: `/${font}`, as: 'font', type: 'font/woff2', crossorigin: '' }, injectTo: 'head-prepend' }];
+        const files = Object.keys(ctx.bundle || {});
+        return PRELOADED_FONTS.map((pattern) => files.find((file) => pattern.test(file)))
+          .filter(Boolean)
+          .map((font) => ({ tag: 'link', attrs: { rel: 'preload', href: `/${font}`, as: 'font', type: 'font/woff2', crossorigin: '' }, injectTo: 'head-prepend' }));
       },
     },
   };
