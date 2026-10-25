@@ -453,7 +453,7 @@ main {
 }
 
 .meta {
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', monospace;
   color: #ada8a3;
 }
 
@@ -721,7 +721,7 @@ main {
 
 .actions span {
   color: #b7c9d9;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', monospace;
   font-size: 12px;
 }
 
@@ -761,7 +761,7 @@ main {
 .section-title::before {
   content: counter(section, decimal-leading-zero);
   color: #f1824b;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', monospace;
   font-size: 12px;
   letter-spacing: 0.04em;
   transform: translateY(-4px);
@@ -1940,7 +1940,7 @@ html[data-prerender-route='project'] .project-detail {
   display: block;
   margin-bottom: 6px;
   color: #f4f1ee;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', monospace;
   font-size: 26px;
   font-weight: 600;
   line-height: 1;
@@ -2005,7 +2005,7 @@ html[data-prerender-route='project'] .project-detail {
 .pd-bench-value {
   grid-area: value;
   color: #dfd8d1;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', monospace;
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
@@ -2733,7 +2733,7 @@ html[data-prerender-route='project'] .project-detail {
 
 .command-trigger kbd,
 .command-menu kbd {
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', monospace;
   font-size: 10.5px;
   line-height: 1;
 }
@@ -2905,7 +2905,7 @@ html[data-prerender-route='project'] .project-detail {
 }
 
 .command-group span {
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', monospace;
   font-weight: 500;
   color: #6f6862;
 }
@@ -3475,7 +3475,7 @@ html[data-prerender-route='project'] .project-detail {
 .pd-gallery-caption span {
   flex: none;
   color: #867d76;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Courier', 'JetBrains Mono Fallback Consolas', monospace;
   font-size: 11.5px;
 }
 
@@ -3577,7 +3577,7 @@ html[data-prerender-route='project'] .project-detail {
 .pd-h3 {
   margin: 0 0 12px;
   color: var(--pd-muted);
-  font: 500 11px/1.2 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font: 500 11px/1.2 'JetBrains Mono', monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -3624,7 +3624,7 @@ html[data-prerender-route='project'] .project-detail {
 
 .pd-kpis span {
   color: inherit;
-  font: 500 11.5px/1.4 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font: 500 11.5px/1.4 'JetBrains Mono', monospace;
   letter-spacing: 0.02em;
 }
 
@@ -3711,7 +3711,7 @@ html[data-prerender-route='project'] .project-detail {
 .pd-glance dt {
   margin-bottom: 8px;
   color: var(--pd-muted);
-  font: 500 10.5px/1.2 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font: 500 10.5px/1.2 'JetBrains Mono', monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -3789,7 +3789,7 @@ html[data-prerender-route='project'] .project-detail {
   border-radius: 50%;
   background: var(--tone);
   color: var(--tone-ink);
-  font: 600 11px/1 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font: 600 11px/1 'JetBrains Mono', monospace;
 }
 
 .pd-features h3 {
@@ -3842,7 +3842,7 @@ html[data-prerender-route='project'] .project-detail {
 .pd-map-number {
   display: block;
   margin-bottom: 8px;
-  font: 600 11px/1 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font: 600 11px/1 'JetBrains Mono', monospace;
   letter-spacing: 0.06em;
 }
 
@@ -4395,7 +4395,7 @@ html[data-prerender-route='project'] .project-detail {
   align-items: center;
   justify-content: space-between;
   color: #cfc8c1;
-  font: 600 10.5px/1 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  font: 600 10.5px/1 'JetBrains Mono', monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   pointer-events: none;

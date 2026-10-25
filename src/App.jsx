@@ -77,7 +77,10 @@ import {
 // Self-hosted fonts (fontsource): no third-party request blocking first paint,
 // and unicode-range means only the subsets a page uses are downloaded.
 import '@fontsource-variable/figtree';
-import '@fontsource-variable/jetbrains-mono';
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '@fontsource/jetbrains-mono/latin-500.css';
+import '@fontsource/jetbrains-mono/latin-600.css';
+import '@fontsource/jetbrains-mono/latin-700.css';
 import '@fontsource/instrument-serif/400.css';
 import './styles/global.css';
 import './styles/theme-light.css';
@@ -152,19 +155,20 @@ const skillRows = [
   skills.slice(8).concat(skills.slice(0, 1)),
 ];
 
-// Pinned, not `@latest`: an unpinned CDN tag silently re-points at whatever the
-// upstream project ships next, so an icon can be renamed or restyled without a
-// commit here. Each URL below was verified to resolve at this version.
-const DEVICON = 'https://cdn.jsdelivr.net/gh/devicons/devicon@v2.17.0/icons';
-const SIMPLE_ICONS = 'https://cdn.jsdelivr.net/npm/simple-icons@16.27.1/icons';
+// Self-hosted copies of devicon v2.17.0 and simple-icons v16.27.1, so the first
+// screen does not wait on a third-party origin (DNS + TLS) for its inline logos.
+// The simple-icons folder name is load-bearing: the theme CSS matches
+// img[src*='simple-icons'] to recolor that logo.
+const DEVICON = '/media/icons/devicon';
+const SIMPLE_ICONS = '/media/icons/simple-icons';
 
 const highlightLogos = {
-  React: `${DEVICON}/react/react-original.svg`,
-  TypeScript: `${DEVICON}/typescript/typescript-original.svg`,
-  Python: `${DEVICON}/python/python-original.svg`,
-  Swift: `${DEVICON}/swift/swift-original.svg`,
-  Node: `${DEVICON}/nodejs/nodejs-original.svg`,
-  AWS: `${DEVICON}/amazonwebservices/amazonwebservices-original-wordmark.svg`,
+  React: `${DEVICON}/react-original.svg`,
+  TypeScript: `${DEVICON}/typescript-original.svg`,
+  Python: `${DEVICON}/python-original.svg`,
+  Swift: `${DEVICON}/swift-original.svg`,
+  Node: `${DEVICON}/nodejs-original.svg`,
+  AWS: `${DEVICON}/amazonwebservices-original-wordmark.svg`,
   MCP: `${SIMPLE_ICONS}/modelcontextprotocol.svg`,
 };
 
