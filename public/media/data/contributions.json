@@ -1,7 +1,7 @@
 {
   "user": "MohamedFuad16",
   "source": "github-graphql",
-  "generatedAt": "2026-10-31T09:35:38.301Z",
+  "generatedAt": "2026-10-31T19:16:36.853Z",
   "total": 861,
   "cells": [
     {
@@ -1834,7 +1834,7 @@
     "portfolio-mine": "https://github.com/MohamedFuad16/portfolio-mine",
     "ClaudeShot": "https://github.com/MohamedFuad16/ClaudeShot",
     "cc-fleet": "https://github.com/ethanhq/cc-fleet",
-    "jearny": "https://github.com/snowykr/jearny",
+    "tabi-quest": "https://github.com/snowykr/tabi-quest",
     "folio-os-releases": "https://github.com/MohamedFuad16/folio-os-releases",
     "ledger-financial-report-system": "https://github.com/MohamedFuad16/ledger-financial-report-system"
   },
@@ -2291,7 +2291,7 @@
     ],
     "2026-10-31": [
       [
-        "jearny",
+        "tabi-quest",
         99
       ]
     ]
